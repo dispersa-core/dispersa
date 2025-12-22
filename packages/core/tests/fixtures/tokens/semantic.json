@@ -1,0 +1,58 @@
+{
+  "semantic": {
+    "color": {
+      "text": {
+        "primary": {
+          "$type": "color",
+          "$value": "{color.base.text}",
+          "$description": "Primary text color - aliases to base"
+        },
+        "secondary": {
+          "$type": "color",
+          "$value": "{color.primitive.gray.600}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{color.primitive.gray.400}"
+        }
+      },
+      "background": {
+        "primary": {
+          "$type": "color",
+          "$value": "{color.base.background}"
+        },
+        "secondary": {
+          "$type": "color",
+          "$value": "{color.primitive.gray.100}"
+        }
+      },
+      "action": {
+        "primary": {
+          "$type": "color",
+          "$value": "{color.base.primary}",
+          "$description": "Deep alias chain"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.primitive.brand.indigo}"
+        }
+      }
+    },
+    "spacing": {
+      "component": {
+        "padding": {
+          "$type": "dimension",
+          "$value": "{spacing.semantic.md}"
+        },
+        "margin": {
+          "$type": "dimension",
+          "$value": "{spacing.semantic.lg}"
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": "{spacing.semantic.sm}"
+        }
+      }
+    }
+  }
+}

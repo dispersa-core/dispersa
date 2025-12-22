@@ -1,0 +1,18 @@
+{
+  "stroke": {
+    "dashed": {
+      "$type": "strokeStyle",
+      "$value": "dashed"
+    },
+    "custom": {
+      "$type": "strokeStyle",
+      "$value": {
+        "dashArray": [
+          { "value": 6, "unit": "px" },
+          { "value": 3, "unit": "px" }
+        ],
+        "lineCap": "square"
+      }
+    }
+  }
+}

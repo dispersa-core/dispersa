@@ -1,0 +1,140 @@
+{
+  "color": {
+    "primitive": {
+      "red": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1, 0, 0]
+        },
+        "$description": "Pure red in DTCG format"
+      },
+      "green": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 1, 0]
+        },
+        "$description": "Pure green in DTCG format"
+      },
+      "blue": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [240, 1, 0.5]
+        },
+        "$description": "Pure blue in HSL format"
+      },
+      "gray": {
+        "50": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.976, 0.98, 0.984]
+          }
+        },
+        "100": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.953, 0.957, 0.965]
+          }
+        },
+        "200": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.898, 0.906, 0.922]
+          }
+        },
+        "300": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.82, 0.835, 0.859]
+          }
+        },
+        "400": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.612, 0.639, 0.686]
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.42, 0.447, 0.502]
+          }
+        },
+        "600": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.294, 0.333, 0.388]
+          }
+        },
+        "700": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.216, 0.255, 0.318]
+          }
+        },
+        "800": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.122, 0.161, 0.216]
+          }
+        },
+        "900": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.067, 0.094, 0.153]
+          }
+        }
+      },
+      "brand": {
+        "blue": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0, 0.482, 1]
+          }
+        },
+        "indigo": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.4, 0.063, 0.949]
+          }
+        },
+        "purple": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0.435, 0.259, 0.757]
+          }
+        }
+      }
+    },
+    "base": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.primitive.gray.50}",
+        "$description": "Base background color using alias"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.primitive.gray.900}"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "{color.primitive.brand.blue}"
+      }
+    }
+  }
+}

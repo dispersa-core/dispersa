@@ -1,0 +1,54 @@
+{
+  "animation": {
+    "duration": {
+      "instant": {
+        "$type": "duration",
+        "$value": { "value": 0, "unit": "ms" }
+      },
+      "fast": {
+        "$type": "duration",
+        "$value": { "value": 150, "unit": "ms" }
+      },
+      "normal": {
+        "$type": "duration",
+        "$value": { "value": 300, "unit": "ms" }
+      },
+      "slow": {
+        "$type": "duration",
+        "$value": { "value": 500, "unit": "ms" }
+      }
+    },
+    "easing": {
+      "linear": {
+        "$type": "cubicBezier",
+        "$value": [0, 0, 1, 1]
+      },
+      "ease-in": {
+        "$type": "cubicBezier",
+        "$value": [0.42, 0, 1, 1]
+      },
+      "ease-out": {
+        "$type": "cubicBezier",
+        "$value": [0, 0, 0.58, 1]
+      },
+      "ease-in-out": {
+        "$type": "cubicBezier",
+        "$value": [0.42, 0, 0.58, 1]
+      }
+    }
+  },
+  "opacity": {
+    "transparent": {
+      "$type": "number",
+      "$value": 0
+    },
+    "semi-transparent": {
+      "$type": "number",
+      "$value": 0.5
+    },
+    "opaque": {
+      "$type": "number",
+      "$value": 1
+    }
+  }
+}

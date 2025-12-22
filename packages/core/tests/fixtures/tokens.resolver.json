@@ -1,0 +1,47 @@
+{
+  "name": "Test Token Set",
+  "version": "2025.10",
+  "description": "Comprehensive test fixture demonstrating all DTCG features",
+  "sets": {
+    "base": {
+      "description": "Base token set with primitives and fundamentals",
+      "sources": [
+        { "$ref": "tokens/colors.json" },
+        { "$ref": "tokens/dimensions.json" },
+        { "$ref": "tokens/typography.json" },
+        { "$ref": "tokens/spacing.json" },
+        { "$ref": "tokens/shadows.json" },
+        { "$ref": "tokens/effects.json" }
+      ]
+    },
+    "semantic": {
+      "description": "Semantic tokens that reference base tokens",
+      "sources": [{ "$ref": "tokens/semantic.json" }]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Color theme variations",
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "tokens/theme-light.json" }],
+        "dark": [{ "$ref": "tokens/theme-dark.json" }]
+      }
+    },
+    "scale": {
+      "description": "Responsive scale for different viewports",
+      "default": "tablet",
+      "contexts": {
+        "mobile": [{ "$ref": "tokens/scale-mobile.json" }],
+        "tablet": [],
+        "desktop": [{ "$ref": "tokens/scale-desktop.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/base" },
+    { "$ref": "#/modifiers/scale" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/sets/semantic" }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "typography": {
+    "heading": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": ["Inter", "sans-serif"],
+        "fontSize": { "value": 32, "unit": "px" },
+        "fontWeight": 700,
+        "letterSpacing": { "value": 0, "unit": "px" },
+        "lineHeight": 1.2
+      }
+    }
+  },
+  "font": {
+    "family": {
+      "sans": {
+        "$type": "fontFamily",
+        "$value": ["Inter", "system-ui", "sans-serif"],
+        "$description": "Sans-serif font stack"
+      },
+      "serif": {
+        "$type": "fontFamily",
+        "$value": ["Merriweather", "Georgia", "serif"]
+      },
+      "mono": {
+        "$type": "fontFamily",
+        "$value": "Monaco, monospace",
+        "$description": "Monospace font as string"
+      }
+    },
+    "weight": {
+      "light": {
+        "$type": "fontWeight",
+        "$value": 300
+      },
+      "normal": {
+        "$type": "fontWeight",
+        "$value": "normal",
+        "$description": "Named font weight"
+      },
+      "medium": {
+        "$type": "fontWeight",
+        "$value": 500
+      },
+      "semibold": {
+        "$type": "fontWeight",
+        "$value": "semi-bold"
+      },
+      "bold": {
+        "$type": "fontWeight",
+        "$value": 700
+      }
+    },
+    "size": {
+      "xs": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.75,
+          "unit": "rem"
+        }
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.875,
+          "unit": "rem"
+        }
+      },
+      "base": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "rem"
+        }
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.125,
+          "unit": "rem"
+        }
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.25,
+          "unit": "rem"
+        }
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.5,
+          "unit": "rem"
+        }
+      },
+      "3xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.875,
+          "unit": "rem"
+        }
+      }
+    },
+    "lineHeight": {
+      "tight": {
+        "$type": "number",
+        "$value": 1.25
+      },
+      "normal": {
+        "$type": "number",
+        "$value": 1.5
+      },
+      "relaxed": {
+        "$type": "number",
+        "$value": 1.75
+      }
+    },
+    "letterSpacing": {
+      "tight": {
+        "$type": "dimension",
+        "$value": {
+          "value": -0.05,
+          "unit": "rem"
+        }
+      },
+      "normal": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0,
+          "unit": "rem"
+        }
+      },
+      "wide": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.05,
+          "unit": "rem"
+        }
+      }
+    }
+  }
+}

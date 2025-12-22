@@ -1,0 +1,32 @@
+{
+  "color": {
+    "primary": {
+      "$type": "color",
+      "$value": { "colorSpace": "srgb", "components": [0.2, 0.4, 0.6] }
+    }
+  },
+  "border": {
+    "heavy": {
+      "$type": "border",
+      "$value": {
+        "color": { "colorSpace": "srgb", "components": [0, 0, 0] },
+        "width": { "value": 2, "unit": "px" },
+        "style": "solid"
+      }
+    },
+    "focus": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.primary}",
+        "width": { "value": 1, "unit": "px" },
+        "style": {
+          "dashArray": [
+            { "value": 4, "unit": "px" },
+            { "value": 2, "unit": "px" }
+          ],
+          "lineCap": "round"
+        }
+      }
+    }
+  }
+}
