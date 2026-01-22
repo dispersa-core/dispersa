@@ -1,0 +1,25 @@
+{
+  "$description": "Card component tokens",
+  "card": {
+    "background": {
+      "$type": "color",
+      "$value": "{color.alias.surface}",
+      "$description": "Card background color"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{color.alias.border}",
+      "$description": "Card border color"
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.alias.large}",
+      "$description": "Card internal padding"
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.md}",
+      "$description": "Card elevation shadow (medium)"
+    }
+  }
+}

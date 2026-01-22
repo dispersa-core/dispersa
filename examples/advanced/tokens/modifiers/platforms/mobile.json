@@ -1,0 +1,48 @@
+{
+  "$description": "Mobile platform overrides - optimized for touch targets",
+  "$extensions": {
+    "com.example.platform": "mobile"
+  },
+  "spacing": {
+    "alias": {
+      "small": {
+        "$type": "dimension",
+        "$value": "{spacing.base.4}",
+        "$description": "Larger spacing for touch"
+      },
+      "medium": {
+        "$type": "dimension",
+        "$value": "{spacing.base.6}",
+        "$description": "Roomier medium spacing on mobile"
+      },
+      "large": {
+        "$type": "dimension",
+        "$value": "{spacing.base.12}",
+        "$description": "Roomier large spacing on mobile"
+      }
+    }
+  },
+  "button": {
+    "primary": {
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.alias.large}",
+        "$description": "Largest touch target"
+      }
+    }
+  },
+  "radius": {
+    "alias": {
+      "control": {
+        "$type": "dimension",
+        "$value": "{radius.base.lg}",
+        "$description": "Softer corners for touch targets"
+      },
+      "surface": {
+        "$type": "dimension",
+        "$value": "{radius.base.xl}",
+        "$description": "Softer card rounding on mobile"
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$description": "Forest theme overrides",
+  "$extensions": {
+    "com.example.theme": "forest",
+    "com.example.colorScheme": "light"
+  },
+  "color": {
+    "alias": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.gray.50}",
+        "$description": "Soft forest fog background"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.base.white}",
+        "$description": "Raised surface on fog"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.base.gray.900}",
+        "$description": "Deep forest text"
+      },
+      "text-muted": {
+        "$type": "color",
+        "$value": "{color.base.gray.700}",
+        "$description": "Muted forest text"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "{color.base.green}",
+        "$description": "Forest green accent"
+      },
+      "primary-hover": {
+        "$type": "color",
+        "$value": "{color.base.hdrGreen}",
+        "$description": "Brighter green hover"
+      },
+      "primary-subtle": {
+        "$type": "color",
+        "$value": "{color.base.subtle.primary}",
+        "$description": "Soft green wash"
+      },
+      "success": {
+        "$type": "color",
+        "$value": "{color.base.green}",
+        "$description": "Forest success green"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.base.gray.200}",
+        "$description": "Soft bark border"
+      },
+      "border-strong": {
+        "$type": "color",
+        "$value": "{color.base.gray.500}",
+        "$description": "Strong bark border"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.base.overlay}",
+        "$description": "Forest overlay"
+      }
+    }
+  }
+}

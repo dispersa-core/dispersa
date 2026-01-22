@@ -1,0 +1,31 @@
+{
+  "$description": "Semantic shape tokens for UI components",
+  "radius": {
+    "alias": {
+      "control": {
+        "$type": "dimension",
+        "$value": "{radius.base.md}",
+        "$description": "Buttons, inputs, toggles"
+      },
+      "surface": {
+        "$type": "dimension",
+        "$value": "{radius.base.lg}",
+        "$description": "Cards and panels"
+      }
+    }
+  },
+  "borderWidth": {
+    "alias": {
+      "default": {
+        "$type": "dimension",
+        "$value": "{borderWidth.base.thin}",
+        "$description": "Default component outline"
+      },
+      "strong": {
+        "$type": "dimension",
+        "$value": "{borderWidth.base.thick}",
+        "$description": "Emphasis or high-contrast outline"
+      }
+    }
+  }
+}

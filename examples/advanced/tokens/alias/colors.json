@@ -1,0 +1,92 @@
+{
+  "color": {
+    "alias": {
+      "$description": "Alias color tokens with references to base colors",
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.white}",
+        "$description": "Main background color"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.base.gray.50}",
+        "$description": "Surface color for cards and elevated elements"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.base.gray.900}",
+        "$description": "Main text color"
+      },
+      "text-muted": {
+        "$type": "color",
+        "$value": "{color.base.gray.500}",
+        "$description": "Muted text color"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "{color.base.blue}",
+        "$description": "Primary action color referencing base"
+      },
+      "primary-hover": {
+        "$type": "color",
+        "$value": "{color.base.hover.primary}",
+        "$description": "Primary hover state - slightly darker"
+      },
+      "primary-subtle": {
+        "$type": "color",
+        "$value": "{color.base.subtle.primary}",
+        "$description": "Subtle primary with low opacity"
+      },
+      "success": {
+        "$type": "color",
+        "$value": "{color.base.green}",
+        "$description": "Success state color"
+      },
+      "danger": {
+        "$type": "color",
+        "$value": "{color.base.red}",
+        "$description": "Danger/error state color"
+      },
+      "warning": {
+        "$type": "color",
+        "$value": "{color.base.warning}",
+        "$description": "Warning color"
+      },
+      "info": {
+        "$type": "color",
+        "$value": "{color.base.purple}",
+        "$description": "Info color"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.base.gray.100}",
+        "$description": "Default border color"
+      },
+      "border-strong": {
+        "$type": "color",
+        "$value": "{color.base.gray.500}",
+        "$description": "Stronger border for emphasis"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "{color.base.blue}",
+        "$description": "Focus ring color"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.base.overlay}",
+        "$description": "Overlay/backdrop color with alpha"
+      },
+      "overlay-strong": {
+        "$type": "color",
+        "$value": "{color.base.blackAlpha}",
+        "$description": "Stronger overlay using alpha token reference"
+      },
+      "glassmorphism": {
+        "$type": "color",
+        "$value": "{color.base.whiteAlpha}",
+        "$description": "Semi-transparent white for glass effects"
+      }
+    }
+  }
+}

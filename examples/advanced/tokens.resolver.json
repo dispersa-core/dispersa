@@ -1,0 +1,64 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "name": "Advanced Example - Multi-Platform Design System",
+  "version": "2025.10",
+  "description": "Advanced design tokens with multi-platform delivery, multiple themes, and component tokens",
+  "sets": {
+    "base": {
+      "description": "Base foundational values",
+      "sources": [
+        { "$ref": "./tokens/base/colors.json" },
+        { "$ref": "./tokens/base/spacing.json" },
+        { "$ref": "./tokens/base/shape.json" },
+        { "$ref": "./tokens/base/primitives.json" },
+        { "$ref": "./tokens/base/typography.json" },
+        { "$ref": "./tokens/base/effects.json" }
+      ]
+    },
+    "alias": {
+      "description": "Alias token layer with component tokens",
+      "sources": [
+        { "$ref": "./tokens/alias/colors.json" },
+        { "$ref": "./tokens/alias/spacing.json" },
+        { "$ref": "./tokens/alias/shape.json" },
+        { "$ref": "./tokens/alias/components/button.json" },
+        { "$ref": "./tokens/alias/components/card.json" }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Theme variations",
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/modifiers/themes/light.json" }],
+        "dark": [{ "$ref": "./tokens/modifiers/themes/dark.json" }],
+        "high-contrast": [{ "$ref": "./tokens/modifiers/themes/high-contrast.json" }],
+        "forest": [{ "$ref": "./tokens/modifiers/themes/forest.json" }]
+      }
+    },
+    "platform": {
+      "description": "Platform-specific adjustments",
+      "default": "desktop",
+      "contexts": {
+        "mobile": [{ "$ref": "./tokens/modifiers/platforms/mobile.json" }],
+        "desktop": [{ "$ref": "./tokens/modifiers/platforms/desktop.json" }]
+      }
+    },
+    "density": {
+      "description": "Density adjustments",
+      "default": "comfortable",
+      "contexts": {
+        "comfortable": [{ "$ref": "./tokens/modifiers/density/comfortable.json" }],
+        "compact": [{ "$ref": "./tokens/modifiers/density/compact.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/base" },
+    { "$ref": "#/sets/alias" },
+    { "$ref": "#/modifiers/platform" },
+    { "$ref": "#/modifiers/density" },
+    { "$ref": "#/modifiers/theme" }
+  ]
+}

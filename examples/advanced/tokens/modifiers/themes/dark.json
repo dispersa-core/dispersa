@@ -1,0 +1,94 @@
+{
+  "$description": "Dark theme overrides",
+  "$extensions": {
+    "com.example.theme": "dark",
+    "com.example.colorScheme": "dark"
+  },
+  "color": {
+    "alias": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.dark.background}",
+        "$description": "Dark theme background - deeper than base gray.900"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.base.dark.surface}",
+        "$description": "Dark theme surface - elevated from background"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.base.dark.text}",
+        "$description": "Dark theme text - slightly off-white for reduced eye strain"
+      },
+      "text-muted": {
+        "$type": "color",
+        "$value": "{color.base.dark.textMuted}",
+        "$description": "Dark theme muted text"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "{color.base.dark.primary}",
+        "$description": "Brighter blue for dark backgrounds using sRGB"
+      },
+      "primary-hover": {
+        "$type": "color",
+        "$value": "{color.base.dark.primaryHover}",
+        "$description": "Even brighter on hover"
+      },
+      "primary-subtle": {
+        "$type": "color",
+        "$value": "{color.base.dark.primarySubtle}",
+        "$description": "Subtle primary for dark theme"
+      },
+      "success": {
+        "$type": "color",
+        "$value": "{color.base.dark.success}",
+        "$description": "Brighter green for dark backgrounds"
+      },
+      "danger": {
+        "$type": "color",
+        "$value": "{color.base.dark.danger}",
+        "$description": "Softer red for dark backgrounds"
+      },
+      "warning": {
+        "$type": "color",
+        "$value": "{color.base.dark.warning}",
+        "$description": "Bright yellow for dark backgrounds"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.base.dark.border}",
+        "$description": "Subdued border for dark theme"
+      },
+      "border-strong": {
+        "$type": "color",
+        "$value": "{color.base.dark.borderStrong}",
+        "$description": "Stronger border still subtle"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.base.dark.overlay}",
+        "$description": "Stronger overlay for dark theme"
+      },
+      "glassmorphism": {
+        "$type": "color",
+        "$value": "{color.base.dark.glassmorphism}",
+        "$description": "Dark glass effect"
+      }
+    }
+  },
+  "shadow": {
+    "$description": "Dark theme shadow overrides - lighter shadows",
+    "md": {
+      "$type": "shadow",
+      "$value": "{shadow.dark.md}",
+      "$description": "Medium shadow adjusted for dark theme"
+    },
+    "focus": {
+      "$type": "shadow",
+      "$value": "{shadow.dark.focus}",
+      "$description": "Focus ring with dark theme primary color"
+    }
+  }
+}

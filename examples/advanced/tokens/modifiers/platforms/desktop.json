@@ -1,0 +1,29 @@
+{
+  "$description": "Desktop platform overrides - optimized for larger screens",
+  "$extensions": {
+    "com.example.platform": "desktop"
+  },
+  "spacing": {
+    "alias": {
+      "large": {
+        "$type": "dimension",
+        "$value": "{spacing.base.16}",
+        "$description": "Extra spacious layout for desktop"
+      }
+    }
+  },
+  "radius": {
+    "alias": {
+      "control": {
+        "$type": "dimension",
+        "$value": "{radius.base.sm}",
+        "$description": "Sharper control corners on desktop"
+      },
+      "surface": {
+        "$type": "dimension",
+        "$value": "{radius.base.md}",
+        "$description": "Sharper surface corners on desktop"
+      }
+    }
+  }
+}

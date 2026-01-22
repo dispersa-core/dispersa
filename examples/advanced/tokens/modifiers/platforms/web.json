@@ -1,0 +1,6 @@
+{
+  "$description": "Web platform overrides - uses rem units for accessibility",
+  "$extensions": {
+    "com.example.platform": "web"
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "$description": "High contrast theme overrides for accessibility",
+  "$extensions": {
+    "com.example.theme": "high-contrast",
+    "com.example.colorScheme": "dark",
+    "com.example.accessibility": "enhanced"
+  },
+  "color": {
+    "alias": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.black}",
+        "$description": "High contrast background - pure black"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.surface}",
+        "$description": "High contrast surface - slightly elevated"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.base.white}",
+        "$description": "High contrast text - pure white"
+      },
+      "text-muted": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.textMuted}",
+        "$description": "High contrast muted text - still very legible"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.primary}",
+        "$description": "High contrast primary - bright cyan for maximum visibility"
+      },
+      "primary-hover": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.primaryHover}",
+        "$description": "Even brighter on hover"
+      },
+      "primary-subtle": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.primarySubtle}",
+        "$description": "Subtle primary still visible in high contrast"
+      },
+      "success": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.success}",
+        "$description": "Pure green for high contrast"
+      },
+      "danger": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.danger}",
+        "$description": "Pure red for high contrast"
+      },
+      "warning": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.warning}",
+        "$description": "Pure yellow for high contrast"
+      },
+      "info": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.info}",
+        "$description": "Cyan for info"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.border}",
+        "$description": "White borders for maximum contrast"
+      },
+      "border-strong": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.border}",
+        "$description": "Same as border in high contrast"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.focus}",
+        "$description": "Yellow focus rings for visibility"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.base.highContrast.overlay}",
+        "$description": "Strong overlay"
+      }
+    }
+  },
+  "spacing": {
+    "semantic": {
+      "small": {
+        "$type": "dimension",
+        "$value": "{spacing.base.3}",
+        "$description": "Slightly larger spacing for high contrast"
+      },
+      "medium": {
+        "$type": "dimension",
+        "$value": "{spacing.base.6}",
+        "$description": "Larger spacing for better separation"
+      },
+      "large": {
+        "$type": "dimension",
+        "$value": "{spacing.base.12}",
+        "$description": "Much larger spacing"
+      }
+    }
+  },
+  "radius": {
+    "alias": {
+      "control": {
+        "$type": "dimension",
+        "$value": "{radius.base.none}",
+        "$description": "Sharp corners for high contrast"
+      },
+      "surface": {
+        "$type": "dimension",
+        "$value": "{radius.base.none}",
+        "$description": "Sharp surfaces for high contrast"
+      }
+    }
+  },
+  "borderWidth": {
+    "alias": {
+      "default": {
+        "$type": "dimension",
+        "$value": "{borderWidth.base.thick}",
+        "$description": "Thicker outlines for high contrast"
+      },
+      "strong": {
+        "$type": "dimension",
+        "$value": "{borderWidth.base.thick}",
+        "$description": "Strong outlines for emphasis"
+      }
+    }
+  },
+  "font": {
+    "weight": {
+      "normal": {
+        "$type": "fontWeight",
+        "$value": "{font.weight.medium}",
+        "$description": "Medium weight for better readability"
+      },
+      "medium": {
+        "$type": "fontWeight",
+        "$value": "{font.weight.semibold}",
+        "$description": "Semi-bold for emphasis"
+      },
+      "bold": {
+        "$type": "fontWeight",
+        "$value": "{font.weight.extrabold}",
+        "$description": "Extra-bold for high contrast"
+      }
+    }
+  },
+  "shadow": {
+    "$description": "High contrast shadows - more pronounced",
+    "md": {
+      "$type": "shadow",
+      "$value": "{shadow.highContrast.md}",
+      "$description": "Light shadow for high contrast dark theme"
+    },
+    "focus": {
+      "$type": "shadow",
+      "$value": "{shadow.highContrast.focus}",
+      "$description": "Prominent focus ring for high contrast"
+    }
+  }
+}

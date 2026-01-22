@@ -1,0 +1,32 @@
+{
+  "$description": "Base colors for demonstrating property-level references (DTCG Section 7.3)",
+  "color": {
+    "reference": {
+      "blue": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2, 0.4, 0.9]
+        },
+        "$description": "Base blue color with components that can be referenced individually"
+      },
+      "red": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9, 0.2, 0.2]
+        },
+        "$description": "Base red color with components that can be referenced individually"
+      },
+      "green": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2, 0.8, 0.3],
+          "alpha": 0.9
+        },
+        "$description": "Base green color with alpha that can be referenced"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "$description": "Light theme overrides (default theme)",
+  "$extensions": {
+    "com.example.theme": "light",
+    "com.example.colorScheme": "light"
+  },
+  "color": {
+    "alias": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.white}",
+        "$description": "Light theme background"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.base.gray.50}",
+        "$description": "Light theme surface"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.base.gray.900}",
+        "$description": "Light theme text"
+      },
+      "text-muted": {
+        "$type": "color",
+        "$value": "{color.base.gray.500}",
+        "$description": "Light theme muted text"
+      },
+      "primary-hover": {
+        "$type": "color",
+        "$value": "{color.base.hover.primary}",
+        "$description": "Darker primary on hover"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.base.gray.100}",
+        "$description": "Subtle border for light theme"
+      },
+      "border-strong": {
+        "$type": "color",
+        "$value": "{color.base.gray.500}",
+        "$description": "Stronger border for emphasis"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.base.overlay}",
+        "$description": "Semi-transparent dark overlay"
+      }
+    }
+  }
+}

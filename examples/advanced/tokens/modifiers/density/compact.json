@@ -1,0 +1,52 @@
+{
+  "$description": "Compact density overrides for tighter layouts",
+  "spacing": {
+    "alias": {
+      "small": {
+        "$type": "dimension",
+        "$value": "{spacing.base.1}",
+        "$description": "Tighter small spacing"
+      },
+      "medium": {
+        "$type": "dimension",
+        "$value": "{spacing.base.2}",
+        "$description": "Tighter medium spacing"
+      },
+      "large": {
+        "$type": "dimension",
+        "$value": "{spacing.base.4}",
+        "$description": "Tighter large spacing"
+      }
+    }
+  },
+  "button": {
+    "primary": {
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.alias.small}",
+        "$description": "Reduced button padding"
+      }
+    }
+  },
+  "card": {
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.alias.medium}",
+      "$description": "Reduced card padding"
+    }
+  },
+  "font": {
+    "size": {
+      "base": {
+        "$type": "dimension",
+        "$value": "{font.size.sm}",
+        "$description": "Slightly smaller base text"
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": "{font.size.xs}",
+        "$description": "Slightly smaller small text"
+      }
+    }
+  }
+}

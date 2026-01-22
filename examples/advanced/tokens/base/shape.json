@@ -1,0 +1,51 @@
+{
+  "$description": "Base shape primitives (radii and border widths)",
+  "radius": {
+    "base": {
+      "none": {
+        "$type": "dimension",
+        "$value": { "value": 0, "unit": "px" },
+        "$description": "Sharp corners"
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": { "value": 0.125, "unit": "rem" },
+        "$description": "Subtle rounding"
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": { "value": 0.25, "unit": "rem" },
+        "$description": "Default rounding"
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": { "value": 0.5, "unit": "rem" },
+        "$description": "Soft rounding"
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": { "value": 0.75, "unit": "rem" },
+        "$description": "Extra soft rounding"
+      }
+    }
+  },
+  "borderWidth": {
+    "base": {
+      "hairline": {
+        "$type": "dimension",
+        "$value": { "value": 1, "unit": "px" },
+        "$description": "Hairline border"
+      },
+      "thin": {
+        "$type": "dimension",
+        "$value": { "value": 2, "unit": "px" },
+        "$description": "Default border"
+      },
+      "thick": {
+        "$type": "dimension",
+        "$value": { "value": 3, "unit": "px" },
+        "$description": "Strong border"
+      }
+    }
+  }
+}

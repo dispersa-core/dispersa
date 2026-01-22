@@ -1,0 +1,23 @@
+{
+  "name": "dispersa-basic-example",
+  "version": "1.0.0",
+  "description": "Basic example demonstrating Dispersa",
+  "type": "module",
+  "scripts": {
+    "build": "tsx build.ts",
+    "build:standalone": "OUTPUT_MODE=standalone tsx build.ts",
+    "build:overrides": "OUTPUT_MODE=base-overrides tsx build.ts",
+    "build:bundle": "OUTPUT_MODE=bundle tsx build.ts",
+    "start": "npm run build && open demo.html"
+  },
+  "dependencies": {
+    "dispersa": "file:../../packages/core",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

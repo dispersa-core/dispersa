@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dispersa Demo — Advanced</title>
+    <link rel="stylesheet" href="./output/tokens.css" />
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--font-family-sans);
+        background: var(--color-alias-background);
+        color: var(--color-alias-text);
+        line-height: var(--number-line-height-normal);
+      }
+
+      a {
+        color: var(--color-alias-primary);
+      }
+
+      code,
+      pre {
+        font-family: var(--font-family-mono);
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: var(--spacing-alias-large);
+        padding: var(--spacing-alias-large);
+      }
+
+      @media (max-width: 980px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        display: grid;
+        gap: var(--spacing-alias-medium);
+        align-content: start;
+        position: sticky;
+        top: var(--spacing-alias-large);
+        background: var(--card-background);
+        border: var(--border-width-alias-default) solid var(--card-border);
+        border-radius: var(--radius-alias-surface);
+        padding: var(--card-padding);
+        box-shadow: var(--card-shadow);
+      }
+
+      .panel h2 {
+        margin: 0;
+        font-size: var(--font-size-lg);
+      }
+
+      .panel label {
+        display: grid;
+        gap: var(--spacing-alias-small);
+        font-size: var(--font-size-sm);
+        color: var(--color-alias-text-muted);
+      }
+
+      .panel select,
+      .panel button {
+        font: inherit;
+        padding: var(--spacing-alias-small);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border-strong);
+        background: var(--color-alias-surface);
+        color: var(--color-alias-text);
+      }
+
+      .panel button {
+        cursor: pointer;
+        background: var(--button-primary-background);
+        color: var(--button-primary-text);
+        border-color: transparent;
+        transition: background var(--duration-fast) var(--easing-smooth);
+      }
+
+      .panel button:hover {
+        background: var(--button-primary-background-hover);
+      }
+
+      .panel .secondary {
+        background: var(--color-alias-surface);
+        color: var(--color-alias-text);
+        border-color: var(--color-alias-border-strong);
+      }
+
+      .panel .hint {
+        font-size: var(--font-size-xs);
+        color: var(--color-alias-text-muted);
+      }
+
+      .content {
+        display: grid;
+        gap: var(--spacing-alias-large);
+      }
+
+      .sidebar-title {
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: var(--font-letter-spacing-wider);
+        color: var(--color-alias-text-muted);
+      }
+
+      .nav {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .nav a {
+        text-decoration: none;
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid transparent;
+        color: var(--color-alias-text);
+      }
+
+      .nav a.is-active {
+        background: var(--color-alias-primary-subtle);
+        color: var(--color-alias-primary);
+        border-color: var(--color-alias-primary);
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--spacing-alias-medium);
+        align-items: center;
+      }
+
+      .search {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: var(--spacing-alias-small);
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+        background: var(--color-alias-surface);
+      }
+
+      .search input {
+        border: none;
+        background: transparent;
+        color: var(--color-alias-text);
+        font: inherit;
+        outline: none;
+      }
+
+      .stats-grid {
+        display: grid;
+        gap: var(--spacing-alias-medium);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .stat {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .stat .value {
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .grid-split {
+        display: grid;
+        gap: var(--spacing-alias-medium);
+        grid-template-columns: 2fr 1fr;
+      }
+
+      @media (max-width: 1100px) {
+        .grid-split {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--font-size-sm);
+      }
+
+      .table th,
+      .table td {
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        text-align: left;
+        border-bottom: var(--border-width-alias-default) solid var(--color-alias-border);
+      }
+
+      .table th {
+        color: var(--color-alias-text-muted);
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .activity-list {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .activity-item {
+        display: grid;
+        gap: var(--spacing-alias-small);
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        background: var(--color-alias-surface);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+      }
+
+      .hero {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: var(--font-size-3xl);
+        line-height: var(--number-line-height-tight);
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 60ch;
+        color: var(--color-alias-text-muted);
+      }
+
+      .section {
+        display: grid;
+        gap: var(--spacing-alias-medium);
+        padding: var(--spacing-alias-large);
+        background: var(--card-background);
+        border-radius: var(--radius-alias-surface);
+        border: var(--border-width-alias-default) solid var(--card-border);
+        box-shadow: var(--card-shadow);
+      }
+
+      .section h3 {
+        margin: 0;
+        font-size: var(--font-size-xl);
+      }
+
+      .component-grid {
+        display: grid;
+        gap: var(--spacing-alias-medium);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .button-primary {
+        display: inline-grid;
+        place-items: center;
+        padding: var(--button-primary-padding);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid transparent;
+        background: var(--button-primary-background);
+        color: var(--button-primary-text);
+        font-weight: var(--font-weight-semibold);
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--easing-smooth);
+      }
+
+      .button-primary:hover {
+        background: var(--button-primary-background-hover);
+      }
+
+      .button-outline {
+        display: inline-grid;
+        place-items: center;
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border-strong);
+        background: transparent;
+        color: var(--color-alias-text);
+      }
+
+      .card {
+        display: grid;
+        gap: var(--spacing-alias-small);
+        padding: var(--card-padding);
+        border-radius: var(--radius-alias-surface);
+        border: var(--border-width-alias-default) solid var(--card-border);
+        background: var(--card-background);
+        box-shadow: var(--card-shadow);
+      }
+
+      .card .title {
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .input {
+        width: 100%;
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+        background: var(--color-alias-surface);
+        color: var(--color-alias-text);
+      }
+
+      .badge {
+        display: inline-grid;
+        place-items: center;
+        padding: var(--spacing-alias-small) var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-primary);
+        background: var(--color-alias-primary-subtle);
+        color: var(--color-alias-primary);
+        font-weight: var(--font-weight-medium);
+      }
+
+      .swatches {
+        display: grid;
+        gap: var(--spacing-alias-small);
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+
+      .swatch {
+        display: grid;
+        gap: var(--spacing-alias-small);
+        padding: var(--spacing-alias-small);
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+        background: var(--color-alias-surface);
+      }
+
+      .swatch .chip {
+        height: 48px;
+        border-radius: var(--radius-alias-control);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+      }
+
+      .type-scale {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .type-scale .row {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .spacing-scale {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .spacing-item {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        gap: var(--spacing-alias-small);
+        align-items: center;
+      }
+
+      .spacing-bar {
+        height: 12px;
+        background: var(--color-alias-primary);
+        border-radius: var(--radius-alias-control);
+      }
+
+      .token-list {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+
+      .token-row {
+        display: grid;
+        grid-template-columns: minmax(140px, 1fr) 2fr;
+        gap: var(--spacing-alias-small);
+        padding: var(--spacing-alias-small);
+        border-radius: var(--radius-alias-control);
+        background: var(--color-alias-surface);
+        border: var(--border-width-alias-default) solid var(--color-alias-border);
+        font-size: var(--font-size-sm);
+      }
+
+      .token-row dt {
+        font-family: var(--font-family-mono);
+      }
+
+      .token-row dd {
+        margin: 0;
+        color: var(--color-alias-text-muted);
+        overflow-wrap: anywhere;
+      }
+
+      .callout {
+        padding: var(--spacing-alias-medium);
+        border-radius: var(--radius-alias-surface);
+        border: var(--border-width-alias-strong) solid var(--color-alias-warning);
+        background: var(--color-alias-primary-subtle);
+        color: var(--color-alias-text);
+        display: none;
+      }
+
+      .callout.is-visible {
+        display: grid;
+        gap: var(--spacing-alias-small);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside class="panel">
+        <h2>Live modifiers</h2>
+        <label>
+          Theme
+          <select id="themeSelect">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="high-contrast">High contrast</option>
+            <option value="forest">Forest</option>
+          </select>
+        </label>
+        <label>
+          Platform
+          <select id="platformSelect">
+            <option value="desktop">Desktop</option>
+            <option value="mobile">Mobile</option>
+          </select>
+        </label>
+        <label>
+          Density
+          <select id="densitySelect">
+            <option value="comfortable">Comfortable</option>
+            <option value="compact">Compact</option>
+          </select>
+        </label>
+        <button id="copyLink" type="button">Copy share link</button>
+        <button id="reset" type="button" class="secondary">Reset to defaults</button>
+        <div class="hint" id="status"></div>
+        <div class="hint">
+          Modifiers apply to <code>html</code> via <code>data-theme</code>,
+          <code>data-platform</code>, and <code>data-density</code>.
+        </div>
+        <div class="sidebar-title">Navigation</div>
+        <nav class="nav">
+          <a class="is-active" href="#">Overview</a>
+          <a href="#">Orders</a>
+          <a href="#">Inventory</a>
+          <a href="#">Customers</a>
+          <a href="#">Reports</a>
+          <a href="#">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <h1>Forestline Admin</h1>
+          <p>
+            A token-driven admin dashboard. Switch theme, platform, and density
+            to see layout, spacing, and shape updates in real time.
+          </p>
+        </section>
+
+        <section class="topbar">
+          <div class="search">
+            <input placeholder="Search orders, customers, or invoices" />
+            <span class="badge">Live</span>
+          </div>
+          <button class="button-primary" type="button">Create report</button>
+        </section>
+
+        <div class="callout" id="buildHint">
+          <strong>Tokens not found.</strong>
+          <span>Run <code>pnpm -C examples/advanced build</code> first.</span>
+        </div>
+
+        <section class="section">
+          <h3>Key metrics</h3>
+          <div class="stats-grid">
+            <div class="card stat">
+              <div class="hint">Monthly revenue</div>
+              <div class="value">$248,600</div>
+              <div class="badge">+18.2%</div>
+            </div>
+            <div class="card stat">
+              <div class="hint">Active subscriptions</div>
+              <div class="value">1,284</div>
+              <div class="badge">+6.4%</div>
+            </div>
+            <div class="card stat">
+              <div class="hint">Open tickets</div>
+              <div class="value">32</div>
+              <div class="badge">-4 today</div>
+            </div>
+            <div class="card stat">
+              <div class="hint">Net churn</div>
+              <div class="value">2.1%</div>
+              <div class="badge">Stable</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid-split">
+          <div class="section">
+            <h3>Orders</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#18420</td>
+                  <td><span class="badge">Processing</span></td>
+                  <td>Greenridge Co.</td>
+                  <td>$4,300</td>
+                </tr>
+                <tr>
+                  <td>#18419</td>
+                  <td><span class="badge">Shipped</span></td>
+                  <td>Northwind</td>
+                  <td>$1,200</td>
+                </tr>
+                <tr>
+                  <td>#18418</td>
+                  <td><span class="badge">Refunded</span></td>
+                  <td>Fern & Co.</td>
+                  <td>$820</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="section">
+            <h3>Activity</h3>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="title">Inventory threshold hit</div>
+                <div class="hint">Maple syrup — 18 units left</div>
+              </div>
+              <div class="activity-item">
+                <div class="title">New payout scheduled</div>
+                <div class="hint">$12,480 arrives tomorrow</div>
+              </div>
+              <div class="activity-item">
+                <div class="title">Carbon report updated</div>
+                <div class="hint">Scope 2 emissions down 6%</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Token inspector</h3>
+          <dl class="token-list" id="tokenList"></dl>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const THEMES = ["light", "dark", "high-contrast", "forest"]
+      const PLATFORMS = ["desktop", "mobile"]
+      const DENSITIES = ["comfortable", "compact"]
+      const tokenNames = [
+        "--color-alias-background",
+        "--color-alias-surface",
+        "--color-alias-text",
+        "--color-alias-primary",
+        "--color-alias-border",
+        "--button-primary-padding",
+        "--card-padding",
+        "--shadow-md",
+        "--radius-alias-control",
+        "--radius-alias-surface",
+        "--border-width-alias-default",
+        "--border-width-alias-strong",
+        "--font-size-base",
+      ]
+
+      const themeSelect = document.getElementById("themeSelect")
+      const platformSelect = document.getElementById("platformSelect")
+      const densitySelect = document.getElementById("densitySelect")
+      const tokenList = document.getElementById("tokenList")
+      const buildHint = document.getElementById("buildHint")
+      const status = document.getElementById("status")
+      const copyLink = document.getElementById("copyLink")
+      const reset = document.getElementById("reset")
+
+      const getStateFromUrl = () => {
+        const params = new URLSearchParams(window.location.search)
+        const theme = params.get("theme") ?? "light"
+        const platform = params.get("platform") ?? "desktop"
+        const density = params.get("density") ?? "comfortable"
+        return {
+          theme: THEMES.includes(theme) ? theme : "light",
+          platform: PLATFORMS.includes(platform) ? platform : "desktop",
+          density: DENSITIES.includes(density) ? density : "comfortable",
+        }
+      }
+
+      const applyState = (state) => {
+        const root = document.documentElement
+        if (state.theme === "light") {
+          delete root.dataset.theme
+        } else {
+          root.dataset.theme = state.theme
+        }
+
+        if (state.platform === "desktop") {
+          delete root.dataset.platform
+        } else {
+          root.dataset.platform = state.platform
+        }
+
+        if (state.density === "comfortable") {
+          delete root.dataset.density
+        } else {
+          root.dataset.density = state.density
+        }
+      }
+
+      const syncControls = (state) => {
+        themeSelect.value = state.theme
+        platformSelect.value = state.platform
+        densitySelect.value = state.density
+      }
+
+      const readTokenValue = (tokenName) => {
+        return getComputedStyle(document.documentElement)
+          .getPropertyValue(tokenName)
+          .trim()
+      }
+
+      const updateTokenInspector = () => {
+        const fragment = document.createDocumentFragment()
+        tokenNames.forEach((tokenName) => {
+          const row = document.createElement("div")
+          row.className = "token-row"
+
+          const name = document.createElement("dt")
+          name.textContent = tokenName
+
+          const value = document.createElement("dd")
+          value.textContent = readTokenValue(tokenName) || "unset"
+
+          row.appendChild(name)
+          row.appendChild(value)
+          fragment.appendChild(row)
+        })
+
+        tokenList.innerHTML = ""
+        tokenList.appendChild(fragment)
+      }
+
+      const updateBuildHint = () => {
+        const hasTokens = readTokenValue("--color-alias-background").length > 0
+        buildHint.classList.toggle("is-visible", !hasTokens)
+      }
+
+      const updateUrl = (state) => {
+        const params = new URLSearchParams()
+        params.set("theme", state.theme)
+        params.set("platform", state.platform)
+        params.set("density", state.density)
+        const nextUrl = `${window.location.pathname}?${params.toString()}`
+        window.history.replaceState(null, "", nextUrl)
+      }
+
+      const updateStatus = (message) => {
+        status.textContent = message
+      }
+
+      const handleChange = () => {
+        const state = {
+          theme: themeSelect.value,
+          platform: platformSelect.value,
+          density: densitySelect.value,
+        }
+        applyState(state)
+        updateUrl(state)
+        updateTokenInspector()
+        updateBuildHint()
+      }
+
+      const handleCopy = async () => {
+        const url = window.location.href
+        const clipboard = navigator.clipboard
+        if (!clipboard) {
+          updateStatus("Clipboard not available")
+          return
+        }
+
+        try {
+          await clipboard.writeText(url)
+          updateStatus("Link copied")
+        } catch (error) {
+          updateStatus("Copy failed")
+        }
+      }
+
+      const handleReset = () => {
+        const state = { theme: "light", platform: "desktop", density: "comfortable" }
+        syncControls(state)
+        applyState(state)
+        updateUrl(state)
+        updateTokenInspector()
+        updateBuildHint()
+      }
+
+      const init = () => {
+        const state = getStateFromUrl()
+        syncControls(state)
+        applyState(state)
+        updateUrl(state)
+        updateTokenInspector()
+        updateBuildHint()
+      }
+
+      themeSelect.addEventListener("change", handleChange)
+      platformSelect.addEventListener("change", handleChange)
+      densitySelect.addEventListener("change", handleChange)
+      copyLink.addEventListener("click", handleCopy)
+      reset.addEventListener("click", handleReset)
+
+      init()
+    </script>
+  </body>
+</html>

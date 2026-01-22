@@ -1,0 +1,166 @@
+{
+  "font": {
+    "$description": "Typography system with font families, sizes, weights, and letter spacing",
+    "family": {
+      "$description": "Font family stacks",
+      "sans": {
+        "$type": "fontFamily",
+        "$value": ["Inter", "system-ui", "sans-serif"],
+        "$description": "Sans-serif font stack for UI and body text"
+      },
+      "serif": {
+        "$type": "fontFamily",
+        "$value": ["Georgia", "Cambria", "Times New Roman", "serif"],
+        "$description": "Serif font stack for editorial content"
+      },
+      "mono": {
+        "$type": "fontFamily",
+        "$value": ["JetBrains Mono", "Menlo", "monospace"],
+        "$description": "Monospace font stack for code"
+      }
+    },
+    "size": {
+      "$description": "Font sizes in rem units",
+      "xs": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.75,
+          "unit": "rem"
+        },
+        "$description": "Extra small - 12px"
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.875,
+          "unit": "rem"
+        },
+        "$description": "Small - 14px"
+      },
+      "base": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "rem"
+        },
+        "$description": "Base - 16px"
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.125,
+          "unit": "rem"
+        },
+        "$description": "Large - 18px"
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.25,
+          "unit": "rem"
+        },
+        "$description": "Extra large - 20px"
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.5,
+          "unit": "rem"
+        },
+        "$description": "2X large - 24px"
+      },
+      "3xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.875,
+          "unit": "rem"
+        },
+        "$description": "3X large - 30px"
+      },
+      "4xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2.25,
+          "unit": "rem"
+        },
+        "$description": "4X large - 36px"
+      },
+      "5xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 3,
+          "unit": "rem"
+        },
+        "$description": "5X large - 48px"
+      }
+    },
+    "weight": {
+      "$description": "Font weights",
+      "light": {
+        "$type": "fontWeight",
+        "$value": 300,
+        "$description": "Light weight"
+      },
+      "normal": {
+        "$type": "fontWeight",
+        "$value": 400,
+        "$description": "Normal/regular weight"
+      },
+      "medium": {
+        "$type": "fontWeight",
+        "$value": 500,
+        "$description": "Medium weight"
+      },
+      "semibold": {
+        "$type": "fontWeight",
+        "$value": 600,
+        "$description": "Semibold weight"
+      },
+      "bold": {
+        "$type": "fontWeight",
+        "$value": 700,
+        "$description": "Bold weight"
+      },
+      "extrabold": {
+        "$type": "fontWeight",
+        "$value": 800,
+        "$description": "Extra bold weight"
+      }
+    },
+    "letterSpacing": {
+      "$description": "Letter spacing values",
+      "tight": {
+        "$type": "dimension",
+        "$value": {
+          "value": -0.025,
+          "unit": "rem"
+        },
+        "$description": "Tight letter spacing for large text"
+      },
+      "normal": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0,
+          "unit": "rem"
+        },
+        "$description": "Normal letter spacing"
+      },
+      "wide": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.025,
+          "unit": "rem"
+        },
+        "$description": "Wide letter spacing"
+      },
+      "wider": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.05,
+          "unit": "rem"
+        },
+        "$description": "Wider letter spacing for small caps"
+      }
+    }
+  }
+}

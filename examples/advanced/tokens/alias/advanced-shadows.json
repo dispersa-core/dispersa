@@ -1,0 +1,24 @@
+{
+  "$description": "Advanced shadow examples demonstrating array aliasing (DTCG Section 9.1)",
+  "shadow": {
+    "advanced": {
+      "layered": {
+        "$type": "shadow",
+        "$value": ["{shadow.base.advanced.base}"],
+        "$description": "Layered shadow mixing reference and explicit value - demonstrates array aliasing per DTCG 9.1"
+      },
+      "multi-layer": {
+        "$type": "shadow",
+        "$value": ["{shadow.base.advanced.base}", "{shadow.base.advanced.accent}"],
+        "$description": "Multi-layer shadow with two references and one explicit value"
+      }
+    },
+    "composed": {
+      "stack": {
+        "$type": "shadow",
+        "$value": ["{shadow.base.advanced.base}", "{shadow.base.advanced.accent}"],
+        "$description": "Shadow stack composed entirely of references"
+      }
+    }
+  }
+}
