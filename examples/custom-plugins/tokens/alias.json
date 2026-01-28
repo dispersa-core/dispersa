@@ -1,0 +1,62 @@
+{
+  "button": {
+    "primary": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.blue.500}"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.gray.100}"
+      }
+    },
+    "danger": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.red.500}"
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.gray.100}"
+      }
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.md}"
+    }
+  },
+  "text": {
+    "primary": {
+      "$type": "color",
+      "$value": "{color.gray.900}"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{color.gray.500}"
+    },
+    "body": {
+      "$type": "dimension",
+      "$value": "{fontSize.base}"
+    },
+    "small": {
+      "$type": "dimension",
+      "$value": "{fontSize.small}"
+    }
+  },
+  "layout": {
+    "gutter": {
+      "$type": "dimension",
+      "$value": "{spacing.lg}"
+    },
+    "margin": {
+      "$type": "dimension",
+      "$value": "{spacing.md}"
+    }
+  },
+  "floating": {
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{fontSize.shadow-1}"
+    }
+  }
+}

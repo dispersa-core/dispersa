@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.dispersa.dev/resolver-v1.json",
+  "version": "2025.10",
+  "sets": {
+    "base": {
+      "sources": [{ "$ref": "./tokens/base.json" }]
+    },
+    "alias": {
+      "sources": [{ "$ref": "./tokens/alias.json" }]
+    }
+  },
+  "resolutionOrder": [{ "$ref": "#/sets/base" }, { "$ref": "#/sets/alias" }]
+}
