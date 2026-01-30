@@ -1,0 +1,27 @@
+{
+  "version": "2025.10",
+  "sets": {
+    "base": {
+      "sources": [{ "$ref": "./tokens.json" }]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
+        "light": [],
+        "dark": [
+          {
+            "color": {
+              "background": {
+                "$type": "color",
+                "$value": { "colorSpace": "srgb", "components": [0.1, 0.1, 0.1] }
+              }
+            }
+          }
+        ]
+      },
+      "default": "light"
+    }
+  },
+  "resolutionOrder": [{ "$ref": "#/sets/base" }, { "$ref": "#/modifiers/theme" }]
+}

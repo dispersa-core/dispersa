@@ -1,0 +1,15 @@
+/* Base: base */
+/* Default theme variables */
+:root {
+  --color.background: #ffffff;
+  --color.primary: #0066ff;
+  --spacing.md: 16px;
+  --spacing.sm: 8px;
+}
+
+
+/* Modifier: theme-dark */
+/* Default theme variables */
+:root {
+  --color.background: #1a1a1a;
+}
