@@ -2,6 +2,23 @@
   "name": "dispersa-cli",
   "version": "0.1.0",
   "description": "Dispersa CLI",
+  "author": "Tim Gesemann",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timges/dispersa.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/timges/dispersa",
+  "bugs": {
+    "url": "https://github.com/timges/dispersa/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "bin": {
     "dispersa": "dist/index.js"

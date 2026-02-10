@@ -2,6 +2,23 @@
   "name": "dispersa",
   "version": "0.1.0",
   "description": "Core library for processing DTCG design tokens",
+  "author": "Tim Gesemann",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timges/dispersa.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/timges/dispersa",
+  "bugs": {
+    "url": "https://github.com/timges/dispersa/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
