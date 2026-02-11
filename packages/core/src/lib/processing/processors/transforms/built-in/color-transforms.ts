@@ -12,7 +12,8 @@ import { formatCss } from 'culori'
 
 import type { Transform } from '../types'
 
-import { colorObjectToHex, colorObjectToHsl, colorObjectToRgb } from './color-converter'
+import { colorObjectToHex } from './color-converter'
+import { colorObjectToHsl, colorObjectToRgb } from './color-format'
 import {
   createColorTransform,
   createModernColorTransform,

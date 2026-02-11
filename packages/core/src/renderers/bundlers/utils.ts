@@ -2,7 +2,6 @@
  * @fileoverview Shared utilities for bundlers
  */
 
-import { ResolverLoader } from '@adapters/filesystem/resolver-loader'
 import type { ModifierInputs, ResolvedTokens } from '@config/index'
 import type { ResolverDocument } from '@lib/resolution/resolution.types'
 import type { InternalResolvedTokens } from '@lib/tokens/types'
@@ -213,6 +212,7 @@ export async function resolveResolverDocument(
   input: string | ResolverDocument,
 ): Promise<ResolverDocument> {
   if (typeof input === 'string') {
+    const { ResolverLoader } = await import('@adapters/filesystem/resolver-loader')
     const loader = new ResolverLoader({})
     return await loader.loadDocument(input)
   }

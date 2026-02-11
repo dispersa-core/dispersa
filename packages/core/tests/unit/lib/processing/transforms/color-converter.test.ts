@@ -6,9 +6,11 @@ import { describe, it, expect } from 'vitest'
 import {
   isColorObject,
   colorObjectToHex,
+} from '../../../../../src/lib/processing/processors/transforms/built-in/color-converter'
+import {
   colorObjectToRgb,
   colorObjectToHsl,
-} from '../../../../../src/lib/processing/processors/transforms/built-in/color-converter'
+} from '../../../../../src/lib/processing/processors/transforms/built-in/color-format'
 import type { ColorValueObject } from '../../../../../src/lib/tokens/types'
 
 describe('Color Converter with All Color Spaces', () => {

@@ -7,8 +7,6 @@ import type { ColorComponent, ColorSpace, ColorValueObject } from '@lib/tokens/t
 import {
   formatHex,
   formatHex8,
-  formatRgb,
-  formatHsl,
   type Color as CuloriColor,
   type Rgb,
   type Lrgb,
@@ -39,7 +37,7 @@ export function isColorObject(value: unknown): value is ColorValueObject {
  * Convert a color component value to culori format
  * The "none" keyword becomes undefined (culori's representation of missing channels)
  */
-function componentToCulori(component: ColorComponent): number | undefined {
+export function componentToCulori(component: ColorComponent): number | undefined {
   return component === 'none' ? undefined : component
 }
 
@@ -47,7 +45,7 @@ function componentToCulori(component: ColorComponent): number | undefined {
  * Convert DTCG color object to culori color object
  * Handles all 14 DTCG color spaces and the "none" keyword
  */
-function dtcgObjectToCulori(color: ColorValueObject): CuloriColor {
+export function dtcgObjectToCulori(color: ColorValueObject): CuloriColor {
   const [c1, c2, c3] = color.components.map(componentToCulori)
   const alpha = color.alpha !== undefined ? componentToCulori(color.alpha) : undefined
 
@@ -120,20 +118,4 @@ export function colorObjectToHex(color: ColorValueObject): string {
   }
 
   return formatHex(culoriColor)
-}
-
-/**
- * Convert DTCG color object to rgb/rgba string
- */
-export function colorObjectToRgb(color: ColorValueObject): string {
-  const culoriColor = dtcgObjectToCulori(color)
-  return formatRgb(culoriColor)
-}
-
-/**
- * Convert DTCG color object to hsl/hsla string
- */
-export function colorObjectToHsl(color: ColorValueObject): string {
-  const culoriColor = dtcgObjectToCulori(color)
-  return formatHsl(culoriColor)
 }
