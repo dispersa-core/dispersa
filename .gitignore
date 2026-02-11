@@ -6,6 +6,7 @@ node_modules/
 dist/
 output/
 *.tsbuildinfo
+packages/*/README.md
 
 # Test / coverage
 coverage/

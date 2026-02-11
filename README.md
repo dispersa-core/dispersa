@@ -25,62 +25,90 @@ pnpm add dispersa
 
 ## Quick start
 
-Define a DTCG resolver document (`tokens.resolver.json`):
-
-```json
-{
-  "version": "2025.10",
-  "sets": {
-    "core": {
-      "sources": [{ "$ref": "./tokens/base.json" }, { "$ref": "./tokens/alias.json" }]
-    }
-  },
-  "modifiers": {
-    "theme": {
-      "default": "light",
-      "contexts": {
-        "light": [{ "$ref": "./tokens/themes/light.json" }],
-        "dark": [{ "$ref": "./tokens/themes/dark.json" }]
-      }
-    }
-  },
-  "resolutionOrder": [{ "$ref": "#/sets/core" }, { "$ref": "#/modifiers/theme" }]
-}
-```
-
-Build tokens:
+Define tokens inline and build CSS -- no files needed:
 
 ```typescript
-import { Dispersa, css, json } from 'dispersa'
+import type { ResolverDocument } from 'dispersa'
+import { Dispersa, css } from 'dispersa'
 import { colorToHex, nameKebabCase } from 'dispersa/transforms'
 
-const dispersa = new Dispersa({
-  resolver: './tokens.resolver.json',
-  buildPath: './dist',
-})
+const resolver: ResolverDocument = {
+  version: '2025.10',
+  sets: {
+    base: {
+      sources: [
+        {
+          color: {
+            brand: {
+              primary: {
+                $type: 'color',
+                $value: { colorSpace: 'srgb', components: [0, 0.4, 0.8] },
+              },
+            },
+            neutral: {
+              white: {
+                $type: 'color',
+                $value: { colorSpace: 'srgb', components: [1, 1, 1] },
+              },
+              black: {
+                $type: 'color',
+                $value: { colorSpace: 'srgb', components: [0, 0, 0] },
+              },
+            },
+          },
+          spacing: {
+            small: { $type: 'dimension', $value: { value: 8, unit: 'px' } },
+            medium: { $type: 'dimension', $value: { value: 16, unit: 'px' } },
+          },
+        },
+      ],
+    },
+  },
+  modifiers: {
+    theme: {
+      default: 'light',
+      contexts: {
+        light: [
+          {
+            semantic: {
+              background: { $type: 'color', $value: '{color.neutral.white}' },
+              text: { $type: 'color', $value: '{color.neutral.black}' },
+            },
+          },
+        ],
+        dark: [
+          {
+            semantic: {
+              background: { $type: 'color', $value: '{color.neutral.black}' },
+              text: { $type: 'color', $value: '{color.neutral.white}' },
+            },
+          },
+        ],
+      },
+    },
+  },
+  resolutionOrder: [{ $ref: '#/sets/base' }, { $ref: '#/modifiers/theme' }],
+}
+
+const dispersa = new Dispersa({ resolver })
 
 const result = await dispersa.build({
   outputs: [
     css({
       name: 'css',
-      file: 'tokens.css',
       preset: 'bundle',
       selector: ':root',
       transforms: [nameKebabCase(), colorToHex()],
     }),
-    json({
-      name: 'json',
-      file: 'tokens-{theme}.json',
-      preset: 'standalone',
-      structure: 'flat',
-    }),
   ],
 })
 
-if (result.success) {
-  console.log(`Generated ${result.outputs.length} file(s)`)
+for (const output of result.outputs) {
+  console.log(output.content)
 }
 ```
+
+> For file-based tokens, define JSON files and reference them with `$ref` in your resolver document. See the [`basic` example](./examples/basic/) for a complete setup.
 
 ## Output formats
 

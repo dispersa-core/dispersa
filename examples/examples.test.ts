@@ -100,6 +100,7 @@ describe('no-filesystem', () => {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     })
-    expect(stdout).toMatchSnapshot()
+    const normalized = stdout.replace(/^> .+ build .+\n/gm, '')
+    expect(normalized).toMatchSnapshot()
   })
 })

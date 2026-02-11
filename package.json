@@ -5,7 +5,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter dispersa build && pnpm --filter dispersa-cli build && pnpm --filter './examples/**' -r build",
+    "sync:readme": "cp README.md packages/core/README.md && cp README.md packages/cli/README.md",
+    "build": "pnpm run sync:readme && pnpm --filter dispersa build && pnpm --filter dispersa-cli build && pnpm --filter './examples/**' -r build",
     "test": "pnpm -r test",
     "dev": "pnpm -r dev",
     "typecheck": "pnpm -r typecheck",

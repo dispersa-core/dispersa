@@ -393,7 +393,6 @@ exports[`enterprise > should produce expected file structure and content 1`] = `
 
 exports[`no-filesystem > should produce expected output 1`] = `
 "
-> dispersa-in-memory-example@1.0.0 build /Users/tgesemann/Documents/dev/priv/dispersa/examples/no-filesystem
 > tsx build.ts
 
 Built 5 outputs in memory
