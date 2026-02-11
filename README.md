@@ -7,8 +7,6 @@ A TypeScript build system for processing [DTCG 2025.10](https://www.designtokens
 - **DTCG 2025.10 compliant** -- full support for the resolver and token format specifications
 - **Multiple outputs** -- CSS custom properties, JSON, JS/TS modules, Figma Variables
 - **Extensible pipeline** -- custom preprocessors, filters, transforms, and renderers
-- **Three output presets** -- standalone (one file per permutation), bundle (all-in-one), modifier (diff-only)
-- **Reference resolution** -- alias `{token.name}` and JSON Pointer `$ref` with circular detection
 - **Schema validation** -- AJV runtime validation with schema-generated TypeScript types
 - **In-memory mode** -- use without the filesystem for build tools, APIs, and testing
 - **CLI** -- config-first workflow with auto-discovery
@@ -94,7 +92,7 @@ Renders CSS custom properties.
 
 | Option               | Type                                     | Default    | Description                                  |
 | -------------------- | ---------------------------------------- | ---------- | -------------------------------------------- |
-| `name`               | `string`                                 | required   | Unique output identifier                     |
+| `name`               | `string`                                 | --         | Unique output identifier                     |
 | `file`               | `string \| function`                     | --         | Output path (supports `{modifier}` patterns) |
 | `preset`             | `'bundle' \| 'standalone' \| 'modifier'` | `'bundle'` | Output preset                                |
 | `selector`           | `string \| SelectorFunction`             | `':root'`  | CSS selector                                 |
@@ -110,7 +108,7 @@ Renders JSON output.
 
 | Option            | Type                       | Default        | Description                                  |
 | ----------------- | -------------------------- | -------------- | -------------------------------------------- |
-| `name`            | `string`                   | required       | Unique output identifier                     |
+| `name`            | `string`                   | --             | Unique output identifier                     |
 | `file`            | `string \| function`       | --             | Output path (supports `{modifier}` patterns) |
 | `preset`          | `'bundle' \| 'standalone'` | `'standalone'` | Output preset                                |
 | `structure`       | `'flat' \| 'nested'`       | --             | Token structure in output                    |
@@ -125,7 +123,7 @@ Renders JavaScript/TypeScript modules.
 
 | Option           | Type                       | Default        | Description                                  |
 | ---------------- | -------------------------- | -------------- | -------------------------------------------- |
-| `name`           | `string`                   | required       | Unique output identifier                     |
+| `name`           | `string`                   | --             | Unique output identifier                     |
 | `file`           | `string \| function`       | --             | Output path (supports `{modifier}` patterns) |
 | `preset`         | `'bundle' \| 'standalone'` | `'standalone'` | Output preset                                |
 | `structure`      | `'flat' \| 'nested'`       | --             | Token structure in output                    |
@@ -141,7 +139,7 @@ Renders Figma Variables JSON.
 
 | Option               | Type                     | Default  | Description                          |
 | -------------------- | ------------------------ | -------- | ------------------------------------ |
-| `name`               | `string`                 | required | Unique output identifier             |
+| `name`               | `string`                 | --       | Unique output identifier             |
 | `file`               | `string \| function`     | --       | Output path                          |
 | `collectionName`     | `string`                 | required | Figma collection name                |
 | `modeMapping`        | `Record<string, string>` | required | Map modifier contexts to Figma modes |
