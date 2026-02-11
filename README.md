@@ -1,6 +1,6 @@
 # Dispersa
 
-A TypeScript build system for processing [DTCG 2025.10](https://www.designtokens.org/) design tokens. Dispersa loads resolver documents, resolves references and modifiers, applies filters and transforms, then renders output to CSS, JSON, and JS/TS modules.
+A TypeScript build system for processing [DTCG 2025.10](https://www.designtokens.org/) design tokens. Dispersa loads resolver documents, resolves references and modifiers, applies filters and transforms, then renders output to CSS, JSON, JS/TS or custom modules.
 
 ## Features
 
