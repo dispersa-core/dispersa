@@ -70,7 +70,7 @@ describe('Build Output Modes', () => {
       const bundledFile = result.outputs[0]
       expect(bundledFile!.content).toContain(':root')
       expect(bundledFile!.content).toContain('[data-theme="dark"]')
-      expect(bundledFile!.content).toContain('/* Base:')
+      expect(bundledFile!.content).toContain('/* Set: base */')
     })
   })
 

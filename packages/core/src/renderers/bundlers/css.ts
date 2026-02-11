@@ -10,7 +10,6 @@ import { BasePermutationError, ConfigurationError } from '@shared/errors/index'
 import type { BundleDataItem } from './types'
 import {
   stripInternalMetadata,
-  generatePermutationKey,
   resolveSelector,
   resolveMediaQuery,
   countModifierDifferences,
@@ -79,7 +78,7 @@ export async function bundleAsCss(
       continue
     }
 
-    const block = await formatModifierPermutation(item, baseItem, resolver, options, formatTokens)
+    const block = await formatModifierPermutation(item, baseItem, options, formatTokens)
     if (block) {
       cssBlocks.push(block)
     }
@@ -98,13 +97,12 @@ async function formatBasePermutation(
   const modifier = firstModifierName ?? ''
   const context = modifierInputs[modifier] ?? ''
 
-  const baseKey = generatePermutationKey(modifierInputs, resolver, true)
   const selector = resolveSelector(options?.selector, modifier, context, true, modifierInputs)
   const mediaQuery = resolveMediaQuery(options?.mediaQuery, modifier, context, true, modifierInputs)
   const referenceTokens = stripInternalMetadata(tokens)
   const defaultBlocks = buildDefaultLayerBlocks(tokens, modifierInputs, resolver)
 
-  const cssBlocks: string[] = [`/* Base: ${baseKey} */`]
+  const cssBlocks: string[] = []
   for (const block of defaultBlocks) {
     const cleanTokens = stripInternalMetadata(block.tokens)
     const css = await formatTokens(cleanTokens, {
@@ -113,7 +111,10 @@ async function formatBasePermutation(
       minify: options?.minify,
       referenceTokens,
     })
-    cssBlocks.push(`/* ${block.label} */\n${css}`)
+    const header = block.description
+      ? `/* ${block.key} */\n/* ${block.description} */`
+      : `/* ${block.key} */`
+    cssBlocks.push(`${header}\n${css}`)
   }
 
   return cssBlocks
@@ -122,7 +123,6 @@ async function formatBasePermutation(
 async function formatModifierPermutation(
   { tokens, modifierInputs }: BundleDataItem,
   baseItem: BundleDataItem,
-  resolver: ResolverDocument,
   options: CssRendererOptions | undefined,
   formatTokens: (tokens: ResolvedTokens, options: ResolvedCssOptions) => Promise<string>,
 ): Promise<string | undefined> {
@@ -166,27 +166,32 @@ async function formatModifierPermutation(
     minify: options?.minify,
     referenceTokens,
   })
-  const key = generatePermutationKey(modifierInputs, resolver, false)
-  return `/* Modifier: ${key} */\n${css}`
+  return `/* Modifier: ${modifier}=${context} */\n${css}`
+}
+
+type DefaultLayerBlock = {
+  key: string
+  description?: string
+  tokens: BundleDataItem['tokens']
 }
 
 function buildDefaultLayerBlocks(
   tokens: BundleDataItem['tokens'],
   baseModifierInputs: Record<string, string>,
   resolver: ResolverDocument,
-): Array<{ label: string; tokens: BundleDataItem['tokens'] }> {
-  const blocks: Array<{ label: string; tokens: BundleDataItem['tokens'] }> = []
+): DefaultLayerBlock[] {
+  const blocks: DefaultLayerBlock[] = []
   const included = new Set<string>()
 
   const baseInputs = normalizeModifierInputs(baseModifierInputs)
-  const addBlock = (label: string, blockTokens: BundleDataItem['tokens']) => {
+  const addBlock = (key: string, blockTokens: BundleDataItem['tokens'], description?: string) => {
     if (Object.keys(blockTokens).length === 0) {
       return
     }
-    for (const key of Object.keys(blockTokens)) {
-      included.add(key)
+    for (const k of Object.keys(blockTokens)) {
+      included.add(k)
     }
-    blocks.push({ label, tokens: blockTokens })
+    blocks.push({ key, description, tokens: blockTokens })
   }
 
   for (const item of resolver.resolutionOrder) {
@@ -210,12 +215,7 @@ function buildDefaultLayerBlocks(
         }
       }
 
-      addBlock(
-        setDescription
-          ? `Defaults (set: ${setName}) - ${setDescription}`
-          : `Defaults (set: ${setName})`,
-        setTokens,
-      )
+      addBlock(`Set: ${setName}`, setTokens, setDescription)
       continue
     }
 
@@ -244,12 +244,10 @@ function buildDefaultLayerBlocks(
         }
       }
 
-      const desc = modifier.description
       addBlock(
-        desc
-          ? `Defaults (modifier: ${modifierName}=${selectedContext}) - ${desc}`
-          : `Defaults (modifier: ${modifierName}=${selectedContext})`,
+        `Modifier: ${modifierName}=${selectedContext} (default)`,
         modifierTokens,
+        modifier.description,
       )
     }
   }
@@ -262,7 +260,7 @@ function buildDefaultLayerBlocks(
     }
     remainder[name] = token
   }
-  addBlock('Defaults (unattributed)', remainder)
+  addBlock('Unattributed', remainder)
 
   return blocks
 }
@@ -335,26 +333,17 @@ function orderBundleData(
     return bundleData
   }
 
-  const firstContexts = Object.keys(firstModifierDef.contexts)
-  const firstDefault = baseInputs[firstModifier.toLowerCase()] ?? ''
+  // Base (root) always comes first, regardless of context key order
+  pushUnique(baseItem)
 
-  for (const ctx of firstContexts) {
-    if (firstDefault === ctx.toLowerCase()) {
-      pushUnique(baseItem)
-      continue
-    }
-
-    pushUnique(findSingleDiff(firstModifier, ctx))
-  }
-
-  for (const modifierName of orderedModifierNames.slice(1)) {
+  for (const modifierName of orderedModifierNames) {
     const modifierDef = modifiers[modifierName]
     if (!modifierDef) {
       continue
     }
 
     const contexts = Object.keys(modifierDef.contexts)
-    const defaultValue = baseInputs[modifierName.toLowerCase()]
+    const defaultValue = baseInputs[modifierName.toLowerCase()] ?? ''
 
     for (const ctx of contexts) {
       if (defaultValue === ctx.toLowerCase()) {
@@ -362,11 +351,6 @@ function orderBundleData(
       }
       pushUnique(findSingleDiff(modifierName, ctx))
     }
-  }
-
-  // If base was never inserted (e.g. first modifier contexts didn't include default), keep existing behavior.
-  if (!ordered.some((i) => i.isBase)) {
-    pushUnique(baseItem)
   }
 
   return ordered.length > 0 ? ordered : bundleData

@@ -124,11 +124,6 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     const referenceTokens = opts.referenceTokens ?? tokens
 
     for (const [selector, groupTokens] of Object.entries(groups)) {
-      // Only add selector comment for :root (default theme)
-      if (groupTokens.length > 0 && selector === ':root' && !opts.mediaQuery) {
-        lines.push(`/* Default theme variables */${newline}`)
-      }
-
       // Check if we need to wrap in a media query
       const hasMediaQuery = opts.mediaQuery != null && opts.mediaQuery !== ''
 
