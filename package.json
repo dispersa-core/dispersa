@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "sync:readme": "cp README.md packages/core/README.md",
-    "build": "pnpm run sync:readme && pnpm --filter dispersa build && pnpm --filter './examples/**' -r build",
+    "build": "pnpm run sync:readme && pnpm --filter './packages/**' -r build",
+    "build:examples": "pnpm install && pnpm --filter './examples/**' -r build",
     "test": "pnpm -r test",
     "test:update": "pnpm -r test:update",
     "dev": "pnpm -r dev",

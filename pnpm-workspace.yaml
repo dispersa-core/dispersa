@@ -3,5 +3,3 @@ packages:
   - 'apps/*'
   - 'examples'
   - 'examples/*'
-  - 'examples/multi-platform/previews/web'
-  - 'examples/multi-platform/previews/tailwind'
