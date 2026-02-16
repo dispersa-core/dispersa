@@ -5,6 +5,7 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
+      "dispersa": ["index.ts"],
       "@codegen/*": ["codegen/*"],
       "@tokens/*": ["tokens/*"],
       "@processing/*": ["processing/*"],

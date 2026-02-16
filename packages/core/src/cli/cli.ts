@@ -223,17 +223,9 @@ async function buildAliasMap(cwd: string): Promise<Record<string, string>> {
   const alias: Record<string, string> = {}
 
   // Dev monorepo: point to source files for hot-reload
-  const coreRoot = resolve(cwd, 'packages/core/src')
-  const coreSourcePath = resolve(coreRoot, 'index.ts')
+  const coreSourcePath = resolve(cwd, 'packages/core/src/index.ts')
   if (await fileExists(coreSourcePath)) {
     alias['dispersa'] = coreSourcePath
-    alias['@adapters'] = resolve(coreRoot, 'adapters')
-    alias['@build'] = resolve(coreRoot, 'build')
-    alias['@builders'] = resolve(coreRoot, 'builders')
-    alias['@config'] = resolve(coreRoot, 'config')
-    alias['@lib'] = resolve(coreRoot, 'lib')
-    alias['@renderers'] = resolve(coreRoot, 'renderers')
-    alias['@shared'] = resolve(coreRoot, 'shared')
     return alias
   }
 
