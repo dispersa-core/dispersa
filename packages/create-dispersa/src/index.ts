@@ -1,0 +1,11 @@
+/**
+ * @license MIT
+ * Copyright (c) 2025-present Dispersa Contributors
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { runCreate } from './prompts.js'
+
+await runCreate(process.argv.slice(2))

@@ -1,0 +1,43 @@
+{
+  "name": "create-dispersa",
+  "version": "0.1.0",
+  "description": "Scaffold a new Dispersa design token project",
+  "author": "Tim Gesemann",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-dispersa": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timges/dispersa.git",
+    "directory": "packages/create-dispersa"
+  },
+  "homepage": "https://github.com/timges/dispersa",
+  "bugs": {
+    "url": "https://github.com/timges/dispersa/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.0.1",
+    "giget": "^3.1.2",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
+  }
+}
