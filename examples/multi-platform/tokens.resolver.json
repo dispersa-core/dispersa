@@ -1,0 +1,23 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "name": "Multi-Platform Example — Adobe Spectrum Design Tokens",
+  "version": "2025.10",
+  "description": "Spectrum design tokens output to CSS, Tailwind, iOS (Swift), and Android (Kotlin)",
+  "sets": {
+    "core": {
+      "description": "Core tokens (base primitives and semantic aliases)",
+      "sources": [{ "$ref": "./tokens/base.json" }, { "$ref": "./tokens/alias.json" }]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Theme variations (light / dark)",
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/themes/light.json" }],
+        "dark": [{ "$ref": "./tokens/themes/dark.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [{ "$ref": "#/sets/core" }, { "$ref": "#/modifiers/theme" }]
+}

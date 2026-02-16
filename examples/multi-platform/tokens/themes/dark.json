@@ -1,0 +1,188 @@
+{
+  "$description": "Dark theme overrides — values from Spectrum dark color set",
+  "color": {
+    "gray": {
+      "25": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.067, 0.067, 0.067] },
+        "$description": "Spectrum gray-25 dark: rgb(17,17,17)"
+      },
+      "50": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.106, 0.106, 0.106] },
+        "$description": "Spectrum gray-50 dark: rgb(27,27,27)"
+      },
+      "75": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.133, 0.133, 0.133] },
+        "$description": "Spectrum gray-75 dark: rgb(34,34,34)"
+      },
+      "100": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.173, 0.173, 0.173] },
+        "$description": "Spectrum gray-100 dark: rgb(44,44,44)"
+      },
+      "200": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.196, 0.196, 0.196] },
+        "$description": "Spectrum gray-200 dark: rgb(50,50,50)"
+      },
+      "300": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.224, 0.224, 0.224] },
+        "$description": "Spectrum gray-300 dark: rgb(57,57,57)"
+      },
+      "400": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.267, 0.267, 0.267] },
+        "$description": "Spectrum gray-400 dark: rgb(68,68,68)"
+      },
+      "500": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.427, 0.427, 0.427] },
+        "$description": "Spectrum gray-500 dark: rgb(109,109,109)"
+      },
+      "600": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.541, 0.541, 0.541] },
+        "$description": "Spectrum gray-600 dark: rgb(138,138,138)"
+      },
+      "700": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.686, 0.686, 0.686] },
+        "$description": "Spectrum gray-700 dark: rgb(175,175,175)"
+      },
+      "800": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.859, 0.859, 0.859] },
+        "$description": "Spectrum gray-800 dark: rgb(219,219,219)"
+      },
+      "900": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.949, 0.949, 0.949] },
+        "$description": "Spectrum gray-900 dark: rgb(242,242,242)"
+      }
+    },
+    "blue": {
+      "400": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.071, 0.176, 0.604] },
+        "$description": "Spectrum blue-400 dark: rgb(18,45,154)"
+      },
+      "600": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.145, 0.286, 0.898] },
+        "$description": "Spectrum blue-600 dark: rgb(37,73,229)"
+      },
+      "800": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.251, 0.412, 0.992] },
+        "$description": "Spectrum blue-800 dark: rgb(64,105,253)"
+      },
+      "900": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.337, 0.506, 1] },
+        "$description": "Spectrum blue-900 dark: rgb(86,129,255)"
+      },
+      "1000": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.412, 0.584, 0.996] },
+        "$description": "Spectrum blue-1000 dark: rgb(105,149,254)"
+      },
+      "1100": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.486, 0.663, 0.988] },
+        "$description": "Spectrum blue-1100 dark: rgb(124,169,252)"
+      }
+    },
+    "red": {
+      "600": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [1, 0.384, 0.325] },
+        "$description": "Spectrum red-600 dark"
+      },
+      "800": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [1, 0.271, 0.2] },
+        "$description": "Spectrum red-800 dark"
+      },
+      "900": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.957, 0.224, 0.161] },
+        "$description": "Spectrum red-900 dark"
+      },
+      "1000": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.906, 0.173, 0.118] },
+        "$description": "Spectrum red-1000 dark"
+      }
+    },
+    "green": {
+      "600": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.063, 0.694, 0.278] },
+        "$description": "Spectrum green-600 dark"
+      },
+      "800": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.031, 0.608, 0.216] },
+        "$description": "Spectrum green-800 dark"
+      },
+      "900": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.016, 0.545, 0.18] },
+        "$description": "Spectrum green-900 dark"
+      },
+      "1000": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0, 0.478, 0.145] },
+        "$description": "Spectrum green-1000 dark"
+      }
+    },
+    "orange": {
+      "600": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [1, 0.573, 0.094] },
+        "$description": "Spectrum orange-600 dark"
+      },
+      "800": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.906, 0.467, 0] },
+        "$description": "Spectrum orange-800 dark"
+      },
+      "900": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0.835, 0.4, 0] },
+        "$description": "Spectrum orange-900 dark"
+      }
+    },
+    "alias": {
+      "$description": "Dark theme semantic overrides — Spectrum uses different palette stops in dark mode",
+      "accent-background-default": {
+        "$type": "color",
+        "$value": "{color.blue.800}",
+        "$description": "Dark: accent-color-800 instead of 900"
+      },
+      "accent-background-hover": {
+        "$type": "color",
+        "$value": "{color.blue.900}",
+        "$description": "Dark: shifts one stop lighter"
+      },
+      "negative-background-default": {
+        "$type": "color",
+        "$value": "{color.red.800}",
+        "$description": "Dark: negative-color-800 instead of 900"
+      },
+      "positive-background-default": {
+        "$type": "color",
+        "$value": "{color.green.800}",
+        "$description": "Dark: positive-color-800 instead of 900"
+      },
+      "notice-background-default": {
+        "$type": "color",
+        "$value": "{color.orange.900}",
+        "$description": "Dark: notice-color-900 instead of 600"
+      }
+    }
+  }
+}

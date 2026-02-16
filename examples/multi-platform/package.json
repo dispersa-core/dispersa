@@ -1,0 +1,27 @@
+{
+  "name": "dispersa-multi-platform",
+  "version": "1.0.0",
+  "description": "Multi-platform design token example: CSS, Tailwind, iOS (Swift), Android (Kotlin)",
+  "type": "module",
+  "scripts": {
+    "build": "tsx build.ts",
+    "dev:web": "cd previews/web && npx vite",
+    "dev:tailwind": "cd previews/tailwind && npx vite",
+    "copy:ios": "cd previews/ios && ./copy-tokens.sh",
+    "copy:android": "cd previews/android && ./copy-tokens.sh",
+    "preview:web": "pnpm build && cd previews/web && npx vite",
+    "preview:tailwind": "pnpm build && cd previews/tailwind && npx vite",
+    "preview:ios": "pnpm build && pnpm copy:ios && xcode previews/ios/Package.swift",
+    "preview:android": "pnpm build && pnpm copy:android && open -a 'Android Studio' previews/android/",
+    "verify:ios": "pnpm copy:ios && cd previews/ios && swift build",
+    "verify:android": "pnpm copy:android && cd previews/android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "dispersa": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

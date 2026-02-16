@@ -1,0 +1,12 @@
+{
+  "name": "dispersa-cli-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "dispersa build"
+  },
+  "dependencies": {
+    "dispersa": "file:../../packages/core"
+  }
+}

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dispersa Design Tokens — Spectrum-Inspired Showcase</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-accent-bar"></div>
+      <div class="header-inner">
+        <h1 class="header-title">Design Tokens</h1>
+        <p class="header-subtitle">Spectrum-inspired token showcase</p>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-label">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Color Palette -->
+      <section class="section">
+        <h2 class="section-title">Color Palette</h2>
+        <h3 class="subsection-title">Gray Scale</h3>
+        <div class="color-grid color-grid--gray">
+          <div class="color-swatch" style="--swatch: var(--color-gray-25)">gray-25</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-50)">gray-50</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-75)">gray-75</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-100)">gray-100</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-200)">gray-200</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-300)">gray-300</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-400)">gray-400</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-500)">gray-500</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-600)">gray-600</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-700)">gray-700</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-800)">gray-800</div>
+          <div class="color-swatch" style="--swatch: var(--color-gray-900)">gray-900</div>
+        </div>
+
+        <h3 class="subsection-title">Blue</h3>
+        <div class="color-grid color-grid--hue">
+          <div class="color-swatch" style="--swatch: var(--color-blue-400)">blue-400</div>
+          <div class="color-swatch" style="--swatch: var(--color-blue-600)">blue-600</div>
+          <div class="color-swatch" style="--swatch: var(--color-blue-800)">blue-800</div>
+          <div class="color-swatch" style="--swatch: var(--color-blue-900)">blue-900</div>
+          <div class="color-swatch" style="--swatch: var(--color-blue-1000)">blue-1000</div>
+          <div class="color-swatch" style="--swatch: var(--color-blue-1100)">blue-1100</div>
+        </div>
+
+        <h3 class="subsection-title">Red · Green · Orange</h3>
+        <div class="color-grid color-grid--hue">
+          <div class="color-swatch" style="--swatch: var(--color-red-600)">red-600</div>
+          <div class="color-swatch" style="--swatch: var(--color-red-800)">red-800</div>
+          <div class="color-swatch" style="--swatch: var(--color-red-900)">red-900</div>
+          <div class="color-swatch" style="--swatch: var(--color-red-1000)">red-1000</div>
+          <div class="color-swatch" style="--swatch: var(--color-green-600)">green-600</div>
+          <div class="color-swatch" style="--swatch: var(--color-green-800)">green-800</div>
+          <div class="color-swatch" style="--swatch: var(--color-green-900)">green-900</div>
+          <div class="color-swatch" style="--swatch: var(--color-green-1000)">green-1000</div>
+          <div class="color-swatch" style="--swatch: var(--color-orange-600)">orange-600</div>
+          <div class="color-swatch" style="--swatch: var(--color-orange-800)">orange-800</div>
+          <div class="color-swatch" style="--swatch: var(--color-orange-900)">orange-900</div>
+        </div>
+
+        <h3 class="subsection-title">Static</h3>
+        <div class="color-grid color-grid--static">
+          <div class="color-swatch color-swatch--border" style="--swatch: var(--color-static-white)">static-white</div>
+          <div class="color-swatch" style="--swatch: var(--color-static-black)">static-black</div>
+        </div>
+      </section>
+
+      <!-- Semantic Colors -->
+      <section class="section">
+        <h2 class="section-title">Semantic Colors</h2>
+        <div class="semantic-grid">
+          <div class="semantic-card" style="--card-bg: var(--color-alias-background-base)">
+            <span class="semantic-card-label">background-base</span>
+          </div>
+          <div class="semantic-card" style="--card-bg: var(--color-alias-background-layer-1)">
+            <span class="semantic-card-label">background-layer-1</span>
+          </div>
+          <div class="semantic-card" style="--card-bg: var(--color-alias-background-layer-2)">
+            <span class="semantic-card-label">background-layer-2</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-accent-background-default)">
+            <span class="semantic-card-label">accent-default</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-accent-background-hover)">
+            <span class="semantic-card-label">accent-hover</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-negative-background-default)">
+            <span class="semantic-card-label">negative</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-positive-background-default)">
+            <span class="semantic-card-label">positive</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-notice-background-default)">
+            <span class="semantic-card-label">notice</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-neutral-background-default)">
+            <span class="semantic-card-label">neutral-default</span>
+          </div>
+          <div class="semantic-card semantic-card--accent" style="--card-bg: var(--color-alias-neutral-background-hover)">
+            <span class="semantic-card-label">neutral-hover</span>
+          </div>
+          <div class="semantic-card" style="--card-bg: var(--color-alias-disabled-background)">
+            <span class="semantic-card-label">disabled</span>
+          </div>
+          <div class="semantic-card" style="--card-bg: var(--color-alias-focus-indicator)">
+            <span class="semantic-card-label">focus-indicator</span>
+          </div>
+        </div>
+        <div class="text-samples">
+          <span class="text-sample text-sample--primary">text-primary</span>
+          <span class="text-sample text-sample--secondary">text-secondary</span>
+          <span class="text-sample text-sample--disabled">text-disabled</span>
+          <span class="text-sample text-sample--on-accent">text-on-accent</span>
+        </div>
+      </section>
+
+      <!-- Spacing Scale -->
+      <section class="section">
+        <h2 class="section-title">Spacing Scale</h2>
+        <div class="spacing-grid">
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-50)"></div>
+            <span class="spacing-label">50 (2px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-75)"></div>
+            <span class="spacing-label">75 (4px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-100)"></div>
+            <span class="spacing-label">100 (8px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-200)"></div>
+            <span class="spacing-label">200 (12px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-300)"></div>
+            <span class="spacing-label">300 (16px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-400)"></div>
+            <span class="spacing-label">400 (24px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-500)"></div>
+            <span class="spacing-label">500 (32px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: var(--spacing-600)"></div>
+            <span class="spacing-label">600 (40px)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Typography -->
+      <section class="section">
+        <h2 class="section-title">Typography</h2>
+        <h3 class="subsection-title">Font Size Ramp</h3>
+        <div class="typography-grid">
+          <p class="type-sample" style="font-size: var(--typography-font-size-75)">75 · 12px · The quick brown fox</p>
+          <p class="type-sample" style="font-size: var(--typography-font-size-100)">100 · 14px · The quick brown fox</p>
+          <p class="type-sample" style="font-size: var(--typography-font-size-200)">200 · 16px · The quick brown fox</p>
+          <p class="type-sample" style="font-size: var(--typography-font-size-300)">300 · 18px · The quick brown fox</p>
+          <p class="type-sample" style="font-size: var(--typography-font-size-400)">400 · 20px · The quick brown fox</p>
+          <p class="type-sample" style="font-size: var(--typography-font-size-500)">500 · 22px · The quick brown fox</p>
+        </div>
+        <h3 class="subsection-title">Font Weights</h3>
+        <div class="typography-grid typography-grid--weights">
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-light)">Light 300</p>
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-regular)">Regular 400</p>
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-medium)">Medium 500</p>
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-bold)">Bold 700</p>
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-extra-bold)">Extra Bold 800</p>
+          <p class="type-sample" style="font-weight: var(--typography-font-weight-black)">Black 900</p>
+        </div>
+        <h3 class="subsection-title">Font Families</h3>
+        <div class="typography-grid">
+          <p class="type-sample" style="font-family: var(--typography-font-family-sans)">Sans — The quick brown fox jumps</p>
+          <p class="type-sample" style="font-family: var(--typography-font-family-serif)">Serif — The quick brown fox jumps</p>
+        </div>
+      </section>
+
+      <!-- Shadows -->
+      <section class="section">
+        <h2 class="section-title">Shadows</h2>
+        <div class="shadow-grid">
+          <div class="shadow-card" style="box-shadow: var(--shadow-100)">
+            <span class="shadow-label">shadow-100</span>
+          </div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-200)">
+            <span class="shadow-label">shadow-200</span>
+          </div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-300)">
+            <span class="shadow-label">shadow-300</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Corner Radius -->
+      <section class="section">
+        <h2 class="section-title">Corner Radius</h2>
+        <div class="radius-grid">
+          <div class="radius-box" style="border-radius: var(--layout-corner-radius-75)">75 · 3px</div>
+          <div class="radius-box" style="border-radius: var(--layout-corner-radius-100)">100 · 4px</div>
+          <div class="radius-box" style="border-radius: var(--layout-corner-radius-200)">200 · 5px</div>
+          <div class="radius-box" style="border-radius: var(--layout-corner-radius-500)">500 · 8px</div>
+          <div class="radius-box" style="border-radius: var(--layout-corner-radius-800)">800 · 16px</div>
+        </div>
+      </section>
+
+      <!-- Borders -->
+      <section class="section">
+        <h2 class="section-title">Borders</h2>
+        <div class="border-grid">
+          <div class="border-box" style="border-width: var(--layout-border-width-100); border-color: var(--color-alias-border-default)">
+            <span class="border-label">100 · default</span>
+          </div>
+          <div class="border-box" style="border-width: var(--layout-border-width-200); border-color: var(--color-alias-border-default)">
+            <span class="border-label">200 · default</span>
+          </div>
+          <div class="border-box border-box--hover" style="border-width: var(--layout-border-width-100); border-color: var(--color-alias-border-hover)">
+            <span class="border-label">100 · hover</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: var(--typography-font-family-sans);
+        font-size: 16px;
+        color: var(--color-alias-text-primary);
+        background: var(--color-alias-background-base);
+        transition: color var(--motion-duration-200), background var(--motion-duration-200);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      .header {
+        position: relative;
+        background: var(--color-alias-background-layer-1);
+        border-bottom: var(--layout-border-width-100) solid var(--color-alias-border-default);
+      }
+
+      .header-accent-bar {
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--color-blue-600),
+          var(--color-blue-800),
+          var(--color-blue-900)
+        );
+      }
+
+      .header-inner {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: var(--spacing-75) var(--spacing-300);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--spacing-400) var(--spacing-300);
+      }
+
+      .header-title {
+        margin: 0;
+        font-size: var(--typography-font-size-400);
+        font-weight: var(--typography-font-weight-bold);
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .header-subtitle {
+        margin: 0;
+        font-size: var(--typography-font-size-100);
+        color: var(--color-alias-text-secondary);
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .theme-toggle {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        padding: var(--spacing-100) var(--spacing-200);
+        font-family: inherit;
+        font-size: var(--typography-font-size-75);
+        font-weight: var(--typography-font-weight-medium);
+        color: var(--color-alias-text-on-accent);
+        background: var(--color-alias-accent-background-default);
+        border: none;
+        border-radius: var(--layout-corner-radius-100);
+        cursor: pointer;
+        transition: background var(--motion-duration-100);
+      }
+
+      .theme-toggle:hover {
+        background: var(--color-alias-accent-background-hover);
+      }
+
+      .theme-toggle:focus-visible {
+        outline: var(--layout-border-width-200) solid var(--color-alias-focus-indicator);
+        outline-offset: 2px;
+      }
+
+      html[data-theme='dark'] .theme-toggle-label::before {
+        content: 'Light';
+      }
+
+      .theme-toggle-label::before {
+        content: 'Dark';
+      }
+
+      .main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--spacing-400) var(--spacing-300);
+        display: grid;
+        gap: var(--spacing-500);
+      }
+
+      .section {
+        display: grid;
+        gap: var(--spacing-200);
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: var(--typography-font-size-300);
+        font-weight: var(--typography-font-weight-bold);
+        color: var(--color-alias-text-primary);
+        padding-bottom: var(--spacing-100);
+        border-bottom: var(--layout-border-width-100) solid var(--color-alias-border-default);
+      }
+
+      .subsection-title {
+        margin: 0;
+        font-size: var(--typography-font-size-200);
+        font-weight: var(--typography-font-weight-medium);
+        color: var(--color-alias-text-secondary);
+      }
+
+      /* Color swatches */
+      .color-grid {
+        display: grid;
+        gap: var(--spacing-100);
+      }
+
+      .color-grid--gray {
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      .color-grid--hue {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+
+      .color-grid--static {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+      .color-swatch {
+        aspect-ratio: 1;
+        background: var(--swatch);
+        border-radius: var(--layout-corner-radius-100);
+        display: grid;
+        align-items: end;
+        padding: var(--spacing-75);
+        font-size: var(--typography-font-size-75);
+        font-weight: var(--typography-font-weight-medium);
+        color: var(--color-static-white);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .color-swatch--border {
+        border: var(--layout-border-width-100) solid var(--color-alias-border-default);
+        color: var(--color-alias-text-primary);
+        text-shadow: none;
+      }
+
+      /* Semantic cards */
+      .semantic-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--spacing-200);
+      }
+
+      .semantic-card {
+        padding: var(--spacing-200);
+        background: var(--card-bg);
+        border: var(--layout-border-width-100) solid var(--color-alias-border-default);
+        border-radius: var(--layout-corner-radius-200);
+        min-height: 80px;
+        display: grid;
+        align-items: end;
+      }
+
+      .semantic-card--accent .semantic-card-label {
+        color: var(--color-alias-text-on-accent);
+      }
+
+      .semantic-card-label {
+        font-size: var(--typography-font-size-75);
+        font-weight: var(--typography-font-weight-medium);
+        color: var(--color-alias-text-secondary);
+      }
+
+      .text-samples {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--spacing-200);
+        padding: var(--spacing-200);
+        background: var(--color-alias-background-layer-2);
+        border-radius: var(--layout-corner-radius-200);
+      }
+
+      .text-sample {
+        margin: 0;
+        font-size: var(--typography-font-size-100);
+      }
+
+      .text-sample--primary {
+        color: var(--color-alias-text-primary);
+      }
+
+      .text-sample--secondary {
+        color: var(--color-alias-text-secondary);
+      }
+
+      .text-sample--disabled {
+        color: var(--color-alias-text-disabled);
+      }
+
+      .text-sample--on-accent {
+        color: var(--color-alias-text-on-accent);
+        background: var(--color-alias-accent-background-default);
+        padding: var(--spacing-75) var(--spacing-100);
+        border-radius: var(--layout-corner-radius-75);
+      }
+
+      /* Spacing scale */
+      .spacing-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--spacing-200);
+      }
+
+      .spacing-item {
+        display: grid;
+        grid-template-rows: 40px auto;
+        gap: var(--spacing-75);
+        align-items: start;
+      }
+
+      .spacing-bar {
+        height: 24px;
+        background: var(--color-alias-accent-background-default);
+        border-radius: var(--layout-corner-radius-75);
+      }
+
+      .spacing-label {
+        font-size: var(--typography-font-size-75);
+        color: var(--color-alias-text-secondary);
+      }
+
+      /* Typography */
+      .typography-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-100);
+      }
+
+      .typography-grid--weights {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .type-sample {
+        margin: 0;
+        font-family: var(--typography-font-family-sans);
+        color: var(--color-alias-text-primary);
+      }
+
+      /* Shadows */
+      .shadow-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-400);
+        padding: var(--spacing-400);
+        background: var(--color-alias-background-layer-2);
+        border-radius: var(--layout-corner-radius-500);
+      }
+
+      .shadow-card {
+        padding: var(--spacing-300);
+        background: var(--color-alias-background-layer-1);
+        border-radius: var(--layout-corner-radius-200);
+        display: grid;
+        align-items: end;
+      }
+
+      .shadow-label {
+        font-size: var(--typography-font-size-75);
+        color: var(--color-alias-text-secondary);
+      }
+
+      /* Corner radius */
+      .radius-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--spacing-200);
+      }
+
+      .radius-box {
+        padding: var(--spacing-200);
+        background: var(--color-alias-background-layer-1);
+        border: var(--layout-border-width-100) solid var(--color-alias-border-default);
+        font-size: var(--typography-font-size-75);
+        color: var(--color-alias-text-secondary);
+        display: grid;
+        align-items: center;
+        justify-items: center;
+      }
+
+      /* Borders */
+      .border-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-200);
+      }
+
+      .border-box {
+        padding: var(--spacing-300);
+        background: var(--color-alias-background-layer-1);
+        border-style: solid;
+        border-radius: var(--layout-corner-radius-100);
+        display: grid;
+        align-items: center;
+        justify-items: center;
+      }
+
+      .border-box--hover {
+        border-color: var(--color-alias-border-hover);
+      }
+
+      .border-label {
+        font-size: var(--typography-font-size-75);
+        color: var(--color-alias-text-secondary);
+      }
+
+      @media (max-width: 768px) {
+        .color-grid--gray {
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .semantic-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .text-samples {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .spacing-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .typography-grid--weights {
+          grid-template-columns: 1fr;
+        }
+
+        .shadow-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .radius-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .border-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
+    <script>
+      const toggle = document.getElementById('theme-toggle')
+      const html = document.documentElement
+
+      toggle.addEventListener('click', () => {
+        const isDark = html.getAttribute('data-theme') === 'dark'
+        html.setAttribute('data-theme', isDark ? '' : 'dark')
+      })
+    </script>
+  </body>
+</html>

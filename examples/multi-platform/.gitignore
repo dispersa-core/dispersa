@@ -1,0 +1,9 @@
+output/
+!output/.gitkeep
+previews/web/node_modules/
+previews/web/dist/
+previews/tailwind/node_modules/
+previews/tailwind/dist/
+previews/ios/.build/
+previews/android/build/
+previews/android/.gradle/

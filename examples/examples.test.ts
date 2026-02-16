@@ -47,7 +47,7 @@ function hashContents(files: Record<string, string>): Record<string, string> {
 const smallExamples = ['basic', 'split-by-type', 'custom-plugins']
 
 // Large examples: snapshot file list with content hashes (too many permutations for inline content)
-const largeExamples = ['advanced', 'enterprise', 'atlassian-semantic']
+const largeExamples = ['advanced', 'enterprise', 'atlassian-semantic', 'multi-platform']
 
 for (const example of smallExamples) {
   describe(example, () => {

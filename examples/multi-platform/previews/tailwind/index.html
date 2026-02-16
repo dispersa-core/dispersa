@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dispersa Design Tokens — Tailwind v4 Showcase</title>
+    <link rel="stylesheet" href="/src/main.css" />
+  </head>
+  <body
+    class="min-h-screen m-0 font-(--font-typography-font-family-sans) text-base text-(--color-alias-text-primary) bg-(--color-alias-background-base) transition-[color,background] duration-[var(--duration-motion-duration-200)]"
+  >
+    <header
+      class="relative bg-(--color-alias-background-layer-1) border-b border-solid border-(--color-alias-border-default) theme-dark:shadow-200"
+      style="border-width: var(--spacing-layout-border-width-100)"
+    >
+      <div
+        class="h-1 bg-gradient-to-r theme-dark:bg-gradient-to-l from-(--color-blue-600) via-(--color-blue-800) to-(--color-blue-900)"
+      ></div>
+      <div
+        class="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] gap-y-[var(--spacing-75)] gap-x-[var(--spacing-300)] max-w-[1200px] mx-auto py-[var(--spacing-400)] px-[var(--spacing-300)]"
+      >
+        <h1
+          class="m-0 text-[length:var(--spacing-typography-font-size-400)] font-[700] col-start-1 row-start-1"
+          style="font-weight: var(--font-weight-typography-font-weight-bold)"
+        >
+          Design Tokens
+        </h1>
+        <p
+          class="m-0 text-[length:var(--spacing-typography-font-size-100)] text-(--color-alias-text-secondary) col-start-1 row-start-2"
+        >
+          Spectrum-inspired token showcase
+        </p>
+        <button
+          type="button"
+          id="theme-toggle"
+          aria-label="Toggle dark mode"
+          class="col-start-2 row-span-2 self-center py-[var(--spacing-100)] px-[var(--spacing-200)] font-inherit text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent) bg-(--color-alias-accent-background-default) border-none rounded-[var(--spacing-layout-corner-radius-100)] cursor-pointer transition-colors duration-[var(--duration-motion-duration-100)] hover:bg-(--color-alias-accent-background-hover) focus-visible:outline focus-visible:outline-offset-2"
+          style="font-weight: var(--font-weight-typography-font-weight-medium); outline-width: var(--spacing-layout-border-width-200); outline-color: var(--color-alias-focus-indicator)"
+        >
+          <span class="theme-toggle-label" data-light="Dark" data-dark="Light">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main
+      class="max-w-[1200px] mx-auto py-[var(--spacing-400)] px-[var(--spacing-300)] grid gap-[var(--spacing-500)]"
+    >
+      <!-- Color Palette -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Color Palette
+        </h2>
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Gray Scale
+        </h3>
+        <div class="grid grid-cols-6 gap-[var(--spacing-100)] max-md:grid-cols-4">
+          <div class="aspect-square bg-(--color-gray-25) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-25</div>
+          <div class="aspect-square bg-(--color-gray-50) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-50</div>
+          <div class="aspect-square bg-(--color-gray-75) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-75</div>
+          <div class="aspect-square bg-(--color-gray-100) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-100</div>
+          <div class="aspect-square bg-(--color-gray-200) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-200</div>
+          <div class="aspect-square bg-(--color-gray-300) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-300</div>
+          <div class="aspect-square bg-(--color-gray-400) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-400</div>
+          <div class="aspect-square bg-(--color-gray-500) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-500</div>
+          <div class="aspect-square bg-(--color-gray-600) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-600</div>
+          <div class="aspect-square bg-(--color-gray-700) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-700</div>
+          <div class="aspect-square bg-(--color-gray-800) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-800</div>
+          <div class="aspect-square bg-(--color-gray-900) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">gray-900</div>
+        </div>
+
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Blue
+        </h3>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-[var(--spacing-100)]">
+          <div class="aspect-square bg-(--color-blue-400) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-400</div>
+          <div class="aspect-square bg-(--color-blue-600) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-600</div>
+          <div class="aspect-square bg-(--color-blue-800) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-800</div>
+          <div class="aspect-square bg-(--color-blue-900) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-900</div>
+          <div class="aspect-square bg-(--color-blue-1000) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-1000</div>
+          <div class="aspect-square bg-(--color-blue-1100) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">blue-1100</div>
+        </div>
+
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Red · Green · Orange
+        </h3>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-[var(--spacing-100)]">
+          <div class="aspect-square bg-(--color-red-600) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">red-600</div>
+          <div class="aspect-square bg-(--color-red-800) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">red-800</div>
+          <div class="aspect-square bg-(--color-red-900) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">red-900</div>
+          <div class="aspect-square bg-(--color-red-1000) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">red-1000</div>
+          <div class="aspect-square bg-(--color-green-600) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">green-600</div>
+          <div class="aspect-square bg-(--color-green-800) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">green-800</div>
+          <div class="aspect-square bg-(--color-green-900) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">green-900</div>
+          <div class="aspect-square bg-(--color-green-1000) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">green-1000</div>
+          <div class="aspect-square bg-(--color-orange-600) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">orange-600</div>
+          <div class="aspect-square bg-(--color-orange-800) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">orange-800</div>
+          <div class="aspect-square bg-(--color-orange-900) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">orange-900</div>
+        </div>
+
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Static
+        </h3>
+        <div class="grid grid-cols-2 gap-[var(--spacing-100)] max-w-[240px]">
+          <div class="aspect-square bg-(--color-static-white) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-medium); border-width: var(--spacing-layout-border-width-100)">static-white</div>
+          <div class="aspect-square bg-(--color-static-black) rounded-[var(--spacing-layout-corner-radius-100)] grid items-end p-[var(--spacing-75)] text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-static-white)" style="font-weight: var(--font-weight-typography-font-weight-medium); text-shadow: 0 1px 2px rgba(0,0,0,0.5)">static-black</div>
+        </div>
+      </section>
+
+      <!-- Semantic Colors -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Semantic Colors
+        </h2>
+        <div class="grid grid-cols-4 gap-[var(--spacing-200)] max-md:grid-cols-2">
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-base) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-secondary)">background-base</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-secondary)">background-layer-1</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-2) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-secondary)">background-layer-2</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-accent-background-default) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">accent-default</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-accent-background-hover) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">accent-hover</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-negative-background-default) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">negative</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-positive-background-default) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">positive</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-notice-background-default) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">notice</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-neutral-background-default) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">neutral-default</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-neutral-background-hover) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">neutral-hover</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-disabled-background) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-secondary)">disabled</span>
+          </div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-focus-indicator) border border-solid border-(--color-alias-border-default) rounded-[var(--spacing-layout-corner-radius-200)] min-h-[80px] grid items-end" style="border-width: var(--spacing-layout-border-width-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] font-[500] text-(--color-alias-text-on-accent)">focus-indicator</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-4 gap-[var(--spacing-200)] p-[var(--spacing-200)] bg-(--color-alias-background-layer-2) rounded-[var(--spacing-layout-corner-radius-200)] max-md:grid-cols-2">
+          <span class="text-[length:var(--spacing-typography-font-size-100)] text-(--color-alias-text-primary)">text-primary</span>
+          <span class="text-[length:var(--spacing-typography-font-size-100)] text-(--color-alias-text-secondary)">text-secondary</span>
+          <span class="text-[length:var(--spacing-typography-font-size-100)] text-(--color-alias-text-disabled)">text-disabled</span>
+          <span class="text-[length:var(--spacing-typography-font-size-100)] text-(--color-alias-text-on-accent) py-[var(--spacing-75)] px-[var(--spacing-100)] bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]">text-on-accent</span>
+        </div>
+      </section>
+
+      <!-- Spacing Scale -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Spacing Scale
+        </h2>
+        <div class="grid grid-cols-4 gap-[var(--spacing-200)] max-md:grid-cols-2">
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-50)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">50 (2px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-75)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">75 (4px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-100)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">100 (8px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-200)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">200 (12px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-300)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">300 (16px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-400)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">400 (24px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-500)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">500 (32px)</span>
+          </div>
+          <div class="grid grid-rows-[40px_auto] gap-[var(--spacing-75)] items-start">
+            <div class="h-6 bg-(--color-alias-accent-background-default) rounded-[var(--spacing-layout-corner-radius-75)]" style="width: var(--spacing-600)"></div>
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">600 (40px)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Typography -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Typography
+        </h2>
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Font Size Ramp
+        </h3>
+        <div class="grid grid-cols-1 gap-[var(--spacing-100)]">
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-75); font-family: var(--font-typography-font-family-sans)">75 · 12px · The quick brown fox</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-100); font-family: var(--font-typography-font-family-sans)">100 · 14px · The quick brown fox</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-200); font-family: var(--font-typography-font-family-sans)">200 · 16px · The quick brown fox</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-300); font-family: var(--font-typography-font-family-sans)">300 · 18px · The quick brown fox</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-400); font-family: var(--font-typography-font-family-sans)">400 · 20px · The quick brown fox</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-size: var(--spacing-typography-font-size-500); font-family: var(--font-typography-font-family-sans)">500 · 22px · The quick brown fox</p>
+        </div>
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Font Weights
+        </h3>
+        <div class="grid grid-cols-3 gap-[var(--spacing-100)] max-md:grid-cols-1">
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-light); font-family: var(--font-typography-font-family-sans)">Light 300</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-regular); font-family: var(--font-typography-font-family-sans)">Regular 400</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-medium); font-family: var(--font-typography-font-family-sans)">Medium 500</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-bold); font-family: var(--font-typography-font-family-sans)">Bold 700</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-extra-bold); font-family: var(--font-typography-font-family-sans)">Extra Bold 800</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-weight: var(--font-weight-typography-font-weight-black); font-family: var(--font-typography-font-family-sans)">Black 900</p>
+        </div>
+        <h3 class="m-0 text-[length:var(--spacing-typography-font-size-200)] font-[500] text-(--color-alias-text-secondary)">
+          Font Families
+        </h3>
+        <div class="grid grid-cols-1 gap-[var(--spacing-100)]">
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-family: var(--font-typography-font-family-sans)">Sans — The quick brown fox jumps</p>
+          <p class="m-0 text-(--color-alias-text-primary)" style="font-family: var(--font-typography-font-family-serif)">Serif — The quick brown fox jumps</p>
+        </div>
+      </section>
+
+      <!-- Shadows -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Shadows
+        </h2>
+        <div class="grid grid-cols-3 gap-[var(--spacing-400)] p-[var(--spacing-400)] bg-(--color-alias-background-layer-2) rounded-[var(--spacing-layout-corner-radius-500)] max-md:grid-cols-1">
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) rounded-[var(--spacing-layout-corner-radius-200)] grid items-end theme-dark:shadow-200" style="box-shadow: var(--shadow-100)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">shadow-100 <span class="hidden theme-dark:inline">(+theme-dark:shadow-200)</span></span>
+          </div>
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) rounded-[var(--spacing-layout-corner-radius-200)] grid items-end theme-dark:shadow-300" style="box-shadow: var(--shadow-200)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">shadow-200 <span class="hidden theme-dark:inline">(+theme-dark:shadow-300)</span></span>
+          </div>
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) rounded-[var(--spacing-layout-corner-radius-200)] grid items-end" style="box-shadow: var(--shadow-300)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">shadow-300</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Corner Radius -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Corner Radius
+        </h2>
+        <div class="grid grid-cols-5 gap-[var(--spacing-200)] max-md:grid-cols-2">
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary) grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-radius: var(--spacing-layout-corner-radius-75)">75 · 3px</div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary) grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-radius: var(--spacing-layout-corner-radius-100)">100 · 4px</div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary) grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-radius: var(--spacing-layout-corner-radius-200)">200 · 5px</div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary) grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-radius: var(--spacing-layout-corner-radius-500)">500 · 8px</div>
+          <div class="p-[var(--spacing-200)] bg-(--color-alias-background-layer-1) border border-solid border-(--color-alias-border-default) text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary) grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-radius: var(--spacing-layout-corner-radius-800)">800 · 16px</div>
+        </div>
+      </section>
+
+      <!-- Borders -->
+      <section class="grid gap-[var(--spacing-200)]">
+        <h2
+          class="m-0 text-[length:var(--spacing-typography-font-size-300)] font-[700] text-(--color-alias-text-primary) pb-[var(--spacing-100)] border-b border-solid border-(--color-alias-border-default)"
+          style="font-weight: var(--font-weight-typography-font-weight-bold); border-width: var(--spacing-layout-border-width-100)"
+        >
+          Borders
+        </h2>
+        <div class="grid grid-cols-3 gap-[var(--spacing-200)] max-md:grid-cols-1">
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) border-solid rounded-[var(--spacing-layout-corner-radius-100)] grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-color: var(--color-alias-border-default)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">100 · default</span>
+          </div>
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) border-solid rounded-[var(--spacing-layout-corner-radius-100)] grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-200); border-color: var(--color-alias-border-default)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">200 · default</span>
+          </div>
+          <div class="p-[var(--spacing-300)] bg-(--color-alias-background-layer-1) border-solid rounded-[var(--spacing-layout-corner-radius-100)] grid items-center justify-items-center" style="border-width: var(--spacing-layout-border-width-100); border-color: var(--color-alias-border-hover)">
+            <span class="text-[length:var(--spacing-typography-font-size-75)] text-(--color-alias-text-secondary)">100 · hover</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const toggle = document.getElementById('theme-toggle')
+      const html = document.documentElement
+      const label = document.querySelector('.theme-toggle-label')
+
+      toggle.addEventListener('click', () => {
+        const isDark = html.getAttribute('data-theme') === 'dark'
+        html.setAttribute('data-theme', isDark ? '' : 'dark')
+        if (label) {
+          label.textContent = isDark ? 'Dark' : 'Light'
+        }
+      })
+    </script>
+  </body>
+</html>
