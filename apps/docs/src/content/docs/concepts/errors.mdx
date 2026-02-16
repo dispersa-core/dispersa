@@ -1,0 +1,105 @@
+---
+title: Error Handling
+description: How Dispersa reports errors, validation modes, and the difference between build() and buildOrThrow().
+sidebar:
+  order: 6
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Two Build Methods
+
+### build() — Never Throws
+
+Returns a `BuildResult`, collects errors, and continues. Use when you want to handle failures gracefully (e.g. in a dev server or build pipeline that reports multiple issues).
+
+### buildOrThrow() — Fail-Fast
+
+Throws on the first error. Use when a single failure should stop the build (e.g. CI/CD or production builds).
+
+## BuildResult Shape
+
+```typescript
+type BuildResult = {
+  success: boolean
+  outputs: { name: string; path?: string; content: string }[]
+  errors?: BuildError[]
+}
+```
+
+- **success** — `true` if no errors occurred
+- **outputs** — Array of generated outputs with name, path, and content
+- **errors** — Present when `success` is `false`; array of `BuildError`
+
+## BuildError Shape
+
+```typescript
+type BuildError = {
+  message: string
+  code: ErrorCode
+  path?: string
+  tokenPath?: string
+  severity: 'error' | 'warning'
+  suggestions?: string[]
+}
+```
+
+- **message** — Human-readable error description
+- **code** — Error code for programmatic handling
+- **path** — File or token set path when relevant
+- **tokenPath** — Dot-path to the token (e.g. `color.brand.primary`)
+- **severity** — `error` or `warning`
+- **suggestions** — Optional hints (e.g. similar token names for typos)
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| TOKEN_REFERENCE | Unresolved alias `{token.name}` |
+| CIRCULAR_REFERENCE | Circular alias chain |
+| VALIDATION | Schema or structural validation failure |
+| COLOR_PARSE | Invalid color value |
+| DIMENSION_FORMAT | Invalid dimension value |
+| FILE_OPERATION | File read/write failure |
+| CONFIGURATION | Invalid config |
+| BASE_PERMUTATION | Missing base permutation for bundle mode |
+| MODIFIER | Invalid modifier input or context |
+| UNKNOWN | Unexpected error |
+
+## Suggestions
+
+`TOKEN_REFERENCE` errors often include `suggestions` with similar token names, helping you fix typos or wrong references.
+
+## Validation Modes
+
+In `DispersaOptions` you can configure validation:
+
+```typescript
+{
+  validation: { mode: 'error' | 'warn' | 'off' }
+}
+```
+
+- **`'error'`** (default) — Validation failures become errors (or thrown by `buildOrThrow()`)
+- **`'warn'`** — Validation failures are logged via `console.warn`, build continues
+- **`'off'`** — No validation
+
+## Checking for Errors
+
+```typescript
+const result = await dispersa.build({ outputs: [...] })
+if (!result.success) {
+  for (const error of result.errors ?? []) {
+    console.error(`[${error.code}] ${error.message}`)
+    if (error.suggestions?.length) {
+      console.log('  Did you mean:', error.suggestions.join(', '))
+    }
+  }
+}
+```
+
+<LinkCard
+  title="Output Formats — CSS"
+  description="Generate CSS custom properties from your tokens."
+  href="/outputs/css/"
+/>

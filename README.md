@@ -17,7 +17,17 @@ A TypeScript build system for processing [DTCG 2025.10](https://www.designtokens
 
 **Composite types:** `shadow`, `typography`, `border`, `strokeStyle`, `transition`, `gradient`
 
-## Installation
+## Getting started
+
+### New project
+
+```bash
+pnpm create dispersa
+```
+
+The scaffold prompts for a project directory, lets you pick a template (programmatic or CLI-based), and optionally installs dependencies.
+
+### Add to an existing project
 
 ```bash
 pnpm add dispersa
@@ -160,6 +170,12 @@ Renders JavaScript/TypeScript modules.
 | `minify`         | `boolean`                  | --             | Minify output                                |
 | `transforms`     | `Transform[]`              | --             | Per-output transforms                        |
 | `filters`        | `Filter[]`                 | --             | Per-output filters                           |
+
+### Experimental: native platform outputs
+
+Dispersa also ships `ios()` and `android()` builders for Swift/SwiftUI and Kotlin/Jetpack Compose. These are **experimental** -- APIs and generated code may change.
+
+See the [multi-platform example](./examples/multi-platform/) for a complete setup.
 
 ## Output presets
 
@@ -658,10 +674,10 @@ All hooks support both sync and async functions.
 
 ## CLI
 
-Dispersa ships a CLI package (`dispersa-cli`) with a config-first workflow.
+Dispersa includes a CLI for a config-first workflow.
 
 ```bash
-pnpm add dispersa-cli
+pnpm add dispersa
 ```
 
 ```bash
@@ -673,7 +689,7 @@ The CLI auto-discovers config files named `dispersa.config.(ts|js|mts|mjs|cts|cj
 
 ```typescript
 // dispersa.config.ts
-import { defineConfig } from 'dispersa-cli'
+import { defineConfig } from 'dispersa/config'
 import { css, json } from 'dispersa'
 import { colorToHex, nameKebabCase } from 'dispersa/transforms'
 

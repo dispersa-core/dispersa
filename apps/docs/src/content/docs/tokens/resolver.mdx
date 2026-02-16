@@ -1,0 +1,135 @@
+---
+title: The Resolver
+description: Understand the DTCG Resolver specification — how sets, modifiers, and resolution order combine tokens for different contexts.
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+import ResolverVisualizer from '../../../components/ResolverVisualizer'
+
+## What Is the Resolver?
+
+The **Resolver** is a DTCG 2025.10 document that defines how tokens are assembled. It specifies which token files load, in what order, and how themes, platforms, or densities overlay them. Dispersa consumes resolver documents to produce the final token set.
+
+## Document Structure
+
+Start with the spec version:
+
+```json
+{
+  "version": "2025.10"
+}
+```
+
+Then add `sets`, `modifiers`, and `resolutionOrder`.
+
+## Sets
+
+**Sets** are named groups of token sources. Each set has a `sources` array pointing to token files or inline token objects. Sets are the base building blocks.
+
+```json
+{
+  "sets": {
+    "core": {
+      "sources": [
+        { "$ref": "./tokens/colors.json" },
+        { "$ref": "./tokens/spacing.json" }
+      ]
+    }
+  }
+}
+```
+
+## Modifiers
+
+**Modifiers** define contextual variations: themes, platforms, densities. Each modifier has `contexts` mapping context names to token sources, and an optional `default`.
+
+```json
+{
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/theme-light.json" }],
+        "dark": [{ "$ref": "./tokens/theme-dark.json" }]
+      }
+    }
+  }
+}
+```
+
+## Resolution Order
+
+`resolutionOrder` defines the merge order. Sets are merged first, then modifiers overlay. Use `$ref` to point to sets and modifiers defined above.
+
+```json
+{
+  "resolutionOrder": [
+    { "$ref": "#/sets/core" },
+    { "$ref": "#/modifiers/theme" }
+  ]
+}
+```
+
+## Permutations
+
+The resolver computes the **cross-product** of all modifier contexts. With 2 themes and 2 densities, you get 4 permutations:
+
+- `light` + `compact`
+- `light` + `comfortable`
+- `dark` + `compact`
+- `dark` + `comfortable`
+
+Each permutation produces a complete token set. Build tools like Dispersa can output one file per permutation (e.g. `tokens-light.css`, `tokens-dark.css`).
+
+<Aside type="note" title="Permutations Grow Multiplicatively">
+Adding more modifiers or context values increases permutations. 2 themes × 2 densities × 3 platforms = 12 permutations. Base tokens are shared; only differences live in modifier contexts, so you avoid combinatorial code duplication.
+</Aside>
+
+## Avoiding Combinatorial Explosion
+
+Base tokens are shared. Only the differences (theme colors, density spacing) live in modifier contexts. The resolver merges them per permutation instead of requiring separate files for every combination.
+
+## Complete Resolver Example
+
+```json
+{
+  "version": "2025.10",
+  "sets": {
+    "core": {
+      "sources": [
+        { "$ref": "./tokens/colors.json" },
+        { "$ref": "./tokens/spacing.json" }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/theme-light.json" }],
+        "dark": [{ "$ref": "./tokens/theme-dark.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/core" },
+    { "$ref": "#/modifiers/theme" }
+  ]
+}
+```
+
+This resolver loads core tokens, then overlays light or dark theme tokens based on the selected context.
+
+## Interactive Example
+
+Toggle modifier contexts below to see how sets and modifiers combine to produce the final token set:
+
+<ResolverVisualizer client:visible />
+
+<LinkCard
+  title="Getting Started — Installation"
+  description="Install Dispersa and build your first output."
+  href="/getting-started/installation/"
+/>

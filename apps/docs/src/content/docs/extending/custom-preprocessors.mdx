@@ -1,0 +1,146 @@
+---
+title: Custom Preprocessors
+description: Transform raw token documents before they enter the processing pipeline.
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## What Preprocessors Do
+
+Preprocessors modify the **raw token JSON** before parsing, flattening, and alias resolution. They run at the very start of the pipeline, so they see the unprocessed document structure.
+
+Use preprocessors to:
+
+- Strip vendor metadata or version fields
+- Inject computed tokens (e.g., a spacing scale from a base value)
+- Normalize legacy formats (e.g., hex strings → DTCG color objects)
+- Merge or split token groups
+
+## The Preprocessor Interface
+
+```typescript
+{
+  name: string
+  preprocess: (rawTokens: InternalTokenDocument) => InternalTokenDocument | Promise<InternalTokenDocument>
+}
+```
+
+- **name** — Identifies the preprocessor (for logging and debugging).
+- **preprocess** — Receives the raw token document and returns a (possibly modified) document. Sync or async.
+
+## Example: Strip Vendor Metadata
+
+Remove metadata fields that you don't want in the pipeline:
+
+```typescript
+import type { Preprocessor } from 'dispersa'
+
+const stripMetadata: Preprocessor = {
+  name: 'strip-metadata',
+  preprocess: (rawTokens) => {
+    const { _metadata, _version, ...tokens } = rawTokens
+    return tokens
+  },
+}
+```
+
+## Example: Inject Computed Tokens
+
+Generate a spacing scale from a base value:
+
+```typescript
+import type { Preprocessor } from 'dispersa'
+
+const injectSpacingScale: Preprocessor = {
+  name: 'inject-spacing-scale',
+  preprocess: (rawTokens) => {
+    const base = 4
+    const scale = [0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32]
+    const spacing: Record<string, unknown> = {}
+    for (const step of scale) {
+      spacing[`spacing.${step}`] = {
+        $type: 'dimension',
+        $value: { value: step * base, unit: 'px' },
+      }
+    }
+    return { ...rawTokens, ...spacing }
+  },
+}
+```
+
+## Example: Normalize Legacy Token Formats
+
+Convert hex strings to DTCG color objects:
+
+```typescript
+import type { Preprocessor } from 'dispersa'
+
+const hexToRgb = (hex: string) => {
+  const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
+  if (!m) return null
+  return {
+    colorSpace: 'srgb',
+    components: [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255],
+  }
+}
+
+const normalizeColors: Preprocessor = {
+  name: 'normalize-colors',
+  preprocess: (rawTokens) => {
+    const result = { ...rawTokens }
+    for (const [key, value] of Object.entries(result)) {
+      if (typeof value === 'object' && value !== null && '$value' in value) {
+        const v = (value as { $value: unknown }).$value
+        if (typeof v === 'string' && v.startsWith('#')) {
+          const rgb = hexToRgb(v)
+          if (rgb) {
+            (result as Record<string, unknown>)[key] = { ...value as object, $value: rgb }
+          }
+        }
+      }
+    }
+    return result
+  },
+}
+```
+
+## Async Preprocessors
+
+Return a `Promise` when you need async work (e.g., fetching remote tokens):
+
+```typescript
+const fetchRemoteTokens: Preprocessor = {
+  name: 'fetch-remote',
+  preprocess: async (rawTokens) => {
+    const remote = await fetch('https://api.example.com/tokens').then((r) => r.json())
+    return { ...rawTokens, ...remote }
+  },
+}
+```
+
+## Usage
+
+Pass preprocessors in the build config:
+
+```typescript
+await dispersa.build({
+  preprocessors: [stripMetadata, normalizeColors],
+  outputs: [
+    css({ name: 'css', file: 'tokens.css', transforms: [nameKebabCase(), colorToHex()] }),
+  ],
+})
+```
+
+Preprocessors run in order. The output of one becomes the input of the next.
+
+<Aside type="note" title="Before resolution">
+Preprocessors run on the raw token document before $ref resolution and parsing. They see the unprocessed JSON structure.
+</Aside>
+
+<LinkCard
+  title="Custom Renderers"
+  description="Output tokens in YAML, SCSS, XML, or any custom format."
+  href="/extending/custom-renderers/"
+/>

@@ -1,0 +1,114 @@
+---
+title: iOS / SwiftUI
+description: Generate Swift code for SwiftUI with type-safe color, dimension, and typography tokens.
+sidebar:
+  order: 5
+  badge:
+    text: Unstable
+    variant: caution
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `ios()` builder renders Swift code for SwiftUI. Output includes type-safe `Color`, `CGFloat`, `Font.Weight`, and more. Doc comments are generated from `$description`.
+
+<Aside type="caution" title="Experimental">
+The iOS/SwiftUI output target is experimental. Its API, generated code structure, and options may change in future releases.
+</Aside>
+
+```typescript
+import { ios } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path |
+| preset | 'standalone' | 'standalone' | Output preset |
+| accessLevel | 'public' \| 'internal' | 'public' | Swift access level |
+| structure | 'enum' \| 'grouped' | 'enum' | Code structure |
+| enumName | string | — | Custom enum name (enum mode) |
+| extensionNamespace | string | 'DesignTokens' | Namespace enum name (grouped mode) |
+| colorSpace | 'sRGB' \| 'displayP3' | 'sRGB' | Color space for `Color()` |
+| swiftVersion | '5.9' \| '6.0' | '5.9' | Swift version target |
+| indent | number | 4 | Spaces per indentation level |
+| frozen | boolean | false | `@frozen` annotation for ABI stability |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Example Output
+
+```swift
+public enum Tokens {
+  public enum Color {
+    public enum Brand {
+      /// Primary brand color
+      public static let primary = Color(.sRGB, red: 0, green: 0.4, blue: 0.8)
+    }
+  }
+  public enum Spacing {
+    public static let medium: CGFloat = 16
+  }
+}
+```
+
+## Token Type Mapping
+
+| Token Type | Swift Type |
+|------------|------------|
+| color | `Color` |
+| dimension | `CGFloat` |
+| fontFamily | `String` |
+| fontWeight | `Font.Weight` |
+| duration | `TimeInterval` |
+| number | `Double` |
+| shadow | `ShadowStyle` |
+| cubicBezier | `UnitCurve` |
+| typography | `TypographyStyle` |
+| border | `BorderStyle` |
+| gradient | `Gradient` |
+
+## Display P3 Color Space
+
+Use `displayP3` for wider gamut on capable devices:
+
+```typescript
+ios({
+  name: 'tokens',
+  file: 'Tokens.swift',
+  colorSpace: 'displayP3',
+})
+```
+
+Note: avoid using `colorToHex()` with `displayP3` -- hex colors are limited to the sRGB gamut, so the transform would negate the wider P3 gamut advantage.
+
+## Swift 6.0 Compatibility
+
+When `swiftVersion` is `'6.0'`, static properties use `nonisolated(unsafe)` for Swift 6 concurrency:
+
+```typescript
+ios({
+  name: 'tokens',
+  file: 'Tokens.swift',
+  swiftVersion: '6.0',
+})
+```
+
+## Doc Comments
+
+Token `$description` values are emitted as Swift doc comments:
+
+```swift
+/// Primary brand color used for CTAs
+public static let primary = Color(.sRGB, red: 0, green: 0.4, blue: 0.8)
+```
+
+<LinkCard
+  title="Android / Jetpack Compose"
+  description="Generate Kotlin code for Jetpack Compose with type-safe design tokens."
+  href="/outputs/android/"
+/>

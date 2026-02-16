@@ -1,0 +1,103 @@
+---
+title: Splitting Output by Type
+description: Generate separate output files for colors, spacing, typography, and other token types.
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Why Split by Type
+
+Smaller files, better caching, and the ability to import only what you need. Split colors, spacing, and typography into separate outputs so each team or component can consume only the tokens it uses.
+
+## Using byType() Filter
+
+Filter tokens by type and write each type to its own file:
+
+```typescript
+import { byType } from 'dispersa/filters'
+import { nameKebabCase, colorToHex, dimensionToPx } from 'dispersa/transforms'
+
+await dispersa.build({
+  outputs: [
+    css({
+      name: 'colors',
+      file: 'colors.css',
+      preset: 'bundle',
+      filters: [byType('color')],
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+    css({
+      name: 'spacing',
+      file: 'spacing.css',
+      preset: 'bundle',
+      filters: [byType('dimension')],
+      transforms: [nameKebabCase(), dimensionToPx()],
+    }),
+    css({
+      name: 'typography',
+      file: 'typography.css',
+      preset: 'bundle',
+      filters: [byType('fontFamily'), byType('fontWeight')],
+      transforms: [nameKebabCase()],
+    }),
+  ],
+})
+```
+
+## OR Logic: Multiple Types in One Output
+
+The above typography example has a problem. Multiple filters use **AND** logic — a token must pass every filter. For "fontFamily OR fontWeight OR typography" you need a custom filter:
+
+```typescript
+import type { Filter } from 'dispersa/filters'
+
+const typographyFilter: Filter = {
+  filter: (token) => ['fontFamily', 'fontWeight', 'typography'].includes(token.$type),
+}
+```
+
+Then use it:
+
+```typescript
+css({
+  name: 'typography',
+  file: 'typography.css',
+  preset: 'bundle',
+  filters: [typographyFilter],
+  transforms: [nameKebabCase()],
+})
+```
+
+## Using byPath() for Namespace-Based Splitting
+
+Split by token path prefix when your tokens are organized by namespace:
+
+```typescript
+import { byPath } from 'dispersa/filters'
+
+css({
+  name: 'brand',
+  file: 'brand.css',
+  filters: [byPath('color.brand')],
+  preset: 'bundle',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+`byPath` accepts a string prefix or a RegExp. Use `byPath(/^spacing\./)` for regex matching.
+
+## Combining Strategies
+
+Combine type and path for fine-grained control. For example, brand colors only:
+
+```typescript
+filters: [byType('color'), byPath('color.brand')],
+```
+
+<LinkCard
+  title="Enterprise Multi-Brand"
+  description="Scale your token system across multiple brands, platforms, themes, and densities."
+  href="/guides/enterprise/"
+/>

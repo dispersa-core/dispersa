@@ -1,0 +1,104 @@
+---
+title: Enterprise Multi-Brand
+description: Scale your token system across multiple brands, platforms, themes, and densities.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## The Scenario
+
+2 brands × 2 themes × 2 densities × 4 platforms = many permutations. Enterprise token systems need to scale across brands, themes, and platforms without combinatorial duplication.
+
+## Resolver Structure
+
+Organize your resolver with sets for base tokens and modifiers for brand, theme, and density:
+
+```json
+{
+  "version": "2025.10",
+  "sets": {
+    "base": {
+      "sources": [
+        { "$ref": "./tokens/base/colors.json" },
+        { "$ref": "./tokens/base/spacing.json" }
+      ]
+    },
+    "alias": {
+      "sources": [{ "$ref": "./tokens/semantic/aliases.json" }]
+    }
+  },
+  "modifiers": {
+    "brand": {
+      "default": "acme",
+      "contexts": {
+        "acme": [{ "$ref": "./tokens/brands/acme.json" }],
+        "globex": [{ "$ref": "./tokens/brands/globex.json" }]
+      }
+    },
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/themes/light.json" }],
+        "dark": [{ "$ref": "./tokens/themes/dark.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/base" },
+    { "$ref": "#/modifiers/brand" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/sets/alias" }
+  ]
+}
+```
+
+## Explicit Permutations
+
+Build only the permutations you need instead of the full cross-product:
+
+```typescript
+await dispersa.build({
+  permutations: [
+    { brand: 'acme', theme: 'light' },
+    { brand: 'acme', theme: 'dark' },
+  ],
+  outputs: [
+    css({
+      name: 'tokens',
+      file: '{brand}/tokens-{theme}.css',
+      preset: 'standalone',
+      // ...
+    }),
+  ],
+})
+```
+
+This produces `acme/tokens-light.css` and `acme/tokens-dark.css` without building globex or other combinations.
+
+## Dynamic File Naming with Multiple Modifiers
+
+Use placeholders for each modifier in the file path:
+
+```typescript
+file: '{brand}/tokens-{theme}.css'
+```
+
+Produces: `acme/tokens-light.css`, `acme/tokens-dark.css`, `globex/tokens-light.css`, etc.
+
+## Tips
+
+- **Keep base tokens brand-agnostic** — shared spacing, typography, and structure
+- **Use semantic aliases** — `color.background.primary` that brands override with concrete values
+- **Resolution order matters** — modifiers listed later override earlier ones
+
+<Aside type="note" title="Resolution order">
+Resolution order matters. Modifiers listed later override earlier ones.
+</Aside>
+
+<LinkCard
+  title="In-Memory Mode"
+  description="Run Dispersa entirely without the filesystem for APIs, testing, and serverless environments."
+  href="/guides/in-memory/"
+/>

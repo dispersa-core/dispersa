@@ -1,0 +1,191 @@
+---
+title: Anatomy of a Token
+description: Understand the structure of a DTCG design token — its properties, groups, and naming conventions.
+sidebar:
+  order: 2
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+import TokenAnatomyExplorer from '../../../components/TokenAnatomyExplorer'
+
+## Token Structure
+
+A design token is a JSON object. Spec-defined properties use a dollar prefix (`$`); group and token names defined by you do not.
+
+<TokenAnatomyExplorer client:visible />
+
+## Core Properties
+
+### `$value` (required unless `$ref` is used)
+
+The token's value. Every token must provide either `$value` (a direct value or curly-brace alias) or `$ref` (a JSON Pointer reference) -- but not both.
+
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 0.4, 0.8]
+        }
+      }
+    }
+  },
+  "spacing": {
+    "md": {
+      "$type": "dimension",
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      }
+    }
+  }
+}
+```
+
+### `$type` (required or inherited)
+
+The token's type. Can be set directly on the token or inherited from a parent group. Every token must have a determinable type -- either its own `$type` property or one inherited from an ancestor group. Valid types: `color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`, `number`, `shadow`, `typography`, `border`, `strokeStyle`, `transition`, `gradient`.
+
+### `$description` (optional)
+
+Human-readable documentation for the token.
+
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 0.4, 0.8]
+        },
+        "$description": "Primary brand color used for CTAs and links"
+      }
+    }
+  }
+}
+```
+
+### `$deprecated` (optional)
+
+Marks a token as deprecated. Use a boolean or a string message.
+
+```json
+{
+  "$type": "color",
+  "$value": {
+    "colorSpace": "srgb",
+    "components": [0.8, 0, 0.4]
+  },
+  "$deprecated": "Use color.brand.primary instead"
+}
+```
+
+### `$extensions` (optional)
+
+Vendor-specific metadata. Not part of the core spec but reserved for tooling.
+
+```json
+{
+  "$type": "color",
+  "$value": {
+    "colorSpace": "srgb",
+    "components": [0, 0.4, 0.8]
+  },
+  "$extensions": {
+    "com.figma": {
+      "styleId": "S:abc123"
+    }
+  }
+}
+```
+
+## Group Nesting
+
+Tokens can be nested in groups. Group names become part of the token path (e.g. `color.brand.primary`). Groups can set `$type` so all children inherit it.
+
+<Aside type="tip" title="Group-level $type">
+Set `$type` on a group to avoid repeating it on every child token. Child tokens inherit the type unless they override it.
+</Aside>
+
+```json
+{
+  "color": {
+    "$type": "color",
+    "brand": {
+      "primary": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 0.4, 0.8]
+        }
+      },
+      "secondary": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4, 0.4, 0.4]
+        }
+      }
+    }
+  }
+}
+```
+
+Here, `color.brand.primary` and `color.brand.secondary` both have type `color` from the group.
+
+### `$root` (optional)
+
+A root token for a group. The `$root` token provides a base value for the group while allowing nested variants or extensions.
+
+```json
+{
+  "spacing": {
+    "$type": "dimension",
+    "$root": {
+      "$value": { "value": 16, "unit": "px" }
+    },
+    "small": {
+      "$value": { "value": 8, "unit": "px" }
+    },
+    "large": {
+      "$value": { "value": 24, "unit": "px" }
+    }
+  }
+}
+```
+
+### `$extends` (optional)
+
+References another group to inherit its tokens and properties. Uses curly-brace or JSON Pointer syntax.
+
+```json
+{
+  "button": {
+    "primary": {
+      "$type": "color",
+      "background": {
+        "$value": { "colorSpace": "srgb", "components": [0, 0.4, 0.8] }
+      }
+    },
+    "secondary": {
+      "$extends": "{button.primary}",
+      "background": {
+        "$value": { "colorSpace": "srgb", "components": [0.4, 0.4, 0.4] }
+      }
+    }
+  }
+}
+```
+
+## The Dollar-Prefix Convention
+
+**Spec-defined properties** (`$value`, `$type`, `$description`, `$deprecated`, `$extensions`, `$ref`, `$root`, `$extends`) start with `$`
+
+<LinkCard
+  title="Token Types"
+  description="A complete reference of all DTCG token types — primitives and composites."
+  href="/tokens/types/"
+/>

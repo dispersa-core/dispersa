@@ -1,0 +1,181 @@
+---
+title: Your First Build
+description: Run your scaffolded Dispersa project and explore the generated CSS output.
+sidebar:
+  order: 2
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+If you ran `pnpm create dispersa` and chose the **Basic** template, you already have a working project. Let's explore what you got and run the build.
+
+<Aside type="tip" title="Manual setup?">
+  If you added Dispersa to an existing project instead, follow along -- the same files and concepts
+  apply. You'll just need to create them yourself.
+</Aside>
+
+## What you got
+
+The scaffold creates this structure:
+
+```
+my-dispersa-project/
+├── tokens/
+│   ├── base.json              # Foundational values (colors, spacing)
+│   ├── alias.json             # Semantic references to base tokens
+│   └── themes/
+│       ├── light.json         # Light theme overrides
+│       └── dark.json          # Dark theme overrides
+├── tokens.resolver.json       # DTCG resolver -- ties everything together
+├── build.ts                   # Build script
+├── tsconfig.json
+└── package.json
+```
+
+### Token files
+
+**`tokens/base.json`** defines your foundational values:
+
+```json
+{
+  "color": {
+    "base": {
+      "blue": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [0, 0.4, 0.8] }
+      },
+      "white": {
+        "$type": "color",
+        "$value": { "colorSpace": "srgb", "components": [1, 1, 1] }
+      }
+    }
+  }
+}
+```
+
+**`tokens/alias.json`** creates semantic names that reference the base tokens:
+
+```json
+{
+  "color": {
+    "alias": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.base.blue}"
+      },
+      "background": {
+        "$type": "color",
+        "$value": "{color.base.white}"
+      }
+    }
+  }
+}
+```
+
+### Resolver document
+
+**`tokens.resolver.json`** is the DTCG resolver that tells Dispersa which token files to load and how modifiers (like themes) are applied:
+
+```json
+{
+  "version": "2025.10",
+  "sets": {
+    "core": {
+      "sources": [{ "$ref": "./tokens/base.json" }, { "$ref": "./tokens/alias.json" }]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/themes/light.json" }],
+        "dark": [{ "$ref": "./tokens/themes/dark.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [{ "$ref": "#/sets/core" }, { "$ref": "#/modifiers/theme" }]
+}
+```
+
+### Build script
+
+**`build.ts`** creates a `Dispersa` instance, points it at the resolver, and defines CSS output with transforms:
+
+```typescript
+import { Dispersa, css } from 'dispersa'
+import { colorToHex, nameKebabCase } from 'dispersa/transforms'
+
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  buildPath: './output',
+})
+
+const result = await dispersa.build({
+  outputs: [
+    css({
+      name: 'css',
+      file: 'tokens.css',
+      preset: 'bundle',
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+  ],
+})
+
+if (result.success) {
+  console.log('Build complete!')
+}
+```
+
+## Run the build
+
+```bash
+pnpm run build
+```
+
+This executes `tsx build.ts`, which resolves your tokens, applies transforms, and writes the output.
+
+## Check the output
+
+Open `output/tokens.css`. You should see your base tokens and theme overrides rendered as CSS custom properties:
+
+```css
+:root {
+  --color-base-blue: #0066cc;
+  --color-base-gray: #6b757d;
+  --color-base-white: #ffffff;
+  --color-base-black: #000000;
+  --color-alias-primary: var(--color-base-blue);
+  --color-alias-text: var(--color-base-black);
+  --color-alias-background: var(--color-base-white);
+  --spacing-base-1: 4px;
+  --spacing-base-2: 8px;
+  /* ... */
+}
+
+[data-theme='dark'] {
+  --color-alias-background: var(--color-base-black);
+  --color-alias-text: var(--color-base-white);
+}
+```
+
+The `bundle` preset puts the base values in `:root` and the dark theme overrides in a `[data-theme="dark"]` selector -- all in a single file.
+
+## Next: customize
+
+From here you can:
+
+- **Edit tokens** -- add new values to `tokens/base.json` or create new token files and reference them in the resolver
+- **Add transforms** -- e.g. `dimensionToPx()` or `colorToRgb()` from `dispersa/transforms`
+- **Add outputs** -- e.g. `json()` or `js()` alongside `css()`
+- **Switch to the CLI** -- replace `build.ts` with a `dispersa.config.ts` and run `dispersa build`
+
+<LinkCard
+  title="Using the CLI"
+  description="Config-first workflow with auto-discovery and simple commands."
+  href="/getting-started/cli/"
+/>
+<LinkCard
+  title="Core Concepts -- The Pipeline"
+  description="Understand how resolution, transforms, and rendering work together."
+  href="/concepts/pipeline/"
+/>

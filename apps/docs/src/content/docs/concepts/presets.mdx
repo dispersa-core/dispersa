@@ -1,0 +1,103 @@
+---
+title: Presets
+description: Control how modifier permutations are packaged into files with bundle, standalone, and modifier presets.
+sidebar:
+  order: 5
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## What Presets Are
+
+Presets control how multiple permutations (e.g. light/dark themes, compact/comfortable density) map to output files. Choose **bundle**, **standalone**, or **modifier** based on how you want to deliver tokens.
+
+## Bundle Preset
+
+All permutations in **one file**.
+
+- **CSS** — `:root { ... }` for base, `[data-theme="dark"] { ... }` for each modifier context
+- **JSON** — Single file with keys per permutation
+- **JS** — Single file with named exports per permutation
+
+**Example:**
+
+```typescript
+css({
+  name: 'tokens',
+  file: 'tokens.css',
+  preset: 'bundle',
+  selector: ':root',
+})
+```
+
+**Output (conceptual):**
+
+```css
+:root {
+  --color-background: #ffffff;
+  --color-text: #111111;
+}
+
+[data-theme="dark"] {
+  --color-background: #111111;
+  --color-text: #eeeeee;
+}
+```
+
+## Standalone Preset
+
+**One file per permutation.** Each file is complete and self-contained.
+
+Use `{modifier}` patterns in the filename:
+
+```typescript
+css({
+  name: 'tokens',
+  file: 'tokens-{theme}.css',
+  preset: 'standalone',
+})
+```
+
+Produces: `tokens-light.css`, `tokens-dark.css`, etc.
+
+## Modifier Preset
+
+**CSS only.** Outputs only tokens that **differ** between the base and each modifier context. Useful for overlay/patch files that layer on top of a base stylesheet.
+
+**Dynamic selector:** `selector` can be a function:
+
+```typescript
+selector: (modifierName, context, isBase, allModifierInputs) => string
+```
+
+## Comparison
+
+| Preset | Files | Content | Use case |
+|--------|-------|---------|----------|
+| bundle | 1 | All permutations | Single-file delivery |
+| standalone | N | One per permutation | Platform-specific builds |
+| modifier | N | Only diffs | Overlay/patch files |
+
+## Dynamic File Patterns
+
+Placeholders like `{theme}`, `{density}` are replaced with the modifier context value:
+
+- `file: 'tokens-{theme}.css'` → `tokens-light.css`, `tokens-dark.css`
+- `file: 'tokens-{theme}-{density}.json'` → `tokens-light-compact.json`, etc.
+
+## Dynamic Selectors
+
+For `preset: 'bundle'` or `preset: 'modifier'`, `selector` can be a function:
+
+```typescript
+selector: (modifierName, context, isBase, allModifierInputs) => {
+  if (isBase) return ':root'
+  return `[data-${modifierName}="${context}"]`
+}
+```
+
+<LinkCard
+  title="Error Handling"
+  description="How Dispersa reports errors and the difference between build() and buildOrThrow()."
+  href="/concepts/errors/"
+/>

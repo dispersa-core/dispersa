@@ -1,0 +1,115 @@
+---
+title: Theming with Modifiers
+description: Implement light/dark themes, density modes, and brand variants using DTCG modifiers.
+sidebar:
+  order: 2
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## The Modifier System
+
+The resolver's modifier system enables theming without token duplication. Define base tokens once, then overlay context-specific overrides for themes, densities, and brands.
+
+## Basic Light/Dark Theming
+
+1. Create a resolver with a `theme` modifier (light/dark contexts)
+2. Define base tokens with raw color values
+3. Define theme tokens as semantic aliases that switch per theme
+
+```json
+{
+  "version": "2025.10",
+  "sets": {
+    "base": { "sources": [{ "$ref": "./tokens/base.json" }] },
+    "alias": { "sources": [{ "$ref": "./tokens/semantic.json" }] }
+  },
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/themes/light.json" }],
+        "dark": [{ "$ref": "./tokens/themes/dark.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/base" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/sets/alias" }
+  ]
+}
+```
+
+## Multi-Dimensional Theming: Theme × Density
+
+Use multiple modifiers for theme × density (or theme × brand):
+
+- Resolver with `theme` and `density` modifiers
+- Resolution order: base → density → theme → semantic
+
+Each permutation (e.g. light+compact, dark+comfortable) produces a complete token set.
+
+## CSS Bundle with Dynamic Selectors
+
+Use a dynamic `selector` function so the base maps to `:root` and each modifier maps to a data attribute:
+
+```typescript
+css({
+  name: 'themed',
+  file: 'tokens.css',
+  preset: 'bundle',
+  selector: (modifierName, context, isBase) => {
+    if (isBase) return ':root'
+    return `[data-${modifierName}="${context}"]`
+  },
+})
+```
+
+Output:
+
+```css
+:root { --color-background: #ffffff; }
+[data-theme="dark"] { --color-background: #111111; }
+[data-density="compact"] { --spacing-medium: 12px; }
+```
+
+## CSS with Media Query for prefers-color-scheme
+
+Use `mediaQuery` to have dark theme apply automatically when the user prefers dark mode:
+
+```typescript
+css({
+  name: 'auto-theme',
+  file: 'tokens.css',
+  preset: 'bundle',
+  mediaQuery: (modifierName, context, isBase) => {
+    if (modifierName === 'theme' && context === 'dark') {
+      return '(prefers-color-scheme: dark)'
+    }
+    return ''
+  },
+})
+```
+
+## Standalone Files per Theme
+
+For platform-specific builds, use the `standalone` preset with dynamic file patterns:
+
+- JSON: `file: 'tokens-{theme}.json'` → `tokens-light.json`, `tokens-dark.json`
+- Swift: `file: 'DesignTokens-{theme}.swift'`
+- Kotlin: `file: 'DesignTokens-{theme}.kt'`
+
+## Modifier Preset for Overlay CSS
+
+Use `preset: 'modifier'` to output only tokens that differ between base and each modifier. Useful for overlay/patch files that layer on top of a base stylesheet.
+
+<Aside type="note" title="Modifiers overlay on base">
+Modifiers overlay on top of the base token set. Only tokens that differ need to be in the modifier context.
+</Aside>
+
+<LinkCard
+  title="Splitting Output by Type"
+  description="Generate separate output files for colors, spacing, typography, and other token types."
+  href="/guides/split-by-type/"
+/>

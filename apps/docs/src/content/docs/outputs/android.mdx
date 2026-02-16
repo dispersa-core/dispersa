@@ -1,0 +1,107 @@
+---
+title: Android / Compose
+description: Generate Kotlin code for Jetpack Compose with type-safe Color, Dp, and typography tokens.
+sidebar:
+  order: 6
+  badge:
+    text: Unstable
+    variant: caution
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `android()` builder renders Kotlin code for Jetpack Compose. Output includes type-safe `Color`, `Dp`, `FontWeight`, and more. KDoc is generated from `$description`.
+
+<Aside type="caution" title="Experimental">
+The Android/Jetpack Compose output target is experimental. Its API, generated code structure, and options may change in future releases.
+</Aside>
+
+```typescript
+import { android } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path |
+| preset | `'standalone' \| 'bundle'` | `'standalone'` | Output preset |
+| packageName | string | — | Kotlin package name (required) |
+| objectName | string | — | Top-level object name |
+| structure | `'nested' \| 'flat'` | `'nested'` | Token structure in output |
+| colorFormat | `'argb_hex' \| 'argb_float' \| 'argb8' \| 'argb_floats'` | `'argb_hex'` | Color format (`argb8` and `argb_floats` are aliases) |
+| colorSpace | `'sRGB' \| 'displayP3'` | `'sRGB'` | Target color space |
+| visibility | `'public' \| 'internal'` | — | Kotlin visibility (omitted by default; Kotlin defaults to public) |
+| indent | number | 4 | Spaces per indentation level |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Example Output
+
+```kotlin
+package com.example.tokens
+
+public object Tokens {
+  public object Color {
+    public object Brand {
+      /**
+       * Primary brand color
+       */
+      public val primary: Color = Color(0xFF0066CC)
+    }
+  }
+  public object Spacing {
+    public val medium: Dp = 16.dp
+  }
+}
+```
+
+## Token Type Mapping
+
+| Token Type | Kotlin Type |
+|------------|-------------|
+| color | `Color` |
+| dimension | `Dp` |
+| fontFamily | `FontFamily` |
+| fontWeight | `FontWeight` |
+| duration | `Duration` |
+| number | `Double` |
+| shadow | `ShadowToken` |
+| border | `BorderStroke` |
+| cubicBezier | `CubicBezierEasing` |
+| typography | `TextStyle` |
+
+## KDoc from `$description`
+
+Token `$description` values are emitted as KDoc:
+
+```kotlin
+/**
+ * Primary brand color used for CTAs
+ */
+public val primary: Color = Color(0xFF0066CC)
+```
+
+## Color Formats
+
+- **argb_hex** — `Color(0xFF0066CC)` (default, 32-bit ARGB hex)
+- **argb_float** — `Color(red = 0f, green = 0.4f, blue = 0.8f, alpha = 1f)`
+- **argb8** — alias for `argb_hex`
+- **argb_floats** — alias for `argb_float`
+
+```typescript
+android({
+  name: 'tokens',
+  file: 'Tokens.kt',
+  colorFormat: 'argb_float',
+})
+```
+
+<LinkCard
+  title="Custom Transforms"
+  description="Build custom transforms for your platform."
+  href="/extending/custom-transforms/"
+/>

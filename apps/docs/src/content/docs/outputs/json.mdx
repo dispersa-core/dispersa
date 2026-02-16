@@ -1,0 +1,116 @@
+---
+title: JSON
+description: Export design tokens as JSON files with flat or nested structure, with or without DTCG metadata.
+sidebar:
+  order: 2
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `json()` builder renders design tokens as JSON output. Choose flat or nested structure and optionally include DTCG metadata (`$type`, `$description`).
+
+```typescript
+import { json } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path |
+| preset | 'bundle' \| 'standalone' | 'standalone' | Output preset |
+| structure | 'flat' \| 'nested' | — | Token structure |
+| includeMetadata | boolean | — | Include `$type`, `$description` |
+| minify | boolean | — | Minify output |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Flat Structure
+
+```typescript
+import { Dispersa, json } from 'dispersa'
+import { nameKebabCase, colorToHex, dimensionToPx } from 'dispersa/transforms'
+
+await dispersa.build({
+  outputs: [
+    json({
+      name: 'flat',
+      file: 'tokens.json',
+      structure: 'flat',
+      transforms: [nameKebabCase(), colorToHex(), dimensionToPx()],
+    }),
+  ],
+})
+```
+
+Output:
+
+```json
+{
+  "color-brand-primary": "#0066cc",
+  "spacing-medium": "16px"
+}
+```
+
+## Nested Structure
+
+```typescript
+json({
+  name: 'nested',
+  file: 'tokens.json',
+  structure: 'nested',
+  transforms: [colorToHex(), dimensionToPx()],
+})
+```
+
+Output:
+
+```json
+{
+  "color": {
+    "brand": {
+      "primary": "#0066cc"
+    }
+  },
+  "spacing": {
+    "medium": "16px"
+  }
+}
+```
+
+## With Metadata
+
+When `includeMetadata` is true, the output includes DTCG `$type` and `$description` fields:
+
+```typescript
+json({
+  name: 'with-meta',
+  file: 'tokens.json',
+  structure: 'nested',
+  includeMetadata: true,
+  transforms: [colorToHex()],
+})
+```
+
+## Standalone Preset with `{theme}` Pattern
+
+Emit one JSON file per modifier (e.g., per theme):
+
+```typescript
+json({
+  name: 'themes',
+  file: 'tokens-{theme}.json',
+  preset: 'standalone',
+  structure: 'flat',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+<LinkCard
+  title="JavaScript / TypeScript"
+  description="Generate ES module output with typed token values and optional helpers."
+  href="/outputs/js/"
+/>

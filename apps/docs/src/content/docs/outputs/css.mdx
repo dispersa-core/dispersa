@@ -1,0 +1,154 @@
+---
+title: CSS
+description: Generate CSS custom properties from your design tokens with full control over selectors, media queries, and theming.
+sidebar:
+  order: 1
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `css()` builder renders design tokens as CSS custom properties (variables). You control selectors, media queries, and theming with flexible options.
+
+```typescript
+import { css } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path (supports `{modifier}` patterns) |
+| preset | 'bundle' \| 'standalone' \| 'modifier' | 'bundle' | Output preset |
+| selector | string or SelectorFunction | ':root' | CSS selector |
+| mediaQuery | string or MediaQueryFunction | — | Media query wrapper |
+| preserveReferences | boolean | false | Emit `var()` for aliases |
+| minify | boolean | false | Minify output |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Basic Example
+
+```typescript
+import { Dispersa, css } from 'dispersa'
+import { nameKebabCase, colorToHex, dimensionToPx } from 'dispersa/transforms'
+
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  buildPath: './dist',
+})
+
+await dispersa.build({
+  outputs: [
+    css({
+      name: 'tokens',
+      file: 'tokens.css',
+      preset: 'bundle',
+      selector: ':root',
+      transforms: [nameKebabCase(), colorToHex(), dimensionToPx()],
+    }),
+  ],
+})
+```
+
+Output:
+
+```css
+:root {
+  --color-brand-primary: #0066cc;
+  --spacing-medium: 16px;
+}
+```
+
+## Theming with Selector Functions
+
+Use a selector function to target `[data-theme]` or other modifier-based selectors:
+
+```typescript
+css({
+  name: 'themed',
+  file: 'tokens.css',
+  preset: 'bundle',
+  selector: (modifierName, context, isBase) => {
+    if (isBase) return ':root'
+    return `[data-${modifierName}="${context}"]`
+  },
+  transforms: [nameKebabCase(), colorToHex(), dimensionToPx()],
+})
+```
+
+Output:
+
+```css
+:root {
+  --color-brand-primary: #0066cc;
+}
+
+[data-theme="dark"] {
+  --color-brand-primary: #66aaff;
+}
+```
+
+## Preserving References
+
+When `preserveReferences` is true, aliases emit `var(--other-token)` instead of resolved values:
+
+```typescript
+css({
+  name: 'refs',
+  file: 'tokens.css',
+  preserveReferences: true,
+  transforms: [nameKebabCase()],
+})
+```
+
+Tokens that reference other tokens will output `var(--token-name)` rather than inlining the resolved value.
+
+## Media Query Wrapper
+
+Wrap output in a media query for responsive or preference-based theming:
+
+```typescript
+css({
+  name: 'dark-mode',
+  file: 'tokens.css',
+  mediaQuery: '(prefers-color-scheme: dark)',
+  selector: ':root',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+## Standalone Preset with `{theme}` Pattern
+
+Emit one file per modifier:
+
+```typescript
+css({
+  name: 'themes',
+  file: 'tokens-{theme}.css',
+  preset: 'standalone',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+## Modifier Preset (Diffs Only)
+
+The `modifier` preset outputs only the delta for each modifier, not the full token set:
+
+```typescript
+css({
+  name: 'diffs',
+  file: 'tokens-{modifier}.css',
+  preset: 'modifier',
+  selector: ':root',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+<LinkCard
+  title="JSON"
+  description="Export design tokens as JSON files with flat or nested structure."
+  href="/outputs/json/"
+/>

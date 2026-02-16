@@ -1,0 +1,82 @@
+---
+title: Project Structure
+description: Recommended directory layouts for organizing your design tokens, resolver, and build configuration.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Basic Project
+
+A minimal setup with core tokens and CSS output:
+
+```
+my-project/
+├── tokens/
+│   ├── colors.json
+│   ├── spacing.json
+│   ├── typography.json
+│   └── shadows.json
+├── tokens.resolver.json
+├── dispersa.config.ts        # if using CLI
+├── build-tokens.ts          # if using API directly
+└── dist/                    # generated output
+    └── tokens.css
+```
+
+## Themed Project
+
+Use modifiers for light/dark themes and other contextual variants:
+
+```
+my-project/
+├── tokens/
+│   ├── base/
+│   │   ├── colors.json
+│   │   ├── spacing.json
+│   │   └── typography.json
+│   ├── semantic/
+│   │   └── aliases.json
+│   └── themes/
+│       ├── light.json
+│       └── dark.json
+├── tokens.resolver.json
+└── dist/
+```
+
+## Multi-Platform Project
+
+Output to multiple targets from a single token source:
+
+```
+my-project/
+├── tokens/
+│   └── ...
+├── tokens.resolver.json
+└── dist/
+    ├── web/
+    │   └── tokens.css
+    ├── tailwind/
+    │   └── theme.css
+    ├── ios/
+    │   └── DesignTokens.swift
+    └── android/
+        └── DesignTokens.kt
+```
+
+<Aside type="tip" title="Tips">
+- **Keep token files small and focused** — One concern per file (colors, spacing, typography)
+- **Use semantic aliases** — Decouple consumer-facing names from base values for easier theming and maintenance
+</Aside>
+
+<LinkCard
+  title="Core Concepts — The Pipeline"
+  description="Understand how resolution, transforms, and rendering work together."
+  href="/concepts/pipeline/"
+/>
+<LinkCard
+  title="Guides — Multi-Platform Tokens"
+  description="Build tokens for web, iOS, Android, and Tailwind from one source."
+  href="/guides/multi-platform/"
+/>

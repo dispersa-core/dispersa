@@ -1,0 +1,199 @@
+---
+title: Dispersa Class
+description: Complete API reference for the Dispersa class — constructor, build methods, token resolution, and type generation.
+sidebar:
+  order: 1
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Constructor
+
+```typescript
+new Dispersa(options?: DispersaOptions)
+```
+
+### DispersaOptions
+
+| Option | Type | Description |
+|--------|------|-------------|
+| resolver | `string \| ResolverDocument` | Path to resolver file or inline resolver document |
+| buildPath | `string` | Output directory when building to disk |
+| validation | `{ mode?: 'error' \| 'warn' \| 'off' }` | Validation mode (default: 'error') |
+
+```typescript
+import { Dispersa } from 'dispersa'
+
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  buildPath: './dist',
+  validation: { mode: 'warn' },
+})
+```
+
+## Methods
+
+### build(config)
+
+Runs a full build. **Never throws** — returns a `BuildResult` with `success` and optional `errors`.
+
+```typescript
+build(config: BuildConfig): Promise<BuildResult>
+```
+
+```typescript
+const result = await dispersa.build({
+  outputs: [css({ name: 'tokens', file: 'tokens.css' })],
+})
+
+if (result.success) {
+  for (const output of result.outputs) {
+    console.log(`${output.name}: ${output.path}`)
+  }
+} else {
+  for (const err of result.errors ?? []) {
+    console.error(`${err.code}: ${err.message}`)
+  }
+}
+```
+
+### buildOrThrow(config)
+
+Same as `build`, but **throws** on failure instead of returning errors.
+
+```typescript
+buildOrThrow(config: BuildConfig): Promise<BuildResult>
+```
+
+```typescript
+await dispersa.buildOrThrow({
+  outputs: [css({ name: 'tokens', file: 'tokens.css' })],
+})
+```
+
+### buildPermutation(config, modifierInputs?)
+
+Builds a single permutation with the given modifier inputs. Useful for generating one variant at a time.
+
+```typescript
+buildPermutation(config: BuildConfig, modifierInputs?: ModifierInputs): Promise<BuildResult>
+```
+
+```typescript
+const result = await dispersa.buildPermutation(
+  {
+    outputs: [css({ name: 'dark', file: 'dark.css' })],
+  },
+  { mode: 'dark', scale: 'large' },
+)
+```
+
+### resolveTokens(resolver, modifierInputs?)
+
+Resolves tokens for a resolver without rendering. Returns the resolved token map for the given modifier inputs.
+
+```typescript
+resolveTokens(
+  resolver: string | ResolverDocument,
+  modifierInputs?: ModifierInputs,
+): Promise<Record<string, ResolvedToken>>
+```
+
+```typescript
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json', {
+  mode: 'light',
+})
+console.log(tokens['color.background'])
+```
+
+### resolveAllPermutations(resolver)
+
+Resolves tokens for every permutation defined in the resolver. Returns an array of `{ tokens, modifierInputs }`.
+
+```typescript
+resolveAllPermutations(
+  resolver: string | ResolverDocument,
+): Promise<{ tokens: Record<string, ResolvedToken>; modifierInputs: ModifierInputs }[]>
+```
+
+```typescript
+const permutations = await dispersa.resolveAllPermutations('./tokens.resolver.json')
+for (const { tokens, modifierInputs } of permutations) {
+  console.log('Permutation:', modifierInputs)
+  console.log('Tokens:', Object.keys(tokens).length)
+}
+```
+
+### generateTypes(tokens, fileName, options?)
+
+Generates TypeScript types for a resolved token map and writes to a file.
+
+```typescript
+generateTypes(
+  tokens: Record<string, ResolvedToken>,
+  fileName: string,
+  options?: { moduleName?: string },
+): Promise<void>
+```
+
+```typescript
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json')
+await dispersa.generateTypes(tokens, './dist/tokens.d.ts', {
+  moduleName: 'tokens',
+})
+```
+
+## BuildConfig
+
+Configuration passed to `build`, `buildOrThrow`, and `buildPermutation`:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| resolver | `string \| ResolverDocument` | Override instance resolver |
+| buildPath | `string` | Override instance build path |
+| outputs | `OutputConfig[]` | Required. Output configurations |
+| filters | `Filter[]` | Global filters applied before any output |
+| transforms | `Transform[]` | Global transforms applied before any output |
+| preprocessors | `Preprocessor[]` | Preprocessors applied to raw tokens |
+| permutations | `ModifierInputs[]` | Explicit permutation list (overrides resolver) |
+| hooks | `LifecycleHooks` | `onBuildStart`, `onBuildEnd` |
+
+## BuildResult
+
+Returned by `build`, `buildOrThrow`, and `buildPermutation`:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| success | `boolean` | Whether the build completed without errors |
+| outputs | `{ name: string; path?: string; content: string }[]` | Per-output results |
+| errors | `BuildError[]` | Present when `success` is false |
+
+## BuildError
+
+| Property | Type | Description |
+|----------|------|-------------|
+| message | `string` | Human-readable error message |
+| code | `ErrorCode` | Error category |
+| path | `string` | File path when relevant |
+| tokenPath | `string` | Token path when relevant |
+| severity | `'error' \| 'warning'` | Severity level |
+| suggestions | `string[]` | Suggested fixes (e.g. similar token names) |
+
+## ErrorCode
+
+`'TOKEN_REFERENCE' | 'CIRCULAR_REFERENCE' | 'VALIDATION' | 'COLOR_PARSE' | 'DIMENSION_FORMAT' | 'FILE_OPERATION' | 'CONFIGURATION' | 'BASE_PERMUTATION' | 'MODIFIER' | 'UNKNOWN'`
+
+<Aside type="tip" title="Error handling">
+Use `build()` when you want to handle errors programmatically. Use `buildOrThrow()` when you want failures to propagate as exceptions.
+</Aside>
+
+<LinkCard
+  title="Builder Functions"
+  description="Configure CSS, JSON, JS, Tailwind, iOS, and Android outputs."
+  href="/reference/builders/"
+/>
+<LinkCard
+  title="Types Reference"
+  description="Full TypeScript definitions for all public types."
+  href="/reference/types/"
+/>

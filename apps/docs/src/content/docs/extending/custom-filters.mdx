@@ -1,0 +1,107 @@
+---
+title: Custom Filters
+description: Write custom filters to control exactly which tokens appear in each output.
+sidebar:
+  order: 2
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## The Filter Interface
+
+A filter is a single function that decides whether a token is included:
+
+```typescript
+{
+  filter: (token: ResolvedToken) => boolean
+}
+```
+
+Return `true` to include the token, `false` to exclude it.
+
+## Simple Example: Exclude Deprecated Tokens
+
+```typescript
+import type { Filter } from 'dispersa'
+
+const excludeDeprecated: Filter = {
+  filter: (token) => !token.$deprecated,
+}
+```
+
+Any token with `$deprecated: true` is excluded from the output.
+
+## Example: Include Only Tokens in a Namespace
+
+Filter tokens by path prefix:
+
+```typescript
+import type { Filter } from 'dispersa'
+
+const componentTokens: Filter = {
+  filter: (token) => token.name.startsWith('component.'),
+}
+```
+
+Use a RegExp for more flexible matching:
+
+```typescript
+const spacingOnly: Filter = {
+  filter: (token) => /^spacing\.(sm|md|lg)/.test(token.name),
+}
+```
+
+## Example: Include Only Tokens with a Specific Extension
+
+Filter by custom extension fields:
+
+```typescript
+import type { Filter } from 'dispersa'
+
+const webOnly: Filter = {
+  filter: (token) => token.$extensions?.platform !== 'mobile',
+}
+
+const figmaEnabled: Filter = {
+  filter: (token) => token.$extensions?.['com.figma']?.export === true,
+}
+```
+
+## Combining Multiple Filters
+
+All filters must pass (AND logic). A token is included only when every filter returns `true`.
+
+Use both **global** and **per-output** filters:
+
+```typescript
+await dispersa.build({
+  filters: [excludeDeprecated],       // global: all outputs
+  outputs: [
+    css({
+      name: 'colors',
+      filters: [byType('color')],    // per-output: further narrow
+      file: 'colors.css',
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+    css({
+      name: 'spacing',
+      filters: [byType('dimension'), byPath('spacing.')],
+      file: 'spacing.css',
+      transforms: [nameKebabCase(), dimensionToRem()],
+    }),
+  ],
+})
+```
+
+- Global filters reduce the token set for all outputs.
+- Per-output filters narrow tokens further for that specific output.
+
+<Aside type="tip" title="Filter on original data">
+Filters run before transforms. Filter based on original token data, not transformed values.
+</Aside>
+
+<LinkCard
+  title="Custom Preprocessors"
+  description="Transform raw token documents before they enter the pipeline."
+  href="/extending/custom-preprocessors/"
+/>

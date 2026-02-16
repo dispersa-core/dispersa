@@ -1,0 +1,106 @@
+---
+title: Transforms
+description: Transform token values and names using built-in or custom transform functions.
+sidebar:
+  order: 3
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## What Transforms Do
+
+Transforms mutate token **values**, **names**, or both. They run after filters, just before rendering. Use them to convert colors to hex, dimensions to rem, or names to kebab-case for CSS variables.
+
+## The Transform Interface
+
+```typescript
+interface Transform {
+  matcher?: (token: ResolvedToken) => boolean
+  transform: (token: ResolvedToken) => ResolvedToken
+}
+```
+
+- **matcher** (optional) — If provided, the transform applies only when `matcher(token)` returns `true`. If omitted, the transform applies to all tokens.
+- **transform** — Receives a `ResolvedToken` and returns a new one. Should be immutable (return a new object, don't mutate in place).
+
+Import transforms from `dispersa/transforms`:
+
+```typescript
+import { colorToHex, nameKebabCase, dimensionToRem } from 'dispersa/transforms'
+```
+
+## Color Transforms
+
+| Transform | Input | Output |
+|-----------|-------|--------|
+| colorToHex() | `{ colorSpace: 'srgb', components: [0, 0.4, 0.8] }` | `#0066cc` |
+| colorToRgb() | same | `rgb(0, 102, 204)` |
+| colorToHsl() | same | `hsl(210, 100%, 40%)` |
+| colorToOklch() | same | `oklch(...)` |
+| colorToOklab() | same | `oklab(...)` |
+| colorToLch() | same | `lch(...)` |
+| colorToLab() | same | `lab(...)` |
+| colorToHwb() | same | `hwb(...)` |
+| colorToColorFunction | same | color function string |
+
+## Dimension Transforms
+
+| Transform | Input | Output |
+|-----------|-------|--------|
+| dimensionToPx() | `{ value: 16, unit: 'px' }` | `"16px"` |
+| dimensionToRem() | `{ value: 16, unit: 'px' }` | `"1rem"` |
+| dimensionToUnitless() | `{ value: 16, unit: 'px' }` | `16` |
+
+## Name Transforms
+
+| Transform | Input (name) | Output |
+|-----------|--------------|--------|
+| nameKebabCase() | `color.brand.primary` | `color-brand-primary` |
+| nameCamelCase() | `color.brand.primary` | `colorBrandPrimary` |
+| namePascalCase() | `color.brand.primary` | `ColorBrandPrimary` |
+| nameSnakeCase() | `color.brand.primary` | `color_brand_primary` |
+| nameConstantCase() | `color.brand.primary` | `COLOR_BRAND_PRIMARY` |
+| nameCssVar() | `color.brand.primary` | `--color-brand-primary` |
+| namePrefix('ds') | `color-brand-primary` | `ds-color-brand-primary` |
+| nameSuffix('token') | `color-brand-primary` | `color-brand-primary-token` |
+
+## Other Transforms
+
+| Transform | Input | Output |
+|-----------|-------|--------|
+| fontWeightToNumber() | `"bold"` | `700` |
+| durationToMs() | `{ value: 200, unit: 'ms' }` | `"200ms"` |
+| durationToSeconds() | `{ value: 200, unit: 'ms' }` | `"0.2s"` |
+
+## Global vs. Per-Output Transforms
+
+- **Global** — Transforms in `BuildConfig` apply to all outputs first.
+- **Per-output** — Transforms in `OutputConfig` apply after global transforms, only for that output.
+
+**Execution order example:**
+- Global: `nameKebabCase()` (applies to all outputs)
+- Per-output (CSS): `colorToHex()` (applies only to the CSS output)
+
+```typescript
+await dispersa.build({
+  transforms: [nameKebabCase()],
+  outputs: [
+    css({
+      name: 'css',
+      file: 'tokens.css',
+      transforms: [colorToHex()],
+    }),
+  ],
+})
+```
+
+<LinkCard
+  title="Filters"
+  description="Control which tokens are included in each output."
+  href="/concepts/filters/"
+/>
+<LinkCard
+  title="Custom Transforms"
+  description="Build custom transforms for your platform."
+  href="/extending/custom-transforms/"
+/>

@@ -1,0 +1,60 @@
+---
+title: TypeScript Type Generation
+description: Generate TypeScript declaration files from your resolved tokens for type-safe token access.
+sidebar:
+  order: 6
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## What It Does
+
+Generates `.d.ts` files from resolved token data so you get autocomplete and type checking when importing tokens in your application.
+
+## Usage
+
+Resolve tokens first, then pass them to `generateTypes`:
+
+```typescript
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json', { theme: 'light' })
+await dispersa.generateTypes(tokens, './dist/tokens.d.ts', {
+  moduleName: 'design-tokens',
+})
+```
+
+## The Generated .d.ts
+
+The generated declaration file enables autocomplete in editors when importing tokens. It declares the module and exports token paths as typed properties.
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `moduleName` | The module name for the declaration (for `declare module "..."`) |
+
+## Integrating into the Build Workflow
+
+1. Resolve tokens for the permutation(s) you need
+2. Generate types from the resolved result
+3. Build outputs (css, json, etc.) as usual
+
+```typescript
+// Resolve first
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json', { theme: 'light' })
+
+// Generate types
+await dispersa.generateTypes(tokens, './dist/tokens.d.ts', { moduleName: 'design-tokens' })
+
+// Build outputs
+await dispersa.build({ outputs: [/* ... */] })
+```
+
+<Aside type="note" title="Resolved tokens, not raw">
+Type generation uses the resolved tokens, not the raw token files. Run it after resolution to capture all aliases and modifier values.
+</Aside>
+
+<LinkCard
+  title="API Reference — Dispersa Class"
+  description="Full API documentation for the Dispersa class and its methods."
+  href="/reference/dispersa/"
+/>

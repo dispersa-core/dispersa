@@ -1,0 +1,141 @@
+---
+title: Custom Renderers
+description: Build custom renderers to output tokens in any format — YAML, SCSS, XML, or your own proprietary format.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## When to Build a Custom Renderer
+
+Build a custom renderer when your target format is not covered by the built-in ones (CSS, JSON, JS, Tailwind, Swift, Kotlin). Examples: YAML, SCSS variables, Android XML resources, custom config formats.
+
+## defineRenderer for Type-Safe Renderers
+
+Use `defineRenderer<T>()` to create a renderer with typed options:
+
+```typescript
+import { defineRenderer } from 'dispersa'
+
+type YamlOptions = {
+  header?: string
+}
+
+const yamlRenderer = defineRenderer<YamlOptions>({
+  format(context, options) {
+    const tokens = context.permutations[0]?.tokens ?? {}
+    const header = options?.header ? `# ${options.header}\n\n` : ''
+    const lines = Object.entries(tokens)
+      .map(([name, token]) => `${name}: ${JSON.stringify(token.$value)}`)
+      .join('\n')
+    return `${header}${lines}\n`
+  },
+})
+```
+
+## RenderContext Explained
+
+Your `format` function receives a `RenderContext`:
+
+| Property | Description |
+|----------|-------------|
+| **permutations** | Array of `{ tokens, modifierInputs }` — one entry per permutation (modifier combination) |
+| **output** | The output config (file, name, etc.) |
+| **resolver** | The resolver document |
+| **meta** | `RenderMeta`: dimensions, defaults, basePermutation |
+| **buildPath** | Output directory (when building to disk) |
+
+## RenderMeta
+
+`context.meta` provides:
+
+- **dimensions** — Names of modifier dimensions (e.g. `['mode', 'scale']`)
+- **defaults** — Default values per dimension
+- **basePermutation** — The base (unmodified) permutation values
+
+Use `basePermutation` to identify which permutation is the base when working with presets.
+
+## Using a Custom Renderer in a Build
+
+```typescript
+import { Dispersa } from 'dispersa'
+import { nameKebabCase } from 'dispersa/transforms'
+
+const dispersa = new Dispersa({ resolver: './tokens.resolver.json' })
+
+await dispersa.build({
+  outputs: [{
+    name: 'yaml',
+    renderer: yamlRenderer,
+    file: 'tokens.yaml',
+    options: { header: 'Design Tokens' },
+    transforms: [nameKebabCase()],
+  }],
+})
+```
+
+## Multi-File Output with outputTree()
+
+Return multiple files by wrapping a record in `outputTree()`:
+
+```typescript
+import { defineRenderer, outputTree } from 'dispersa'
+
+const multiFileRenderer = defineRenderer({
+  format(context) {
+    const files: Record<string, string> = {}
+    for (const { tokens, modifierInputs } of context.permutations) {
+      const key = Object.values(modifierInputs).join('-') || 'default'
+      const content = Object.entries(tokens)
+        .map(([name, token]) => `${name}: ${JSON.stringify(token.$value)}`)
+        .join('\n')
+      files[`tokens-${key}.yaml`] = content
+    }
+    return outputTree(files)
+  },
+})
+```
+
+Each key in the record becomes a file path; each value is the file content.
+
+## Example: SCSS Variables Renderer
+
+```typescript
+const scssRenderer = defineRenderer({
+  format(context) {
+    const tokens = context.permutations[0]?.tokens ?? {}
+    const lines = Object.entries(tokens)
+      .map(([name, token]) => `$${name.replace(/\./g, '-')}: ${token.$value};`)
+      .join('\n')
+    return lines + '\n'
+  },
+})
+```
+
+## Example: Android XML Resources Renderer
+
+```typescript
+const androidXmlRenderer = defineRenderer({
+  format(context) {
+    const tokens = context.permutations[0]?.tokens ?? {}
+    const items = Object.entries(tokens)
+      .map(([name, token]) => {
+        const attr = token.$type === 'color' ? 'android:color' : 'android:dimen'
+        return `  <item name="${name.replace(/\./g, '_')}" ${attr}="${token.$value}" />`
+      })
+      .join('\n')
+    return `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n${items}\n</resources>\n`
+  },
+})
+```
+
+<Aside type="tip" title="Full access">
+Custom renderers receive the same RenderContext as built-in renderers. You have full access to all token data, modifier information, and build configuration.
+</Aside>
+
+<LinkCard
+  title="Lifecycle Hooks"
+  description="Hook into the build process for logging, validation, and post-processing."
+  href="/extending/hooks/"
+/>

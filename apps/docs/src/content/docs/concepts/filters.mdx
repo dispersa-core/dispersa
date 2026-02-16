@@ -1,0 +1,74 @@
+---
+title: Filters
+description: Control which tokens are included in each output using built-in or custom filter functions.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## What Filters Do
+
+Filters **include or exclude** tokens from an output. A token is included only when every filter returns `true`. Use filters to output only colors to one file, only spacing to another, or only aliases for debugging.
+
+## The Filter Interface
+
+```typescript
+interface Filter {
+  filter: (token: ResolvedToken) => boolean
+}
+```
+
+Return `true` to include the token, `false` to exclude it.
+
+Import filters from `dispersa/filters`:
+
+```typescript
+import { byType, byPath, isAlias, isBase } from 'dispersa/filters'
+```
+
+## Built-in Filters
+
+| Filter | Description | Example |
+|--------|-------------|---------|
+| byType(type) | Include only tokens of a given type | `byType('color')` |
+| byPath(pattern) | Include tokens matching a string prefix or RegExp | `byPath('color.brand')` or `byPath(/^spacing/)` |
+| isAlias() | Include only tokens that were alias references | `isAlias()` |
+| isBase() | Include only base (non-alias) tokens | `isBase()` |
+
+## Example
+
+```typescript
+import { css } from 'dispersa'
+import { byType, isAlias } from 'dispersa/filters'
+import { nameKebabCase, colorToHex } from 'dispersa/transforms'
+
+css({
+  name: 'colors',
+  file: 'colors.css',
+  filters: [byType('color')],
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+This output includes only `color` tokens, transforms names to kebab-case, and converts values to hex.
+
+## Global vs. Per-Output Filters
+
+- **Global** — Filters in `BuildConfig` reduce the token set for all outputs. A token excluded by a global filter never reaches any output.
+- **Per-output** — Filters in `OutputConfig` further reduce tokens for that output only.
+
+<Aside type="tip" title="Filter on original data">
+Filters run before transforms. Filter on original token data, not transformed values.
+</Aside>
+
+<LinkCard
+  title="Presets"
+  description="Control how permutations map to output files."
+  href="/concepts/presets/"
+/>
+<LinkCard
+  title="Custom Filters"
+  description="Build custom filters for your use case."
+  href="/extending/custom-filters/"
+/>

@@ -1,0 +1,85 @@
+---
+title: The Pipeline
+description: How Dispersa processes tokens through a 6-stage pipeline from resolution to rendered output.
+sidebar:
+  order: 1
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+import PipelineVisualizer from '../../../components/PipelineVisualizer'
+
+## Overview
+
+Dispersa processes design tokens through a **pipeline** of six stages. Tokens flow from a resolver document to rendered output files, being resolved, filtered, transformed, and formatted along the way.
+
+```
+Resolve → Preprocess → Parse → Filter → Transform → Render
+```
+
+Click any stage below to see what it does:
+
+<PipelineVisualizer client:visible />
+
+## The 6 Stages
+
+| Stage | Description |
+|-------|-------------|
+| 1. Resolve | Load the resolver document, merge sets, apply modifier contexts |
+| 2. Preprocess | Run optional preprocessors on the raw token tree |
+| 3. Parse | Resolve references, flatten groups to dot-paths, resolve aliases |
+| 4. Filter | Remove tokens that don't match global and per-output filters |
+| 5. Transform | Convert token values and names for the target platform |
+| 6. Render | Format tokens into CSS, JSON, JS, Tailwind, Swift, Kotlin, etc. |
+
+## Global vs. Per-Output
+
+Stages 1-3 run **once** for the entire build and produce a resolved, flat token set. Stages 4-6 run **per output**, so each output can have its own filters, transforms, and renderer.
+
+### Stages 1-3: Global (run once)
+
+1. **Resolve** -- Loads and parses the DTCG resolver document. Merges sets in order, then applies modifier contexts (themes, platforms, densities) to produce the raw token tree for each permutation.
+
+2. **Preprocess** -- Runs optional preprocessors on the raw token tree. Use this to strip vendor metadata, inject computed tokens, or normalize legacy formats before parsing.
+
+3. **Parse** -- Resolves JSON Pointer `$ref` references (including external files), flattens nested groups to dot-path keys (e.g. `color.brand.primary`), inherits group-level `$type`, and resolves `{token.name}` alias references with circular dependency detection.
+
+### Stages 4-6: Per-output
+
+4. **Filter** -- Global filters from `BuildConfig` reduce the token set for all outputs. Per-output filters from each `OutputConfig` further narrow the tokens for that specific output.
+
+5. **Transform** -- Global transforms from `BuildConfig` run first (e.g. `nameKebabCase()`). Per-output transforms run next (e.g. `colorToHex()` for CSS). Transforms convert token values and names for the target format.
+
+6. **Render** -- The renderer formats the final tokens into the target output: CSS custom properties, JSON, JS/TS modules, Tailwind `@theme` blocks, Swift/SwiftUI, Kotlin/Compose, or any custom format via `defineRenderer`.
+
+## Processing Order
+
+```typescript
+await dispersa.build({
+  // Global: applied to ALL outputs in stages 4-5
+  filters: [byType('color')],
+  transforms: [nameKebabCase()],
+
+  outputs: [
+    css({
+      name: 'css',
+      // Per-output: applied AFTER global in stages 4-5
+      transforms: [colorToHex()],
+    }),
+    json({
+      name: 'json',
+      // Per-output: different transforms for this output
+      transforms: [colorToRgb()],
+    }),
+  ],
+})
+```
+
+<Aside type="note" title="Same pipeline everywhere">
+The pipeline is the same whether you use `build()`, `buildOrThrow()`, or the CLI.
+</Aside>
+
+<LinkCard
+  title="Resolution Engine"
+  description="How sets are merged and modifiers create permutations."
+  href="/concepts/resolution/"
+/>

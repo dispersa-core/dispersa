@@ -1,0 +1,134 @@
+---
+title: Custom Transforms
+description: Build custom transforms to convert token values and names for your specific platform or format needs.
+sidebar:
+  order: 1
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## The Transform Interface
+
+A transform has two parts:
+
+```typescript
+{
+  matcher?: (token: ResolvedToken) => boolean
+  transform: (token: ResolvedToken) => ResolvedToken
+}
+```
+
+- **matcher** (optional) — If provided, the transform applies only when `matcher(token)` returns `true`. Omit to apply to all tokens.
+- **transform** — Receives a `ResolvedToken` and returns a new one. Must be immutable (return a new object, never mutate in place).
+
+## Simple Example: Add a Prefix to Color Names
+
+```typescript
+import type { Transform } from 'dispersa'
+
+const addBrandPrefix: Transform = {
+  matcher: (token) => token.$type === 'color',
+  transform: (token) => ({
+    ...token,
+    name: `brand-${token.name}`,
+  }),
+}
+```
+
+This transform adds the `brand-` prefix only to color tokens.
+
+## Example: Custom Color Format (RGBA 0–255)
+
+You might need RGB values in the 0–255 range for a specific platform:
+
+```typescript
+import type { Transform } from 'dispersa'
+
+const colorToRgba255: Transform = {
+  matcher: (token) => token.$type === 'color',
+  transform: (token) => {
+    const { components, alpha } = token.$value
+    const [r, g, b] = components.map((c: number) => Math.round(c * 255))
+    const a = alpha ?? 1
+    return {
+      ...token,
+      $value: `${r}, ${g}, ${b}, ${a}`,
+    }
+  },
+}
+```
+
+## Example: Custom Dimension Conversion (dp for Android)
+
+Convert dimensions to density-independent pixels:
+
+```typescript
+import type { Transform } from 'dispersa'
+
+const dimensionToDp: Transform = {
+  matcher: (token) => token.$type === 'dimension',
+  transform: (token) => {
+    const { value, unit } = token.$value
+    const px = unit === 'rem' ? value * 16 : value
+    const dp = Math.round(px * (160 / 96))
+    return {
+      ...token,
+      $value: `${dp}dp`,
+    }
+  },
+}
+```
+
+## Using the Matcher to Scope Transforms
+
+The matcher lets you restrict transforms by type, path, or any other property:
+
+```typescript
+// Only colors under the brand namespace
+matcher: (token) => token.$type === 'color' && token.name.startsWith('color.brand.')
+
+// Only spacing tokens
+matcher: (token) => token.name.startsWith('spacing.')
+
+// Exclude certain paths
+matcher: (token) => !token.name.includes('.deprecated')
+```
+
+## Immutability
+
+Always return a new object. Never mutate the incoming token:
+
+```typescript
+// ✅ Correct
+transform: (token) => ({ ...token, name: token.name.replace('.', '-') })
+
+// ❌ Wrong — mutates the original
+transform: (token) => {
+  token.name = token.name.replace('.', '-')
+  return token
+}
+```
+
+## Composing Transforms
+
+Order matters. Name transforms typically run before value transforms:
+
+```typescript
+transforms: [
+  nameKebabCase(),      // 1. Convert names first
+  addBrandPrefix,      // 2. Add prefix
+  colorToHex(),        // 3. Convert color values
+]
+```
+
+Global transforms run first, then per-output transforms.
+
+<Aside type="note" title="Pipeline order">
+Transforms run after filters. The token set is already filtered before transforms execute.
+</Aside>
+
+<LinkCard
+  title="Custom Filters"
+  description="Control which tokens appear in each output with custom filters."
+  href="/extending/custom-filters/"
+/>

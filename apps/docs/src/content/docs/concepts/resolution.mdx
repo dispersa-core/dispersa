@@ -1,0 +1,97 @@
+---
+title: Resolution Engine
+description: How sets are merged and modifiers create permutations to produce different token sets for each context.
+sidebar:
+  order: 2
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The **resolution engine** implements the DTCG 2025.10 resolver spec. It merges token sets, applies modifier contexts, and produces one token set per permutation (e.g. light theme + compact density).
+
+## How Sets Are Merged
+
+**Sets** are named groups of token sources. Each set has a `sources` array. Sources are merged **in order**: later sources override earlier ones for the same token path.
+
+```json
+{
+  "sets": {
+    "core": {
+      "sources": [
+        { "$ref": "./tokens/base.json" },
+        { "$ref": "./tokens/overrides.json" }
+      ]
+    }
+  }
+}
+```
+
+Tokens from `overrides.json` win over `base.json` where paths conflict.
+
+## How Modifiers Work
+
+**Modifiers** define contextual variations: themes, densities, platforms. Each modifier has `contexts` mapping context names to token sources. The modifier overlays its tokens on top of the merged sets.
+
+```json
+{
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "./tokens/theme-light.json" }],
+        "dark": [{ "$ref": "./tokens/theme-dark.json" }]
+      }
+    }
+  }
+}
+```
+
+Selecting `theme: 'dark'` overlays the dark theme tokens on the base set.
+
+## Resolution Order
+
+`resolutionOrder` defines the sequence of merging: sets first, then modifiers. Use `$ref` to point to sets and modifiers.
+
+```json
+{
+  "resolutionOrder": [
+    { "$ref": "#/sets/core" },
+    { "$ref": "#/modifiers/theme" }
+  ]
+}
+```
+
+## Permutations
+
+The engine computes the **cross-product** of all modifier contexts. For example:
+
+- `theme(light, dark)` × `density(compact, comfortable)` = **4 permutations**
+  - light + compact
+  - light + comfortable
+  - dark + compact
+  - dark + comfortable
+
+Each permutation produces a complete token set. Presets control how these map to output files (bundle, standalone, or modifier diff).
+
+### Resolve for a Single Permutation
+
+```typescript
+const dispersa = new Dispersa({ resolver: './tokens.resolver.json' })
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json', { theme: 'dark' })
+```
+
+### Resolve All Permutations
+
+`resolveAllPermutations(resolver)` resolves every combination of modifier contexts at once.
+
+## Explicit Permutations
+
+You can pass specific `permutations` in `BuildConfig` to control which combinations to build. This lets you build only a subset (e.g. only light theme for a quick dev build) instead of all permutations.
+
+<LinkCard
+  title="Transforms"
+  description="Transform token values and names for each output."
+  href="/concepts/transforms/"
+/>

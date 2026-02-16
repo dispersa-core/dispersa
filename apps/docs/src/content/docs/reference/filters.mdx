@@ -1,0 +1,170 @@
+---
+title: Filters Reference
+description: Complete reference for all built-in filter factories with signatures and usage examples.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Filter Type
+
+```typescript
+type Filter = {
+  filter: (token: ResolvedToken) => boolean
+}
+```
+
+Return `true` to include the token, `false` to exclude it. A token is included only when **every** filter returns `true`.
+
+Import from `dispersa/filters`:
+
+```typescript
+import { byType, byPath, isAlias, isBase } from 'dispersa/filters'
+```
+
+---
+
+## byType(type)
+
+Include only tokens of a given type.
+
+```typescript
+byType(type: TokenType): Filter
+```
+
+**TokenType:** `'color' | 'dimension' | 'fontFamily' | 'fontWeight' | 'duration' | 'cubicBezier' | 'number' | 'shadow' | 'typography' | 'border' | 'strokeStyle' | 'transition' | 'gradient'`
+
+### Examples
+
+```typescript
+import { byType } from 'dispersa/filters'
+
+byType('color')      // Colors only
+byType('dimension')  // Dimensions only (spacing, size, etc.)
+byType('fontFamily') // Font families
+byType('fontWeight') // Font weights
+byType('duration')   // Durations (for animations)
+byType('shadow')     // Shadow tokens
+byType('typography') // Typography composites
+```
+
+```typescript
+css({
+  name: 'colors',
+  file: 'colors.css',
+  filters: [byType('color')],
+})
+```
+
+---
+
+## byPath(pattern)
+
+Include tokens whose path matches a string prefix or RegExp.
+
+```typescript
+byPath(pattern: RegExp | string): Filter
+```
+
+### String pattern (prefix match)
+
+Matches tokens whose path starts with the given string (exact prefix, using `startsWith`).
+
+```typescript
+import { byPath } from 'dispersa/filters'
+
+byPath('color.brand')   // color.brand.primary, color.brand.secondary, etc.
+byPath('spacing')       // spacing.sm, spacing.md, spacing.lg, etc.
+byPath('typography.h1') // typography.h1.fontSize, typography.h1.lineHeight, etc.
+```
+
+### RegExp pattern
+
+Full path matching with regex.
+
+```typescript
+byPath(/^color\.(brand|semantic)/)  // color.brand.* or color.semantic.*
+byPath(/spacing\.(sm|md|lg)$/)       // Ends with spacing.sm, .md, or .lg
+byPath(/\.primary$/)                 // Any path ending in .primary
+```
+
+```typescript
+css({
+  name: 'brand',
+  file: 'brand.css',
+  filters: [byPath(/^color\.brand/)],
+})
+```
+
+---
+
+## isAlias()
+
+Include only tokens that were **alias references** (i.e. they referenced another token via `{token.name}` and were resolved to that token's value).
+
+```typescript
+isAlias(): Filter
+```
+
+Alias tokens are semantic or component tokens that point to base tokens. Use this filter to output only the "wire-up" layer, e.g. for debugging or documentation.
+
+```typescript
+json({
+  name: 'aliases',
+  file: 'aliases.json',
+  filters: [isAlias()],
+})
+```
+
+---
+
+## isBase()
+
+Include only **base tokens** — the complement of `isAlias()`. Base tokens hold the raw values; alias tokens reference them.
+
+```typescript
+isBase(): Filter
+```
+
+Use when you want to exclude semantic/component tokens and output only primitive values.
+
+```typescript
+css({
+  name: 'primitives',
+  file: 'primitives.css',
+  filters: [isBase()],
+})
+```
+
+---
+
+## Combining Filters
+
+All filters are AND-combined. A token must pass every filter to be included.
+
+```typescript
+import { byType, byPath, isBase } from 'dispersa/filters'
+
+filters: [
+  byType('color'),
+  byPath('color.brand'),
+  isBase(),
+]
+// Only base color tokens under color.brand.*
+```
+
+<Aside type="tip" title="Filter before transform">
+Filters run before transforms. Filter on original token data (path, $type, alias status), not transformed values.
+</Aside>
+
+<LinkCard
+  title="Transforms Reference"
+  description="Transform token values and names."
+  href="/reference/transforms/"
+/>
+<LinkCard
+  title="Presets"
+  description="Control how permutations map to output files."
+  href="/concepts/presets/"
+/>

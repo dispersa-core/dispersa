@@ -1,0 +1,104 @@
+---
+title: Installation
+description: Install Dispersa and set up your project for design token processing.
+sidebar:
+  order: 1
+---
+
+import { Aside, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components'
+
+## Create a New Project
+
+The fastest way to get started is with `create-dispersa`. It scaffolds a project with tokens, a build script, and a ready-to-run configuration.
+
+<Tabs>
+  <TabItem label="pnpm" value="pnpm">
+
+```bash
+pnpm create dispersa
+```
+
+  </TabItem>
+  <TabItem label="npm" value="npm">
+
+```bash
+npm create dispersa@latest
+```
+
+  </TabItem>
+  <TabItem label="Yarn" value="yarn">
+
+```bash
+yarn create dispersa
+```
+
+  </TabItem>
+  <TabItem label="Bun" value="bun">
+
+```bash
+bun create dispersa
+```
+
+  </TabItem>
+</Tabs>
+
+You will be prompted to choose:
+
+1. **Project directory** -- where to scaffold the project
+2. **Template** -- _Basic_ (programmatic build script with CSS output) or _CLI_ (config-file workflow using the `dispersa` CLI)
+3. **Install dependencies** -- optionally run the package manager for you
+
+## Add to an Existing Project
+
+If you already have a project and want to add Dispersa to it:
+
+<Tabs>
+  <TabItem label="pnpm" value="pnpm">
+
+```bash
+pnpm add dispersa
+```
+
+  </TabItem>
+  <TabItem label="npm" value="npm">
+
+```bash
+npm install dispersa
+```
+
+  </TabItem>
+  <TabItem label="Yarn" value="yarn">
+
+```bash
+yarn add dispersa
+```
+
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+  The `dispersa` package includes the CLI. No additional package is needed -- run `npx dispersa
+  build` once installed.
+</Aside>
+
+## TypeScript Setup
+
+Dispersa is written in TypeScript and ships with type definitions. No `@types` packages are required.
+
+If you use TypeScript configs (tsconfig, etc.), ensure **TypeScript 5+** for full compatibility.
+
+## ESM-Only Package
+
+Dispersa is **ESM-only**. Add `"type": "module"` to your `package.json` when using the API or CLI in a Node.js project:
+
+```json
+{
+  "type": "module"
+}
+```
+
+<LinkCard
+  title="Your First Build"
+  description="Run your scaffolded project and explore the generated output."
+  href="/getting-started/first-build/"
+/>

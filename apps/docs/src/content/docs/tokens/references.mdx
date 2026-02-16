@@ -1,0 +1,141 @@
+---
+title: References and Aliases
+description: Learn how design tokens can reference other tokens using aliases and JSON Pointer references.
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Why References Matter
+
+References let you avoid duplication and build layered token systems: base tokens hold raw values, semantic tokens give them meaning, and component tokens wire them to UI. Change a base token once, and all references update.
+
+## Alias References
+
+### Syntax
+
+Aliases use the `{token.path}` pattern. The referenced token's value fully replaces the alias.
+
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 0.4, 0.8]
+        }
+      }
+    },
+    "button": {
+      "background": {
+        "$value": "{color.brand.primary}"
+      }
+    }
+  }
+}
+```
+
+### Type Inference
+
+If the alias token omits `$type`, it inherits from the referenced token. Here, `color.button.background` has type `color` from `color.brand.primary`.
+
+### Aliases in Composite Values
+
+Aliases can reference other tokens inside composite values. The reference is resolved to the referenced token's value.
+
+```json
+{
+  "border": {
+    "primary": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.brand.primary}",
+        "width": { "value": 2, "unit": "px" },
+        "style": "solid"
+      }
+    }
+  }
+}
+```
+
+### Complete Example: Base → Semantic → Component
+
+```json
+{
+  "color": {
+    "base": {
+      "blue-600": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0, 0.4, 0.8]
+        }
+      }
+    },
+    "semantic": {
+      "primary": {
+        "$value": "{color.base.blue-600}"
+      }
+    },
+    "button": {
+      "background": {
+        "$value": "{color.semantic.primary}"
+      }
+    }
+  }
+}
+```
+
+**Resolved output** (conceptually): all three -- `color.semantic.primary`, `color.button.background`, and `color.base.blue-600` -- resolve to `{ colorSpace: "srgb", components: [0, 0.4, 0.8] }`.
+
+<Aside type="tip" title="Circular References">
+Dispersa detects and reports circular reference chains. If Token A references Token B, and Token B references Token A (directly or transitively), the build will fail with a clear error.
+</Aside>
+
+## JSON Pointer References (`$ref`)
+
+### Syntax
+
+Use `$ref` to point to another token or document. Fragment-only references stay in the same file:
+
+```json
+{
+  "$ref": "#/color/brand/primary"
+}
+```
+
+References to other files include the path and fragment:
+
+```json
+{
+  "$ref": "./other-file.json#/color/brand/primary"
+}
+```
+
+### Token-Level vs. Property-Level
+
+- **Token-level `$ref`:** The entire token is resolved from the target. No extra properties.
+- **Property-level overrides:** When an object has both `$ref` and other properties, those properties override the resolved content. This is common in resolver documents for sets and modifiers.
+
+### Typical Use
+
+`$ref` is mainly used in **resolver documents** to reference token sets and files. Alias references (`{path}`) are used inside token files to reference other tokens.
+
+## Token Layering Pattern
+
+| Layer        | Role                    | Example                          |
+| ------------ | ----------------------- | -------------------------------- |
+| Base         | Raw design values       | `color.base.blue-600` = srgb `[0, 0.4, 0.8]` |
+| Semantic     | Meaningful abstractions | `color.semantic.primary` → base  |
+| Component    | UI-specific usage       | `color.button.background` → semantic |
+
+This layering keeps base values centralized and lets you swap semantic mappings per theme or brand.
+
+<LinkCard
+  title="The Resolver"
+  description="Understand how sets, modifiers, and resolution order combine tokens."
+  href="/tokens/resolver/"
+/>

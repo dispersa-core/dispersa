@@ -1,0 +1,41 @@
+---
+title: What Are Design Tokens?
+description: Learn what design tokens are, why they matter, and how they bridge the gap between design and code.
+sidebar:
+  order: 1
+---
+
+## The Problem
+
+Without a shared system, design decisions scatter across platforms. A brand blue becomes `#0066CC` in CSS, `UIColor(red: 0, green: 0.4, blue: 0.8)` in Swift, and `Color(0xFF0066CC)` in Kotlin. When the brand changes, you hunt through every file to update values. Theme variants multiply the work.
+
+## What Is a Design Token?
+
+A **design token** is a named, platform-agnostic design decision. Instead of hardcoding hex codes or pixel values, you define tokens like `color.brand.primary` or `spacing.md` in a single source. Tools then translate them into the format each platform needs—CSS custom properties, Swift constants, Kotlin resources, and more.
+
+## Why Tokens Matter
+
+- **Single source of truth** — Change one token, and all outputs update
+- **Consistency** — Same names and values across web, iOS, Android, and other platforms
+- **Scalability** — Add themes and modes by swapping token sets instead of editing hundreds of files
+- **Theming** — Light, dark, and custom themes become manageable layers of overrides
+
+## The DTCG Standard
+
+The [Design Tokens Community Group (DTCG)](https://designtokens.org/) maintains an open specification that defines how tokens are structured and referenced. The **2025.10** standard covers token format, types, references, and the resolver document for assembling token sets. Dispersa implements this specification so your tokens stay portable and standards-compliant.
+
+## Without Tokens vs. With Tokens
+
+**Without tokens:** Values are duplicated across CSS, Swift, Kotlin, and design tools. A color update means manual edits in many places.
+
+**With tokens:** One token file defines the design system. A build step resolves tokens and outputs the right format for each platform. Update a token once, rebuild, and all platforms stay in sync.
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+---
+
+<LinkCard
+  title="Anatomy of a Token"
+  description="Understand the structure of a DTCG design token — properties, groups, and naming."
+  href="/tokens/anatomy/"
+/>

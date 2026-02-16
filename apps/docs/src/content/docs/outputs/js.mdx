@@ -1,0 +1,114 @@
+---
+title: JavaScript / TypeScript
+description: Generate ES module output with typed token values, optional helpers, and TypeScript declaration files.
+sidebar:
+  order: 3
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `js()` builder renders design tokens as ES modules. Supports flat or nested structure, optional lookup helpers, and TypeScript declaration generation.
+
+```typescript
+import { js } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path |
+| preset | 'bundle' \| 'standalone' | 'standalone' | Output preset |
+| structure | 'flat' \| 'nested' | — | Token structure |
+| moduleName | string | — | Module name for exports |
+| generateHelper | boolean | — | Generate token lookup helper |
+| minify | boolean | — | Minify output |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Basic Flat Output
+
+```typescript
+import { Dispersa, js } from 'dispersa'
+import { nameCamelCase, colorToHex, dimensionToPx } from 'dispersa/transforms'
+
+await dispersa.build({
+  outputs: [
+    js({
+      name: 'tokens',
+      file: 'tokens.js',
+      structure: 'flat',
+      moduleName: 'tokens',
+      transforms: [nameCamelCase(), colorToHex(), dimensionToPx()],
+    }),
+  ],
+})
+```
+
+Output:
+
+```javascript
+export const colorBrandPrimary = '#0066cc'
+export const spacingMedium = '16px'
+```
+
+## Nested Output
+
+```typescript
+js({
+  name: 'tokens',
+  file: 'tokens.js',
+  structure: 'nested',
+  moduleName: 'tokens',
+  transforms: [colorToHex(), dimensionToPx()],
+})
+```
+
+Output:
+
+```javascript
+export const color = {
+  brand: {
+    primary: '#0066cc'
+  }
+}
+export const spacing = {
+  medium: '16px'
+}
+```
+
+## Token Lookup Helper
+
+When `generateHelper` is true (bundle mode), a `getToken()` lookup function is added:
+
+```typescript
+js({
+  name: 'tokens',
+  file: 'tokens.js',
+  preset: 'bundle',
+  structure: 'flat',
+  generateHelper: true,
+  moduleName: 'tokens',
+  transforms: [nameCamelCase(), colorToHex()],
+})
+```
+
+The helper allows looking up tokens by path string (e.g., `getToken('color.brand.primary')`).
+
+## Type Generation
+
+Generate a TypeScript declaration file for your tokens:
+
+```typescript
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json')
+await dispersa.generateTypes(tokens, 'tokens.d.ts', { moduleName: 'tokens' })
+```
+
+<LinkCard
+  title="Tailwind CSS v4"
+  description="Generate Tailwind CSS v4 theme files with @theme blocks and custom variants."
+  href="/outputs/tailwind/"
+/>

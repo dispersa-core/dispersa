@@ -1,0 +1,123 @@
+---
+title: Subpath Exports
+description: Reference for all subpath exports available from the dispersa package.
+sidebar:
+  order: 6
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+Dispersa exposes a main entry point and several subpath exports. Use subpaths to keep bundles small and import only what you need.
+
+## Export Summary
+
+| Subpath | Exports | Typical usage |
+|---------|---------|---------------|
+| `dispersa` | Dispersa class, css, json, js, tailwind, ios, android, defineRenderer, outputTree, isOutputTree, types | Main entry; full builds |
+| `dispersa/transforms` | All transform factories (colorToHex, nameKebabCase, etc.) | Per-output or global transforms |
+| `dispersa/filters` | byType, byPath, isAlias, isBase | Token filtering |
+| `dispersa/builders` | css, json, js, tailwind, ios, android | Output configuration only |
+| `dispersa/renderers` | defineRenderer, outputTree, isOutputTree, Renderer types, RenderContext | Custom renderers |
+| `dispersa/preprocessors` | Preprocessor type | Custom preprocessors |
+| `dispersa/errors` | DispersaError, TokenReferenceError, CircularReferenceError, ValidationError, ColorParseError, DimensionFormatError, FileOperationError, ConfigurationError, BasePermutationError, ModifierError | Error handling |
+
+---
+
+## dispersa (main)
+
+**Exports:** `Dispersa`, `css`, `json`, `js`, `tailwind`, `ios`, `android`, `defineRenderer`, `outputTree`, `isOutputTree`, types
+
+```typescript
+import { Dispersa, css, json, defineRenderer } from 'dispersa'
+```
+
+Use for full build setups. Includes the Dispersa class, all builders, and renderer utilities.
+
+---
+
+## dispersa/transforms
+
+**Exports:** All transform factories
+
+```typescript
+import { colorToHex, nameKebabCase, dimensionToRem } from 'dispersa/transforms'
+```
+
+Use when you only need transforms. Keeps the main bundle smaller if you configure outputs elsewhere.
+
+---
+
+## dispersa/filters
+
+**Exports:** `byType`, `byPath`, `isAlias`, `isBase`
+
+```typescript
+import { byType, byPath } from 'dispersa/filters'
+```
+
+Use when you only need filters for token inclusion.
+
+---
+
+## dispersa/builders
+
+**Exports:** `css`, `json`, `js`, `tailwind`, `ios`, `android`
+
+```typescript
+import { css, json } from 'dispersa/builders'
+```
+
+Use when you need only the builder functions, e.g. in a shared config file.
+
+---
+
+## dispersa/renderers
+
+**Exports:** `defineRenderer`, `outputTree`, `isOutputTree`, Renderer types, RenderContext
+
+```typescript
+import { defineRenderer, outputTree } from 'dispersa/renderers'
+```
+
+Use when building custom renderers. Lighter than the main entry if you don't need Dispersa or builders.
+
+---
+
+## dispersa/preprocessors
+
+**Exports:** `Preprocessor` type
+
+```typescript
+import type { Preprocessor } from 'dispersa/preprocessors'
+```
+
+Use when implementing custom preprocessors.
+
+---
+
+## dispersa/errors
+
+**Exports:** `DispersaError`, `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `ColorParseError`, `DimensionFormatError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`
+
+```typescript
+import { TokenReferenceError, ValidationError } from 'dispersa/errors'
+```
+
+Use when you need to catch or handle specific error types, or implement custom error handling.
+
+---
+
+<Aside type="caution" title="Internal APIs">
+Everything outside these subpath exports is internal and not part of the stable public API. Avoid importing from internal paths — they may change without notice.
+</Aside>
+
+<LinkCard
+  title="Types Reference"
+  description="Full type definitions for all exported types."
+  href="/reference/types/"
+/>
+<LinkCard
+  title="Dispersa Class"
+  description="Constructor and build methods."
+  href="/reference/dispersa/"
+/>

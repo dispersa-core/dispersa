@@ -1,0 +1,170 @@
+/* ============================================================
+ * Dispersa — Custom Starlight Theme
+ *
+ * Design language: prism / dispersion metaphor
+ * Violet accent (max spectral bend) + spectral gradient motif
+ * ============================================================ */
+
+/* ----------------------------------------------------------
+ * 1. Color palette — Dark mode (default)
+ * ---------------------------------------------------------- */
+
+:root {
+  /* Accent — violet */
+  --sl-color-accent-low: hsl(272, 45%, 18%);
+  --sl-color-accent: hsl(272, 80%, 65%);
+  --sl-color-accent-high: hsl(272, 80%, 85%);
+
+  /* Gray scale — cool violet-tinted neutrals */
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(260, 12%, 93%);
+  --sl-color-gray-2: hsl(260, 6%, 75%);
+  --sl-color-gray-3: hsl(260, 5%, 54%);
+  --sl-color-gray-4: hsl(260, 6%, 35%);
+  --sl-color-gray-5: hsl(260, 10%, 21%);
+  --sl-color-gray-6: hsl(260, 14%, 14%);
+  --sl-color-black: hsl(260, 18%, 8%);
+
+  /* Semantic hue shifts */
+  --sl-hue-blue: 240;
+  --sl-hue-purple: 272;
+
+  /* Typography */
+  --sl-font: 'Inter Variable', Inter, var(--sl-font-system);
+  --sl-font-mono: 'JetBrains Mono', var(--sl-font-system-mono);
+
+  /* Layout */
+  --sl-content-width: 48rem;
+
+  /* Shadows — violet-tinted, diffused */
+  --sl-shadow-sm: 0px 1px 2px hsla(272, 40%, 4%, 0.25),
+    0px 1px 1px hsla(272, 40%, 4%, 0.15);
+  --sl-shadow-md: 0px 8px 6px hsla(272, 40%, 4%, 0.08),
+    0px 4px 3px hsla(272, 40%, 4%, 0.12),
+    0px 2px 1px hsla(272, 40%, 4%, 0.2);
+  --sl-shadow-lg: 0px 20px 12px hsla(272, 40%, 4%, 0.06),
+    0px 10px 6px hsla(272, 40%, 4%, 0.15),
+    0px 4px 4px hsla(272, 40%, 4%, 0.3);
+
+  /* Spectral gradient — signature motif */
+  --dispersa-spectrum: linear-gradient(
+    90deg,
+    hsl(272, 80%, 65%),
+    hsl(220, 80%, 60%),
+    hsl(180, 75%, 50%),
+    hsl(140, 70%, 50%),
+    hsl(50, 90%, 55%),
+    hsl(0, 80%, 60%)
+  );
+}
+
+/* ----------------------------------------------------------
+ * 2. Color palette — Light mode
+ * ---------------------------------------------------------- */
+
+:root[data-theme='light'] {
+  /* Accent — deeper violet for readability on white */
+  --sl-color-accent-high: hsl(272, 70%, 30%);
+  --sl-color-accent: hsl(272, 75%, 50%);
+  --sl-color-accent-low: hsl(272, 80%, 93%);
+
+  /* Gray scale — inverted, violet-tinted */
+  --sl-color-white: hsl(260, 18%, 8%);
+  --sl-color-gray-1: hsl(260, 14%, 14%);
+  --sl-color-gray-2: hsl(260, 10%, 21%);
+  --sl-color-gray-3: hsl(260, 6%, 35%);
+  --sl-color-gray-4: hsl(260, 5%, 54%);
+  --sl-color-gray-5: hsl(260, 6%, 75%);
+  --sl-color-gray-6: hsl(260, 12%, 93%);
+  --sl-color-gray-7: hsl(260, 15%, 97%);
+  --sl-color-black: hsl(0, 0%, 100%);
+
+  /* Shadows — light, mostly neutral */
+  --sl-shadow-sm: 0px 1px 2px hsla(260, 20%, 50%, 0.06),
+    0px 1px 1px hsla(260, 20%, 50%, 0.04);
+  --sl-shadow-md: 0px 8px 6px hsla(260, 20%, 50%, 0.04),
+    0px 4px 3px hsla(260, 20%, 50%, 0.06),
+    0px 2px 1px hsla(260, 20%, 50%, 0.08);
+  --sl-shadow-lg: 0px 20px 12px hsla(260, 20%, 50%, 0.03),
+    0px 10px 6px hsla(260, 20%, 50%, 0.06),
+    0px 4px 4px hsla(260, 20%, 50%, 0.12);
+}
+
+/* ----------------------------------------------------------
+ * 3. Code styling
+ * ---------------------------------------------------------- */
+
+/* Inline code */
+:not(pre) > code {
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+}
+
+/* Code blocks */
+.expressive-code pre {
+  border-radius: 8px !important;
+}
+
+/* ----------------------------------------------------------
+ * 4. Card refinements
+ * ---------------------------------------------------------- */
+
+.card {
+  border-radius: 10px;
+  border: 1px solid var(--sl-color-hairline-light);
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--sl-color-accent);
+}
+
+/* ----------------------------------------------------------
+ * 5. Link transitions
+ * ---------------------------------------------------------- */
+
+a {
+  transition: color 0.15s ease;
+}
+
+main a:not([class]) {
+  text-underline-offset: 0.15em;
+}
+
+/* ----------------------------------------------------------
+ * 6. Sidebar — spectral active indicator
+ * ---------------------------------------------------------- */
+
+nav.sidebar a[aria-current='page'] {
+  border-inline-start: 2px solid transparent;
+  border-image: var(--dispersa-spectrum) 1;
+}
+
+/* ----------------------------------------------------------
+ * 7. Hero section — spectral accent line
+ * ---------------------------------------------------------- */
+
+.hero > .sl-flex {
+  border-top: 2px solid transparent;
+  border-image: var(--dispersa-spectrum) 1;
+  padding-top: 2rem;
+}
+
+/* ----------------------------------------------------------
+ * 8. Horizontal rules — spectral gradient
+ * ---------------------------------------------------------- */
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--dispersa-spectrum);
+  opacity: 0.5;
+}
+
+/* ----------------------------------------------------------
+ * 9. Nav hairline — lighter, more modern
+ * ---------------------------------------------------------- */
+
+.header {
+  border-bottom-color: var(--sl-color-hairline-light);
+}

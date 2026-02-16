@@ -1,0 +1,100 @@
+---
+title: Lifecycle Hooks
+description: Hook into the build process for logging, validation, post-processing, and notifications.
+sidebar:
+  order: 5
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Two Hooks
+
+- **onBuildStart** — Called before processing begins (or before each output is processed).
+- **onBuildEnd** — Called when processing finishes (or when each output completes).
+
+## Hook Levels
+
+Hooks are available at two levels:
+
+- **Global** — `BuildConfig.hooks` — runs for the entire build.
+- **Per-output** — `OutputConfig.hooks` — runs for each output.
+
+## Execution Order
+
+1. **Global onBuildStart** — Before permutation resolution.
+2. **Per-output onBuildStart** — Before each output is processed.
+3. **Per-output onBuildEnd** — After each output finishes.
+4. **Global onBuildEnd** — After all outputs complete.
+
+## Hook Signatures
+
+- **onBuildStart** receives: `{ config: BuildConfig; resolver: string | ResolverDocument }`
+- **onBuildEnd** receives: `BuildResult`
+
+Both sync and async functions are supported.
+
+## Example: Logging
+
+```typescript
+await dispersa.build({
+  hooks: {
+    onBuildStart: ({ config }) => {
+      console.log(`Building ${config.outputs.length} output(s)...`)
+    },
+    onBuildEnd: (result) => {
+      if (result.success) {
+        console.log(`Done: ${result.outputs.length} file(s)`)
+      } else {
+        console.error(`Failed: ${result.errors?.length} error(s)`)
+      }
+    },
+  },
+  outputs: [
+    css({
+      name: 'css',
+      preset: 'bundle',
+      hooks: {
+        onBuildStart: () => console.log('[css] starting...'),
+        onBuildEnd: (result) => console.log(`[css] ${result.success ? 'done' : 'failed'}`),
+      },
+    }),
+  ],
+})
+```
+
+## Use Cases
+
+| Use case | Hook | Level |
+|----------|------|-------|
+| Build timing | onBuildStart / onBuildEnd | Global |
+| File size reporting | onBuildEnd | Per-output |
+| CI notifications (Slack, etc.) | onBuildEnd | Global |
+| Run Prettier on output | onBuildEnd | Per-output |
+| Validation before build | onBuildStart | Global |
+| Per-output debugging | onBuildStart / onBuildEnd | Per-output |
+
+Example: running Prettier on generated CSS:
+
+```typescript
+import { format } from 'prettier'
+import { writeFile } from 'node:fs/promises'
+
+css({
+  name: 'css',
+  file: 'tokens.css',
+  hooks: {
+    onBuildEnd: async (result) => {
+      if (result.success && result.outputs?.[0]?.content) {
+        const formatted = await format(result.outputs[0].content, { parser: 'css' })
+        await writeFile('dist/tokens.css', formatted)
+      }
+    },
+  },
+})
+```
+
+<LinkCard
+  title="Multi-Platform Tokens"
+  description="Configure outputs for web, iOS, and Android from one token source."
+  href="/guides/multi-platform/"
+/>

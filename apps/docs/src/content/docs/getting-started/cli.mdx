@@ -1,0 +1,79 @@
+---
+title: Using the CLI
+description: Use the Dispersa CLI for a config-first workflow with auto-discovery and simple commands.
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Install
+
+The quickest way to get a CLI-based project is with the scaffold:
+
+```bash
+pnpm create dispersa
+```
+
+Choose the **CLI** template when prompted. This gives you a `dispersa.config.ts`, token files, and a `dispersa build` script -- ready to run.
+
+<Aside type="note">
+  The CLI is included in the `dispersa` package. If you're adding it to an existing project, just
+  run `pnpm add dispersa` -- no additional package is needed.
+</Aside>
+
+## Basic Usage
+
+```bash
+dispersa build
+```
+
+The CLI discovers your configuration automatically and builds all configured outputs.
+
+## Config File
+
+The CLI looks for a config file named `dispersa.config.ts` (or `.js`, `.mts`, `.mjs`, `.cts`, `.cjs`) in your project root. Use `defineConfig` for type safety:
+
+```typescript
+import { defineConfig } from 'dispersa/config'
+import { css, json } from 'dispersa'
+import { colorToHex, nameKebabCase } from 'dispersa/transforms'
+
+export default defineConfig({
+  resolver: './tokens.resolver.json',
+  buildPath: './dist',
+  outputs: [
+    css({
+      name: 'css',
+      file: 'tokens.css',
+      preset: 'bundle',
+      selector: ':root',
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+    json({
+      name: 'json',
+      file: 'tokens-{theme}.json',
+      preset: 'standalone',
+      structure: 'flat',
+    }),
+  ],
+})
+```
+
+## Custom Config Path
+
+To use a config file in a different location:
+
+```bash
+dispersa build --config ./my-config.ts
+```
+
+## How It Works
+
+The CLI uses **jiti** for dynamic ESM imports, so you can use TypeScript config files (`dispersa.config.ts`) without precompiling them.
+
+<LinkCard
+  title="Project Structure"
+  description="Recommended directory layouts for organizing tokens, resolver, and build configuration."
+  href="/getting-started/project-structure/"
+/>

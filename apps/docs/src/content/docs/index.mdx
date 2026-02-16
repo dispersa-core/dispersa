@@ -1,0 +1,90 @@
+---
+title: Dispersa
+description: A DTCG-native build system for design tokens. Process, transform, and render tokens to CSS, JSON, JS, Tailwind, Swift, and Kotlin.
+template: splash
+hero:
+  tagline: A DTCG-native build system for design tokens. Resolve, transform, and render to any platform.
+  actions:
+    - text: Get Started
+      link: /getting-started/installation/
+      icon: right-arrow
+      variant: primary
+    - text: Learn Design Tokens
+      link: /tokens/what-are-tokens/
+      variant: secondary
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
+
+## Why Dispersa?
+
+<CardGrid>
+  <Card title="DTCG 2025.10" icon="approve-check">
+    Full support for the stable Design Tokens specification -- resolver documents, sets, modifiers, and all token types.
+  </Card>
+  <Card title="6 Output Formats" icon="document">
+    CSS custom properties, JSON, JS/TS modules, Tailwind CSS v4, Swift/SwiftUI, and Kotlin/Jetpack Compose -- all built in.
+  </Card>
+  <Card title="Extensible Pipeline" icon="setting">
+    Custom preprocessors, filters, transforms, and renderers. Build exactly the output your platform needs.
+  </Card>
+  <Card title="In-Memory Mode" icon="rocket">
+    Run without the filesystem for build tools, APIs, testing, and serverless environments.
+  </Card>
+</CardGrid>
+
+## How It Works
+
+Dispersa processes tokens through a pipeline:
+
+```
+Resolve → Preprocess → Parse → Filter → Transform → Render
+```
+
+Define your tokens in DTCG format, configure a resolver document with sets and modifiers, then build output for every platform from a single source of truth.
+
+```typescript
+import { Dispersa, css } from 'dispersa'
+import { colorToHex, nameKebabCase } from 'dispersa/transforms'
+
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  buildPath: './dist',
+})
+
+await dispersa.build({
+  outputs: [
+    css({
+      name: 'css',
+      file: 'tokens.css',
+      preset: 'bundle',
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+  ],
+})
+```
+
+## Explore the Docs
+
+<CardGrid>
+  <LinkCard
+    title="Understanding Design Tokens"
+    description="New to tokens? Learn the DTCG standard from the ground up."
+    href="/tokens/what-are-tokens/"
+  />
+  <LinkCard
+    title="Getting Started"
+    description="Install Dispersa and build your first output in minutes."
+    href="/getting-started/installation/"
+  />
+  <LinkCard
+    title="Output Formats"
+    description="CSS, JSON, JS, Tailwind, iOS, and Android -- all from one source."
+    href="/outputs/css/"
+  />
+  <LinkCard
+    title="Token Playground"
+    description="See how tokens transform into CSS, JSON, Swift, and Kotlin output."
+    href="/playground/"
+  />
+</CardGrid>

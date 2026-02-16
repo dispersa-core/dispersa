@@ -1,0 +1,123 @@
+---
+title: Tailwind CSS v4
+description: Generate Tailwind CSS v4 theme files with @theme blocks, custom variants, and namespace mapping.
+sidebar:
+  order: 4
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+## Overview
+
+The `tailwind()` builder renders Tailwind CSS v4 `@theme` blocks. Map token types to Tailwind namespaces, add custom variants, and optionally include the Tailwind import.
+
+```typescript
+import { tailwind } from 'dispersa'
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| name | string | — | Unique output identifier |
+| file | string or function | — | Output path |
+| preset | 'bundle' \| 'standalone' | 'bundle' | Output preset |
+| includeImport | boolean | true | Add `@import "tailwindcss"` |
+| namespace | string | — | Theme namespace for `@theme namespace(...)` |
+| selector | string or SelectorFunction | — | CSS selector for theme variants |
+| mediaQuery | string or MediaQueryFunction | — | Media query wrapper |
+| minify | boolean | false | Minify output |
+| transforms | Transform[] | — | Per-output transforms |
+| filters | Filter[] | — | Per-output filters |
+
+## Basic Example
+
+```typescript
+import { Dispersa, tailwind } from 'dispersa'
+import { nameKebabCase, colorToHex, dimensionToPx } from 'dispersa/transforms'
+
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  buildPath: './dist',
+})
+
+await dispersa.build({
+  outputs: [
+    tailwind({
+      name: 'theme',
+      file: 'theme.css',
+      transforms: [nameKebabCase(), colorToHex(), dimensionToPx()],
+    }),
+  ],
+})
+```
+
+Output:
+
+```css
+@theme {
+  --color-brand-primary: #0066cc;
+  --spacing-medium: 16px;
+}
+```
+
+## Namespace
+
+The `namespace` option sets the Tailwind v4 `@theme namespace(...)` directive, scoping all generated variables under a prefix:
+
+```typescript
+tailwind({
+  name: 'theme',
+  file: 'theme.css',
+  namespace: 'ds',
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+Output:
+
+```css
+@theme namespace(ds) {
+  --color-brand-primary: #0066cc;
+  --spacing-medium: 16px;
+}
+```
+
+Token types are automatically mapped to Tailwind-compatible CSS variable prefixes internally (e.g., `color` tokens get `--color-*`, `dimension` tokens get `--spacing-*`).
+
+## Bundle Preset with Modifier Overrides
+
+With the bundle preset, modifier overrides use `@custom-variant` for theme switching:
+
+```typescript
+tailwind({
+  name: 'themed',
+  file: 'theme.css',
+  preset: 'bundle',
+  includeImport: true,
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+## Theming with Selector Functions
+
+Use selector functions to target `[data-theme]` or similar for theme variants:
+
+```typescript
+tailwind({
+  name: 'themed',
+  file: 'theme.css',
+  preset: 'bundle',
+  selector: (modifierName, context, isBase) => {
+    if (isBase) return ':root'
+    return `[data-${modifierName}="${context}"]`
+  },
+  transforms: [nameKebabCase(), colorToHex()],
+})
+```
+
+<LinkCard
+  title="iOS / SwiftUI"
+  description="Generate Swift code for SwiftUI with type-safe design tokens."
+  href="/outputs/ios/"
+/>

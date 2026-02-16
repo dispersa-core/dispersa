@@ -1,0 +1,99 @@
+---
+title: In-Memory Mode
+description: Run Dispersa entirely without the filesystem for APIs, testing, and serverless environments.
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## When to Use In-Memory Mode
+
+- Build tools that process tokens from a database or API
+- API endpoints that generate token output on request
+- Unit tests that verify token output
+- Serverless functions with read-only or ephemeral filesystems
+
+## Pass a ResolverDocument Directly
+
+Instead of a path to a resolver file, pass a `ResolverDocument` object:
+
+```typescript
+import type { ResolverDocument } from 'dispersa'
+import { Dispersa, css } from 'dispersa'
+import { colorToHex, nameKebabCase } from 'dispersa/transforms'
+
+const resolver: ResolverDocument = {
+  version: '2025.10',
+  sets: {
+    base: {
+      sources: [{
+        color: {
+          primary: {
+            $type: 'color',
+            $value: { colorSpace: 'srgb', components: [0, 0.4, 0.8] },
+          },
+        },
+      }],
+    },
+  },
+  resolutionOrder: [{ $ref: '#/sets/base' }],
+}
+
+const dispersa = new Dispersa({ resolver })
+```
+
+## Omit buildPath — Output Stays in Memory
+
+Do not set `buildPath`. Omit the `file` option on outputs. Generated content is available on `output.content`:
+
+```typescript
+const result = await dispersa.build({
+  outputs: [
+    css({
+      name: 'css',
+      preset: 'bundle',
+      selector: ':root',
+      transforms: [nameKebabCase(), colorToHex()],
+    }),
+  ],
+})
+
+for (const output of result.outputs) {
+  console.log(output.content) // CSS string
+}
+```
+
+## Token Resolution Without Rendering
+
+Use `resolveTokens()` to resolve tokens for a single permutation without rendering:
+
+```typescript
+const tokens = await dispersa.resolveTokens('./tokens.resolver.json', { theme: 'light' })
+// Use tokens for validation, transformation, or custom rendering
+```
+
+Use `resolveAllPermutations()` to get all permutations at once:
+
+```typescript
+const allPermutations = await dispersa.resolveAllPermutations('./tokens.resolver.json')
+// allPermutations is an array of { tokens, modifierInputs } for each modifier combination
+```
+
+## Testing Example
+
+Write unit tests that verify token output without writing files:
+
+```typescript
+const dispersa = new Dispersa({ resolver: testResolver })
+const result = await dispersa.build({
+  outputs: [css({ name: 'css', preset: 'bundle', selector: ':root', transforms: [colorToHex()] })],
+})
+expect(result.outputs[0].content).toContain('--color-primary: #0066cc')
+```
+
+<LinkCard
+  title="TypeScript Type Generation"
+  description="Generate TypeScript declaration files from your resolved tokens for type-safe token access."
+  href="/guides/type-generation/"
+/>

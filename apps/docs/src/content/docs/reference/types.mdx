@@ -1,0 +1,294 @@
+---
+title: Types Reference
+description: Complete TypeScript type definitions for all public Dispersa types.
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+This page documents the key TypeScript types used across the Dispersa API. Import types from `dispersa` or the relevant subpath.
+
+---
+
+## Core Types
+
+### DispersaOptions
+
+```typescript
+type DispersaOptions = {
+  resolver?: string | ResolverDocument
+  buildPath?: string
+  validation?: { mode?: 'error' | 'warn' | 'off' }
+}
+```
+
+### BuildConfig
+
+```typescript
+type BuildConfig = {
+  resolver?: string | ResolverDocument
+  buildPath?: string
+  outputs: OutputConfig[]
+  filters?: Filter[]
+  transforms?: Transform[]
+  preprocessors?: Preprocessor[]
+  permutations?: ModifierInputs[]
+  hooks?: LifecycleHooks
+}
+```
+
+### BuildResult
+
+```typescript
+type BuildResult = {
+  success: boolean
+  outputs: BuildOutput[]
+  errors?: BuildError[]
+}
+```
+
+### BuildOutput
+
+```typescript
+type BuildOutput = {
+  name: string
+  path?: string
+  content: string
+}
+```
+
+### BuildError
+
+```typescript
+type BuildError = {
+  message: string
+  code: ErrorCode
+  path?: string
+  tokenPath?: string
+  severity: 'error' | 'warning'
+  suggestions?: string[]
+}
+```
+
+### ErrorCode
+
+```typescript
+type ErrorCode =
+  | 'TOKEN_REFERENCE'
+  | 'CIRCULAR_REFERENCE'
+  | 'VALIDATION'
+  | 'COLOR_PARSE'
+  | 'DIMENSION_FORMAT'
+  | 'FILE_OPERATION'
+  | 'CONFIGURATION'
+  | 'BASE_PERMUTATION'
+  | 'MODIFIER'
+  | 'UNKNOWN'
+```
+
+---
+
+## Token Types
+
+### ResolvedToken
+
+```typescript
+type ResolvedToken = {
+  $type: TokenType
+  $value: unknown
+  $description?: string
+  $deprecated?: boolean | string
+  $extensions?: Record<string, unknown>
+  name: string
+  path: string[]
+  originalValue: unknown
+}
+```
+
+### TokenType
+
+```typescript
+type TokenType =
+  | 'color'
+  | 'dimension'
+  | 'fontFamily'
+  | 'fontWeight'
+  | 'duration'
+  | 'cubicBezier'
+  | 'number'
+  | 'shadow'
+  | 'typography'
+  | 'border'
+  | 'strokeStyle'
+  | 'transition'
+  | 'gradient'
+```
+
+### ModifierInputs
+
+```typescript
+type ModifierInputs = Record<string, string>
+```
+
+---
+
+## Config Types
+
+### OutputConfig
+
+```typescript
+type OutputConfig = {
+  name: string
+  renderer: Renderer
+  file?: string | FileFunction
+  transforms?: Transform[]
+  filters?: Filter[]
+  options?: Record<string, unknown>
+  hooks?: LifecycleHooks
+}
+```
+
+### LifecycleHooks
+
+```typescript
+type LifecycleHooks = {
+  onBuildStart?: (context: {
+    config: BuildConfig
+    resolver: string | ResolverDocument
+  }) => void | Promise<void>
+  onBuildEnd?: (result: BuildResult) => void | Promise<void>
+}
+```
+
+### FileFunction
+
+```typescript
+type FileFunction = (modifierInputs: ModifierInputs) => string
+```
+
+---
+
+## Renderer Types
+
+### Renderer
+
+Renderer is the type returned by `defineRenderer()`.
+
+### RenderContext
+
+```typescript
+type RenderContext = {
+  permutations: {
+    tokens: Record<string, ResolvedToken>
+    modifierInputs: ModifierInputs
+  }[]
+  output: OutputConfig
+  resolver: ResolverDocument
+  meta: RenderMeta
+  buildPath?: string
+}
+```
+
+### RenderMeta
+
+```typescript
+type RenderMeta = {
+  dimensions: string[]
+  defaults: Record<string, string>
+  basePermutation: Record<string, string>
+}
+```
+
+### SelectorFunction / MediaQueryFunction
+
+```typescript
+type SelectorFunction = (
+  modifierName: string,
+  context: string,
+  isBase: boolean,
+  allModifierInputs: Record<string, string>,
+) => string
+```
+
+---
+
+## Resolver Types
+
+### ResolverDocument
+
+```typescript
+type ResolverDocument = {
+  $schema?: string
+  name?: string
+  version: '2025.10'
+  description?: string
+  sets?: Record<string, Set>
+  modifiers?: Record<string, Modifier>
+  resolutionOrder: (ReferenceObject | InlineSet | InlineModifier)[]
+  $defs?: Record<string, unknown>
+}
+```
+
+---
+
+## Transform & Filter Types
+
+### Transform
+
+```typescript
+type Transform = {
+  matcher?: (token: ResolvedToken) => boolean
+  transform: (token: ResolvedToken) => ResolvedToken
+}
+```
+
+### Filter
+
+```typescript
+type Filter = {
+  filter: (token: ResolvedToken) => boolean
+}
+```
+
+### Preprocessor
+
+```typescript
+type Preprocessor = {
+  name: string
+  preprocess: (
+    rawTokens: Record<string, unknown>,
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
+}
+```
+
+---
+
+## Output Tree Types
+
+### outputTree()
+
+```typescript
+function outputTree(files: Record<string, string>): OutputTree
+```
+
+### isOutputTree()
+
+```typescript
+function isOutputTree(value: unknown): value is OutputTree
+```
+
+<Aside type="note" title="Internal types">
+Types not listed here (e.g. Set, Modifier, ReferenceObject from the DTCG spec) may be used internally but are not part of the stable public API. Rely on the types above for TypeScript integration.
+</Aside>
+
+<LinkCard
+  title="Subpath Exports"
+  description="Where to import each type from."
+  href="/reference/exports/"
+/>
+<LinkCard
+  title="Dispersa Class"
+  description="Constructor and build methods."
+  href="/reference/dispersa/"
+/>

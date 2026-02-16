@@ -1,0 +1,126 @@
+---
+title: Transforms Reference
+description: Complete reference for all built-in transform factories with signatures, input/output examples, and options.
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Transform Type
+
+```typescript
+type Transform = {
+  matcher?: (token: ResolvedToken) => boolean
+  transform: (token: ResolvedToken) => ResolvedToken
+}
+```
+
+- **matcher** (optional) — When provided, the transform applies only when `matcher(token)` returns `true`. Omit for all tokens.
+- **transform** — Receives a `ResolvedToken` and returns a new one. Should be immutable.
+
+Import from `dispersa/transforms`:
+
+```typescript
+import { colorToHex, nameKebabCase, dimensionToRem } from 'dispersa/transforms'
+```
+
+---
+
+## Color Transforms
+
+All color transforms accept color tokens. Input: DTCG color object. Output: string in target format.
+
+| Transform | Import | Input Example | Output Example |
+|-----------|--------|---------------|----------------|
+| colorToHex() | `colorToHex` | `{ colorSpace: 'srgb', components: [0, 0.4, 0.8] }` | `'#0066cc'` |
+| colorToRgb() | `colorToRgb` | same | `'rgb(0, 102, 204)'` |
+| colorToHsl() | `colorToHsl` | same | `'hsl(210, 100%, 40%)'` |
+| colorToOklch() | `colorToOklch` | same | `'oklch(...)'` |
+| colorToOklab() | `colorToOklab` | same | `'oklab(...)'` |
+| colorToLch() | `colorToLch` | same | `'lch(...)'` |
+| colorToLab() | `colorToLab` | same | `'lab(...)'` |
+| colorToHwb() | `colorToHwb` | same | `'hwb(...)'` |
+| colorToColorFunction() | `colorToColorFunction` | same | Color function string |
+
+```typescript
+import { colorToHex, colorToRgb } from 'dispersa/transforms'
+
+transforms: [colorToHex()]
+transforms: [colorToRgb()]
+```
+
+---
+
+## Dimension Transforms
+
+For `dimension` tokens. Input: `{ value: number, unit: string }`. Output: string or number.
+
+| Transform | Import | Input Example | Output Example |
+|-----------|--------|---------------|----------------|
+| dimensionToPx() | `dimensionToPx` | `{ value: 16, unit: 'px' }` | `'16px'` |
+| dimensionToRem() | `dimensionToRem` | `{ value: 16, unit: 'px' }` | `'1rem'` |
+| dimensionToUnitless() | `dimensionToUnitless` | `{ value: 16, unit: 'px' }` | `16` |
+
+```typescript
+import { dimensionToPx, dimensionToRem } from 'dispersa/transforms'
+
+transforms: [dimensionToPx()]
+transforms: [dimensionToRem()]
+```
+
+---
+
+## Name Transforms
+
+Transform token paths/names. Input: path string (e.g. `color.brand.primary`). Output: formatted name.
+
+| Transform | Import | Input Example | Output Example |
+|-----------|--------|---------------|----------------|
+| nameKebabCase() | `nameKebabCase` | `color.brand.primary` | `color-brand-primary` |
+| nameCamelCase() | `nameCamelCase` | `color.brand.primary` | `colorBrandPrimary` |
+| nameSnakeCase() | `nameSnakeCase` | `color.brand.primary` | `color_brand_primary` |
+| namePascalCase() | `namePascalCase` | `color.brand.primary` | `ColorBrandPrimary` |
+| nameConstantCase() | `nameConstantCase` | `color.brand.primary` | `COLOR_BRAND_PRIMARY` |
+| namePrefix(prefix) | `namePrefix` | `color-brand-primary` + `'ds'` | `ds-color-brand-primary` |
+| nameSuffix(suffix) | `nameSuffix` | `color-brand-primary` + `'token'` | `color-brand-primary-token` |
+| nameCssVar() | `nameCssVar` | `color.brand.primary` | `--color-brand-primary` |
+
+```typescript
+import { nameKebabCase, nameCssVar, namePrefix } from 'dispersa/transforms'
+
+transforms: [nameKebabCase()]
+transforms: [nameCssVar()]
+transforms: [namePrefix('ds-')]
+transforms: [nameSuffix('-token')]
+```
+
+---
+
+## Other Transforms
+
+| Transform | Import | Input Example | Output Example |
+|-----------|--------|---------------|----------------|
+| fontWeightToNumber() | `fontWeightToNumber` | `'bold'` | `700` |
+| durationToMs() | `durationToMs` | `{ value: 200, unit: 'ms' }` | `'200ms'` |
+| durationToSeconds() | `durationToSeconds` | `{ value: 200, unit: 'ms' }` | `'0.2s'` |
+
+```typescript
+import { fontWeightToNumber, durationToMs } from 'dispersa/transforms'
+
+transforms: [fontWeightToNumber()]
+transforms: [durationToMs()]
+```
+
+---
+
+<LinkCard
+  title="Filters Reference"
+  description="Filter tokens by type, path, or alias status."
+  href="/reference/filters/"
+/>
+<LinkCard
+  title="Custom Transforms"
+  description="Build custom transforms for your platform."
+  href="/extending/custom-transforms/"
+/>
