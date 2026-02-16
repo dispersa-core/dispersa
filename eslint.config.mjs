@@ -23,6 +23,7 @@ export default tseslint.config(
       '**/*.spec.tsx',
       '**/tests/**',
       '**/__tests__/**',
+      '**/apps/docs/.astro/**',
     ],
   },
   // Base config for all files
