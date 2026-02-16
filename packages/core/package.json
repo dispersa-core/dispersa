@@ -32,6 +32,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "dispersa": "./dist/cli/index.js"
+  },
   "exports": {
     ".": {
       "import": {
@@ -102,6 +105,18 @@
         "types": "./dist/errors.d.cts",
         "default": "./dist/errors.cjs"
       }
+    },
+    "./config": {
+      "import": {
+        "types": "./dist/cli/config.d.ts",
+        "default": "./dist/cli/config.js"
+      }
+    },
+    "./cli": {
+      "import": {
+        "types": "./dist/cli/cli.d.ts",
+        "default": "./dist/cli/cli.js"
+      }
     }
   },
   "files": [
@@ -111,6 +126,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
+    "test:update": "vitest run --update",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "vitest run tests/e2e",
@@ -126,6 +142,7 @@
     "change-case": "^5.4.4",
     "culori": "^4.0.2",
     "fast-glob": "^3.3.2",
+    "jiti": "^2.6.1",
     "json-ptr": "^3.1.1",
     "json-schema-to-ts": "^3.1.1",
     "prettier": "^3.6.2"

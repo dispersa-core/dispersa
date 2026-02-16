@@ -81,6 +81,124 @@ export const jsModuleRendererOptionsSchema = {
 } as const
 
 /**
+ * Tailwind CSS v4 Renderer Options Schema
+ */
+export const tailwindRendererOptionsSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  type: 'object',
+  properties: {
+    preset: { type: 'string', enum: ['bundle', 'standalone'] },
+    includeImport: {
+      type: 'boolean',
+      description: 'Prepend @import "tailwindcss" to the output',
+    },
+    namespace: {
+      type: 'string',
+      description: 'Optional Tailwind namespace prefix for @theme',
+    },
+    selector: { type: 'string' },
+    mediaQuery: { type: 'string' },
+    ...commonRendererOptionsProperties,
+  },
+  additionalProperties: true,
+} as const
+
+/**
+ * iOS/SwiftUI Renderer Options Schema
+ */
+export const iosRendererOptionsSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  type: 'object',
+  properties: {
+    preset: { type: 'string', enum: ['standalone'] },
+    accessLevel: { type: 'string', enum: ['public', 'internal'] },
+    structure: { type: 'string', enum: ['enum', 'grouped'] },
+    enumName: {
+      type: 'string',
+      description: 'Root enum name for enum structure (default: DesignTokens)',
+    },
+    extensionNamespace: {
+      type: 'string',
+      description: 'Namespace enum name used in grouped mode (default: DesignTokens)',
+    },
+    colorSpace: {
+      type: 'string',
+      enum: ['sRGB', 'displayP3'],
+      description: 'Color space for SwiftUI Color initializer',
+    },
+    swiftVersion: {
+      type: 'string',
+      enum: ['5.9', '6.0'],
+      description: 'Target Swift language version (default: 5.9)',
+    },
+    indent: {
+      type: 'number',
+      minimum: 1,
+      description: 'Number of spaces per indentation level (default: 4)',
+    },
+    frozen: {
+      type: 'boolean',
+      description: 'Add @frozen annotation to enums and structs for ABI stability (default: false)',
+    },
+  },
+  additionalProperties: true,
+} as const
+
+/**
+ * Android/Jetpack Compose Renderer Options Schema
+ */
+export const androidRendererOptionsSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  type: 'object',
+  required: ['packageName'],
+  properties: {
+    preset: { type: 'string', enum: ['standalone', 'bundle'] },
+    packageName: {
+      type: 'string',
+      minLength: 1,
+      description: 'Kotlin package name (required, e.g., com.example.tokens)',
+    },
+    objectName: {
+      type: 'string',
+      description: 'Root object name (default: DesignTokens)',
+    },
+    colorFormat: {
+      type: 'string',
+      enum: ['argb_hex', 'argb_float', 'argb8', 'argb_floats'],
+      description:
+        'Color output format: argb_hex for Color(0xAARRGGBB), argb_float for Color(r, g, b, a). Legacy aliases: argb8 → argb_hex, argb_floats → argb_float',
+    },
+    colorSpace: {
+      type: 'string',
+      enum: ['sRGB', 'displayP3'],
+      description: 'Color space for Color initializers (default: sRGB)',
+    },
+    structure: {
+      type: 'string',
+      enum: ['nested', 'flat'],
+      description:
+        'Token organization: nested mirrors path hierarchy, flat groups by $type (default: nested)',
+    },
+    visibility: {
+      type: 'string',
+      enum: ['public', 'internal'],
+      description: 'Kotlin visibility modifier for generated declarations',
+    },
+    indent: {
+      type: 'number',
+      minimum: 1,
+      description: 'Number of spaces per indentation level (default: 4)',
+    },
+  },
+  additionalProperties: true,
+  errorMessage: {
+    required: {
+      packageName: 'Android renderer requires a "packageName" property',
+    },
+  },
+} as const
+
+/**
  * Transform Plugin Schema
  *
  * Validates structure of Transform objects at registration time.
@@ -382,3 +500,18 @@ export type BuildConfigBase = FromSchema<typeof buildConfigSchema>
  * Preprocessor Plugin type generated from preprocessorPluginSchema
  */
 export type PreprocessorPluginBase = FromSchema<typeof preprocessorPluginSchema>
+
+/**
+ * Tailwind CSS v4 Renderer Options type generated from tailwindRendererOptionsSchema
+ */
+export type TailwindRendererOptionsBase = FromSchema<typeof tailwindRendererOptionsSchema>
+
+/**
+ * iOS/SwiftUI Renderer Options type generated from iosRendererOptionsSchema
+ */
+export type IosRendererOptionsBase = FromSchema<typeof iosRendererOptionsSchema>
+
+/**
+ * Android/Jetpack Compose Renderer Options type generated from androidRendererOptionsSchema
+ */
+export type AndroidRendererOptionsBase = FromSchema<typeof androidRendererOptionsSchema>

@@ -55,12 +55,14 @@ export function byType(type: TokenType): Filter {
  * ```
  */
 export function byPath(pattern: RegExp | string): Filter {
-  const regex = typeof pattern === 'string' ? new RegExp(`^${pattern}`) : pattern
+  if (typeof pattern === 'string') {
+    return {
+      filter: (token) => token.path.join('.').startsWith(pattern),
+    }
+  }
+
   return {
-    filter: (token) => {
-      const fullPath = token.path.join('.')
-      return regex.test(fullPath)
-    },
+    filter: (token) => pattern.test(token.path.join('.')),
   }
 }
 

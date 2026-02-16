@@ -73,12 +73,14 @@ export type { Preprocessor } from '@processing/processors/preprocessors/types'
 
 // Renderer types
 export type {
+  AndroidRendererOptions,
   BuildError,
   BuildOutput,
   BuildResult,
   CssRendererOptions,
   ErrorCode,
   FormatOptions,
+  IosRendererOptions,
   JsModuleRendererOptions,
   JsonRendererOptions,
   MediaQueryFunction,
@@ -89,6 +91,7 @@ export type {
   RenderMeta,
   RenderOutput,
   SelectorFunction,
+  TailwindRendererOptions,
 } from '@renderers/types'
 
 // Resolver types
@@ -98,8 +101,15 @@ export type { ModifierInputs, ResolverDocument } from '@resolution/resolution.ty
 // OUTPUT BUILDERS
 // ============================================================================
 
-export { css, json, js } from './builders'
-export type { CssBuilderConfig, JsonBuilderConfig, JsBuilderConfig } from './builders'
+export { css, json, js, tailwind, ios, android } from './builders'
+export type {
+  AndroidBuilderConfig,
+  CssBuilderConfig,
+  IosBuilderConfig,
+  JsBuilderConfig,
+  JsonBuilderConfig,
+  TailwindBuilderConfig,
+} from './builders'
 
 // ============================================================================
 // CUSTOM RENDERER HELPERS

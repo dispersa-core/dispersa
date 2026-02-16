@@ -241,6 +241,29 @@ export type { JsonRendererOptions } from '@validation/config-schemas'
 export type { JsModuleRendererOptions } from '@validation/config-schemas'
 
 /**
+ * Options for Tailwind CSS v4 renderer
+ *
+ * Generates CSS with @theme blocks for Tailwind v4+ design token integration.
+ */
+export type { TailwindRendererOptions } from './tailwind'
+
+/**
+ * Options for iOS/SwiftUI renderer
+ *
+ * Generates Swift code targeting SwiftUI (iOS 17+, Swift 6).
+ */
+export type { IosRendererOptions } from './ios'
+
+/**
+ * Options for Android/Jetpack Compose renderer
+ *
+ * Generates Kotlin code targeting Jetpack Compose with Material 3.
+ *
+ * @experimental This type is experimental. Properties and behavior may change.
+ */
+export type { AndroidRendererOptions } from './android'
+
+/**
  * Result of a token build operation
  *
  * Contains success status, generated output files, and any errors encountered.

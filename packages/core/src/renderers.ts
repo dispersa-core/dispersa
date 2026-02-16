@@ -17,18 +17,24 @@
 // ============================================================================
 
 export type {
+  AndroidRendererOptions,
   BuildError,
   BuildResult,
   CssRendererOptions,
   ErrorCode,
   FormatOptions,
+  IosRendererOptions,
   JsModuleRendererOptions,
   JsonRendererOptions,
+  MediaQueryFunction,
   OutputTree,
+  PermutationData,
   Renderer,
   RenderContext,
   RenderMeta,
   RenderOutput,
+  SelectorFunction,
+  TailwindRendererOptions,
 } from '@renderers/types'
 
 // ============================================================================

@@ -14,13 +14,19 @@
 import type { LifecycleHooks, OutputConfig } from '@config/index'
 import type { Filter } from '@processing/processors/filters/types'
 import type { Transform } from '@processing/processors/transforms/types'
+import { androidRenderer } from '@renderers/android'
 import { cssRenderer } from '@renderers/css'
+import { iosRenderer } from '@renderers/ios'
 import { jsRenderer } from '@renderers/js-module'
 import { jsonRenderer } from '@renderers/json'
+import { tailwindRenderer } from '@renderers/tailwind'
 import type {
+  AndroidRendererOptions,
   CssRendererOptions,
+  IosRendererOptions,
   JsModuleRendererOptions,
   JsonRendererOptions,
+  TailwindRendererOptions,
 } from '@renderers/types'
 import type { ModifierInputs } from '@resolution/resolution.types'
 
@@ -311,6 +317,225 @@ export function js(config: JsBuilderConfig): OutputConfig<JsModuleRendererOption
     name,
     file,
     renderer: jsRenderer(),
+    options: { preset, ...rendererOptions },
+    transforms,
+    filters,
+    hooks,
+  }
+}
+
+// ============================================================================
+// TAILWIND CSS v4 BUILDER
+// ============================================================================
+
+/**
+ * Tailwind CSS v4 builder configuration with flattened options
+ */
+export type TailwindBuilderConfig = BuilderConfigBase & TailwindRendererOptions
+
+/**
+ * Create Tailwind CSS v4 output configuration with flattened options
+ *
+ * Creates an OutputConfig for Tailwind v4 @theme CSS output. All Tailwind-specific
+ * options (includeImport, namespace, etc.) are provided at the top level for
+ * improved discoverability.
+ *
+ * @param config - Tailwind builder configuration with flattened options
+ * @returns Complete OutputConfig ready for use in build()
+ *
+ * @remarks
+ * The preset defaults to 'bundle' for Tailwind, meaning the base permutation tokens
+ * are used to define the @theme vocabulary. Use preset: 'standalone' for separate files.
+ *
+ * @example Bundle Tailwind theme with transforms
+ * ```typescript
+ * import { tailwind } from 'dispersa'
+ * import { nameKebabCase } from 'dispersa/transforms'
+ *
+ * const config = tailwind({
+ *   name: 'tailwind',
+ *   file: 'theme.css',
+ *   preset: 'bundle',
+ *   includeImport: true,
+ *   transforms: [nameKebabCase()]
+ * })
+ * ```
+ *
+ * @example Standalone files per theme
+ * ```typescript
+ * import { tailwind } from 'dispersa'
+ *
+ * const config = tailwind({
+ *   name: 'tailwind',
+ *   file: 'theme-{theme}.css',
+ *   preset: 'standalone',
+ *   includeImport: false,
+ * })
+ * ```
+ */
+export function tailwind(config: TailwindBuilderConfig): OutputConfig<TailwindRendererOptions> {
+  const { name, file, transforms, filters, hooks, preset = 'bundle', ...rendererOptions } = config
+
+  return {
+    name,
+    file,
+    renderer: tailwindRenderer(),
+    options: { preset, ...rendererOptions },
+    transforms,
+    filters,
+    hooks,
+  }
+}
+
+// ============================================================================
+// iOS / SWIFTUI BUILDER
+// ============================================================================
+
+/**
+ * iOS/SwiftUI builder configuration with flattened options
+ */
+export type IosBuilderConfig = BuilderConfigBase & IosRendererOptions
+
+/**
+ * Create iOS/SwiftUI output configuration with flattened options
+ *
+ * Creates an OutputConfig for Swift code generation targeting SwiftUI (iOS 17+, Swift 6).
+ * All iOS-specific options (accessLevel, structure, etc.) are provided at the top level.
+ *
+ * @param config - iOS builder configuration with flattened options
+ * @returns Complete OutputConfig ready for use in build()
+ *
+ * @remarks
+ * Only standalone preset is supported. Each permutation generates a separate Swift file.
+ *
+ * @example Enum-based SwiftUI tokens
+ * ```typescript
+ * import { ios } from 'dispersa'
+ *
+ * const config = ios({
+ *   name: 'ios',
+ *   file: 'DesignTokens-{theme}.swift',
+ *   accessLevel: 'public',
+ *   structure: 'enum',
+ *   enumName: 'DesignTokens',
+ *   colorSpace: 'sRGB',
+ * })
+ * ```
+ *
+ * @example Grouped SwiftUI tokens (namespace enum + extensions per group)
+ * ```typescript
+ * import { ios } from 'dispersa'
+ *
+ * const config = ios({
+ *   name: 'ios-tokens',
+ *   file: 'Tokens-{theme}.swift',
+ *   structure: 'grouped',
+ *   colorSpace: 'displayP3',
+ * })
+ * ```
+ */
+export function ios(config: IosBuilderConfig): OutputConfig<IosRendererOptions> {
+  const {
+    name,
+    file,
+    transforms,
+    filters,
+    hooks,
+    preset = 'standalone',
+    ...rendererOptions
+  } = config
+
+  return {
+    name,
+    file,
+    renderer: iosRenderer(),
+    options: { preset, ...rendererOptions },
+    transforms,
+    filters,
+    hooks,
+  }
+}
+
+// ============================================================================
+// ANDROID / JETPACK COMPOSE BUILDER
+// ============================================================================
+
+/**
+ * Android/Jetpack Compose builder configuration with flattened options
+ */
+export type AndroidBuilderConfig = BuilderConfigBase & AndroidRendererOptions
+
+/**
+ * Create Android/Jetpack Compose output configuration with flattened options
+ *
+ * Creates an OutputConfig for Kotlin code generation targeting Jetpack Compose
+ * with Material 3. All Android-specific options (packageName, objectName, etc.)
+ * are provided at the top level.
+ *
+ * @experimental This builder is experimental. Options and generated output may change.
+ * @param config - Android builder configuration with flattened options
+ * @returns Complete OutputConfig ready for use in build()
+ *
+ * @remarks
+ * The `packageName` option is required (Kotlin convention). Supports both
+ * `'standalone'` (default, one file per permutation) and `'bundle'` (all
+ * permutations in a single file) presets.
+ *
+ * @example Standalone Compose tokens with hex colors
+ * ```typescript
+ * import { android } from 'dispersa'
+ *
+ * const config = android({
+ *   name: 'android',
+ *   file: 'DesignTokens-{theme}.kt',
+ *   packageName: 'com.example.tokens',
+ *   objectName: 'DesignTokens',
+ *   colorFormat: 'argb_hex',
+ * })
+ * ```
+ *
+ * @example Flat structure with Display P3 colors
+ * ```typescript
+ * import { android } from 'dispersa'
+ *
+ * const config = android({
+ *   name: 'android-tokens',
+ *   file: 'Tokens-{theme}.kt',
+ *   packageName: 'com.example.design',
+ *   structure: 'flat',
+ *   colorSpace: 'displayP3',
+ *   colorFormat: 'argb_float',
+ * })
+ * ```
+ *
+ * @example Bundle mode — all themes in one file
+ * ```typescript
+ * import { android } from 'dispersa'
+ *
+ * const config = android({
+ *   name: 'android-bundle',
+ *   file: 'DesignTokens.kt',
+ *   packageName: 'com.example.tokens',
+ *   preset: 'bundle',
+ *   structure: 'flat',
+ * })
+ * ```
+ */
+export function android(config: AndroidBuilderConfig): OutputConfig<AndroidRendererOptions> {
+  const {
+    name,
+    file,
+    transforms,
+    filters,
+    hooks,
+    preset = 'standalone',
+    ...rendererOptions
+  } = config
+
+  return {
+    name,
+    file,
+    renderer: androidRenderer(),
     options: { preset, ...rendererOptions },
     transforms,
     filters,

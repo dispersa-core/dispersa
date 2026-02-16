@@ -31,6 +31,9 @@ describe('Public API Contract Tests', () => {
       expect(actualExports).toContain('css')
       expect(actualExports).toContain('json')
       expect(actualExports).toContain('js')
+      expect(actualExports).toContain('tailwind')
+      expect(actualExports).toContain('ios')
+      expect(actualExports).toContain('android')
       expect(actualExports).toContain('outputTree')
       expect(actualExports).toContain('isOutputTree')
       expect(actualExports).toContain('defineRenderer')
@@ -111,13 +114,19 @@ describe('Public API Contract Tests', () => {
       expect(BuildersAPI).toHaveProperty('css')
       expect(BuildersAPI).toHaveProperty('json')
       expect(BuildersAPI).toHaveProperty('js')
+      expect(BuildersAPI).toHaveProperty('tailwind')
+      expect(BuildersAPI).toHaveProperty('ios')
+      expect(BuildersAPI).toHaveProperty('android')
 
       expect(typeof BuildersAPI.css).toBe('function')
       expect(typeof BuildersAPI.json).toBe('function')
       expect(typeof BuildersAPI.js).toBe('function')
+      expect(typeof BuildersAPI.tailwind).toBe('function')
+      expect(typeof BuildersAPI.ios).toBe('function')
+      expect(typeof BuildersAPI.android).toBe('function')
     })
 
-    it('builders should return valid output configs', () => {
+    it('css builder should return valid output config', () => {
       const output = BuildersAPI.css({
         name: 'test',
         file: 'test.css',
@@ -130,6 +139,49 @@ describe('Public API Contract Tests', () => {
       expect(output).toHaveProperty('file', 'test.css')
       expect(output).toHaveProperty('options')
       expect(output.options).toMatchObject({ preset: 'bundle' })
+      expect(typeof output.renderer.format).toBe('function')
+    })
+
+    it('tailwind builder should return valid output config', () => {
+      const output = BuildersAPI.tailwind({
+        name: 'test',
+        file: 'theme.css',
+        preset: 'bundle',
+      })
+
+      expect(output).toHaveProperty('name', 'test')
+      expect(output).toHaveProperty('renderer')
+      expect(output).toHaveProperty('file', 'theme.css')
+      expect(output).toHaveProperty('options')
+      expect(output.options).toMatchObject({ preset: 'bundle' })
+      expect(typeof output.renderer.format).toBe('function')
+    })
+
+    it('ios builder should return valid output config', () => {
+      const output = BuildersAPI.ios({
+        name: 'test',
+        file: 'Tokens.swift',
+      })
+
+      expect(output).toHaveProperty('name', 'test')
+      expect(output).toHaveProperty('renderer')
+      expect(output).toHaveProperty('file', 'Tokens.swift')
+      expect(output).toHaveProperty('options')
+      expect(typeof output.renderer.format).toBe('function')
+    })
+
+    it('android builder should return valid output config', () => {
+      const output = BuildersAPI.android({
+        name: 'test',
+        file: 'Tokens.kt',
+        packageName: 'com.example.tokens',
+      })
+
+      expect(output).toHaveProperty('name', 'test')
+      expect(output).toHaveProperty('renderer')
+      expect(output).toHaveProperty('file', 'Tokens.kt')
+      expect(output).toHaveProperty('options')
+      expect(output.options).toMatchObject({ packageName: 'com.example.tokens' })
       expect(typeof output.renderer.format).toBe('function')
     })
   })
