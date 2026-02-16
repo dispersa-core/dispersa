@@ -11,7 +11,7 @@
     "start": "npm run build && open demo.html"
   },
   "dependencies": {
-    "dispersa": "file:../../packages/core",
+    "dispersa": "workspace:*",
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@
     "build": "tsx build.ts"
   },
   "dependencies": {
-    "dispersa": "file:../../packages/core"
+    "dispersa": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

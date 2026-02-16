@@ -17,7 +17,7 @@
     "verify:android": "pnpm copy:android && cd previews/android && ./gradlew assembleDebug"
   },
   "dependencies": {
-    "dispersa": "file:../../packages/core"
+    "dispersa": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

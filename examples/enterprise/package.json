@@ -7,7 +7,7 @@
     "build": "tsx build.ts"
   },
   "dependencies": {
-    "dispersa": "file:../../packages/core",
+    "dispersa": "workspace:*",
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {

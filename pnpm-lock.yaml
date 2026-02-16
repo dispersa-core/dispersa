@@ -93,7 +93,7 @@ importers:
   examples/advanced:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
       fs-extra:
         specifier: ^11.2.0
@@ -115,7 +115,7 @@ importers:
   examples/atlassian-semantic:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
       fs-extra:
         specifier: ^11.2.0
@@ -137,7 +137,7 @@ importers:
   examples/basic:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
       '@types/node':
@@ -153,13 +153,13 @@ importers:
   examples/cli:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
 
   examples/custom-plugins:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
       fs-extra:
         specifier: ^11.2.0
@@ -184,7 +184,7 @@ importers:
   examples/enterprise:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
       fs-extra:
         specifier: ^11.2.0
@@ -206,7 +206,7 @@ importers:
   examples/multi-platform:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
       '@types/node':
@@ -240,7 +240,7 @@ importers:
   examples/no-filesystem:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
       '@types/node':
@@ -256,7 +256,7 @@ importers:
   examples/split-by-type:
     dependencies:
       dispersa:
-        specifier: file:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
       '@types/node':
