@@ -13,12 +13,12 @@ import { detectPackageManager, scaffoldProject } from './scaffold.js'
 
 const TEMPLATES = [
   {
-    value: 'basic' as const,
-    label: 'Basic',
+    value: 'typescript-starter' as const,
+    label: 'TypeScript',
     hint: 'Programmatic build script with CSS output',
   },
   {
-    value: 'cli' as const,
+    value: 'cli-starter' as const,
     label: 'CLI',
     hint: 'Config-file workflow using the dispersa CLI',
   },

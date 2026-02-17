@@ -323,4 +323,271 @@ describe('CSS Renderer', () => {
     expect(output).toContain('--color.base.background: #ff0000;')
     expect(output).toContain('--shadow.elevation.sm-color: var(--color.base.background);')
   })
+
+  describe('modifier preset base file', () => {
+    const createModifierContext = (
+      setTokens: ResolvedTokens,
+      lightModifierTokens: ResolvedTokens,
+      darkModifierTokens: ResolvedTokens,
+      options: Record<string, unknown> = {},
+    ): RenderContext => {
+      const modifierResolver: ResolverDocument = {
+        name: 'Test',
+        version: '2025.10',
+        sets: {
+          colors: {
+            description: 'Color primitives',
+            sources: [],
+          },
+          spacing: {
+            description: 'Spacing scale',
+            sources: [],
+          },
+        },
+        modifiers: {
+          theme: {
+            description: 'Theme variations',
+            default: 'light',
+            contexts: {
+              light: [],
+              dark: [],
+            },
+          },
+        },
+        resolutionOrder: [
+          { $ref: '#/sets/colors' },
+          { $ref: '#/sets/spacing' },
+          { $ref: '#/modifiers/theme' },
+        ],
+      }
+
+      const lightPermTokens: ResolvedTokens = { ...setTokens, ...lightModifierTokens }
+      const darkPermTokens: ResolvedTokens = { ...setTokens, ...darkModifierTokens }
+
+      const output: OutputConfig = {
+        name: 'css-themes',
+        renderer,
+        file: '{theme}/tokens.css',
+        options: { preset: 'modifier', ...options },
+      }
+
+      return {
+        permutations: [
+          { tokens: lightPermTokens, modifierInputs: { theme: 'light' } },
+          { tokens: darkPermTokens, modifierInputs: { theme: 'dark' } },
+        ],
+        output,
+        resolver: modifierResolver,
+        meta: {
+          dimensions: ['theme'],
+          defaults: { theme: 'light' },
+          basePermutation: { theme: 'light' },
+        },
+      }
+    }
+
+    it('should emit a base file with set tokens', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: '#ff0000',
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+        'spacing.sm': {
+          $value: '0.5rem',
+          $type: 'dimension',
+          name: 'spacing-sm',
+          path: ['spacing', 'sm'],
+          originalValue: '0.5rem',
+          _sourceSet: 'spacing',
+        } as ResolvedToken,
+      }
+      const lightModTokens: ResolvedTokens = {
+        'color.semantic.bg': {
+          $value: '#ffffff',
+          $type: 'color',
+          name: 'color-semantic-bg',
+          path: ['color', 'semantic', 'bg'],
+          originalValue: '#ffffff',
+          _sourceModifier: 'theme-light',
+        } as ResolvedToken,
+      }
+      const darkModTokens: ResolvedTokens = {
+        'color.semantic.bg': {
+          $value: '#111111',
+          $type: 'color',
+          name: 'color-semantic-bg',
+          path: ['color', 'semantic', 'bg'],
+          originalValue: '#111111',
+          _sourceModifier: 'theme-dark',
+        } as ResolvedToken,
+      }
+
+      const context = createModifierContext(setTokens, lightModTokens, darkModTokens)
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      expect(result.files).toHaveProperty('base/tokens.css')
+      expect(result.files).toHaveProperty('light/tokens.css')
+      expect(result.files).toHaveProperty('dark/tokens.css')
+
+      const baseFile = result.files['base/tokens.css']!
+      expect(baseFile).toContain('--color-base-red:')
+      expect(baseFile).toContain('--spacing-sm:')
+      expect(baseFile).not.toContain('--color-semantic-bg:')
+    })
+
+    it('should group base file tokens by set with comments', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: '#ff0000',
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+        'spacing.sm': {
+          $value: '0.5rem',
+          $type: 'dimension',
+          name: 'spacing-sm',
+          path: ['spacing', 'sm'],
+          originalValue: '0.5rem',
+          _sourceSet: 'spacing',
+        } as ResolvedToken,
+      }
+
+      const context = createModifierContext(setTokens, {}, {})
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      const baseFile = result.files['base/tokens.css']!
+      expect(baseFile).toContain('/* Set: colors */')
+      expect(baseFile).toContain('/* Color primitives */')
+      expect(baseFile).toContain('/* Set: spacing */')
+      expect(baseFile).toContain('/* Spacing scale */')
+    })
+
+    it('should not emit base file when there are no set tokens', async () => {
+      const lightModTokens: ResolvedTokens = {
+        'color.semantic.bg': {
+          $value: '#ffffff',
+          $type: 'color',
+          name: 'color-semantic-bg',
+          path: ['color', 'semantic', 'bg'],
+          originalValue: '#ffffff',
+          _sourceModifier: 'theme-light',
+        } as ResolvedToken,
+      }
+      const darkModTokens: ResolvedTokens = {
+        'color.semantic.bg': {
+          $value: '#111111',
+          $type: 'color',
+          name: 'color-semantic-bg',
+          path: ['color', 'semantic', 'bg'],
+          originalValue: '#111111',
+          _sourceModifier: 'theme-dark',
+        } as ResolvedToken,
+      }
+
+      const context = createModifierContext({}, lightModTokens, darkModTokens)
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      expect(result.files).not.toHaveProperty('base/tokens.css')
+      expect(result.files).toHaveProperty('light/tokens.css')
+      expect(result.files).toHaveProperty('dark/tokens.css')
+    })
+
+    it('should use :root selector for base file by default', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: '#ff0000',
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+      }
+
+      const context = createModifierContext(setTokens, {}, {})
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      const baseFile = result.files['base/tokens.css']!
+      expect(baseFile).toContain(':root {')
+    })
+
+    it('should resolve custom selector function for base file', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: '#ff0000',
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+      }
+
+      const selectorFn = (_mod: string, _ctx: string, isBase: boolean) =>
+        isBase ? '.base' : `.theme-${_ctx}`
+
+      const context = createModifierContext(setTokens, {}, {}, { selector: selectorFn })
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      const baseFile = result.files['base/tokens.css']!
+      expect(baseFile).toContain('.base {')
+    })
+
+    it('should generate in-memory key when no file pattern is set', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: '#ff0000',
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+      }
+      const lightModTokens: ResolvedTokens = {
+        'color.semantic.bg': {
+          $value: '#ffffff',
+          $type: 'color',
+          name: 'color-semantic-bg',
+          path: ['color', 'semantic', 'bg'],
+          originalValue: '#ffffff',
+          _sourceModifier: 'theme-light',
+        } as ResolvedToken,
+      }
+
+      const context = createModifierContext(setTokens, lightModTokens, {})
+      context.output.file = undefined
+
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      const fileNames = Object.keys(result.files)
+      const baseFileName = fileNames.find((f) => f.includes('base'))
+      expect(baseFileName).toBeDefined()
+    })
+  })
 })

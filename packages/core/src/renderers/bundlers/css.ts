@@ -169,7 +169,7 @@ async function formatModifierPermutation(
   return `/* Modifier: ${modifier}=${context} */\n${css}`
 }
 
-type DefaultLayerBlock = {
+export type SetLayerBlock = {
   key: string
   description?: string
   tokens: BundleDataItem['tokens']
@@ -219,12 +219,55 @@ function collectRemainder(
   return result
 }
 
+/**
+ * Group tokens by their originating set, following the resolver's resolution order.
+ *
+ * Produces one block per set (e.g. "Set: colors", "Set: typography") plus
+ * an "Unattributed" block for any tokens that don't belong to a known set.
+ * This is used by both the bundle preset (base permutation) and the modifier
+ * preset (base file) to produce structured CSS output with set comments.
+ */
+export function buildSetLayerBlocks(
+  tokens: BundleDataItem['tokens'],
+  resolver: ResolverDocument,
+): SetLayerBlock[] {
+  const blocks: SetLayerBlock[] = []
+  const included = new Set<string>()
+
+  const addBlock = (key: string, blockTokens: BundleDataItem['tokens'], description?: string) => {
+    if (Object.keys(blockTokens).length === 0) {
+      return
+    }
+    for (const k of Object.keys(blockTokens)) {
+      included.add(k)
+    }
+    blocks.push({ key, description, tokens: blockTokens })
+  }
+
+  for (const item of resolver.resolutionOrder) {
+    const ref = (item as { $ref?: unknown }).$ref
+    if (typeof ref !== 'string' || !ref.startsWith('#/sets/')) {
+      continue
+    }
+
+    const setName = ref.slice('#/sets/'.length)
+    addBlock(
+      `Set: ${setName}`,
+      collectSetTokens(tokens, setName, included),
+      resolver.sets?.[setName]?.description,
+    )
+  }
+
+  addBlock('Unattributed', collectRemainder(tokens, included))
+  return blocks
+}
+
 function buildDefaultLayerBlocks(
   tokens: BundleDataItem['tokens'],
   baseModifierInputs: Record<string, string>,
   resolver: ResolverDocument,
-): DefaultLayerBlock[] {
-  const blocks: DefaultLayerBlock[] = []
+): SetLayerBlock[] {
+  const blocks: SetLayerBlock[] = []
   const included = new Set<string>()
   const baseInputs = normalizeModifierInputs(baseModifierInputs)
 

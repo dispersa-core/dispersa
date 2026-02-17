@@ -13,9 +13,11 @@ import { basename, join, resolve } from 'node:path'
 import { spinner } from '@clack/prompts'
 import { downloadTemplate } from 'giget'
 
+declare const __PKG_VERSION__: string
+
 const GITHUB_REPO = 'gh:timges/dispersa'
 
-type TemplateId = 'basic' | 'cli'
+type TemplateId = 'typescript-starter' | 'cli-starter'
 
 type ScaffoldOptions = {
   directory: string
@@ -59,8 +61,9 @@ function rewritePackageJson(targetDir: string, directory: string): void {
 
   pkg.name = deriveProjectName(directory)
 
-  if (pkg.dependencies?.dispersa?.startsWith('file:')) {
-    pkg.dependencies.dispersa = 'latest'
+  const dispersaVersion = pkg.dependencies?.dispersa
+  if (dispersaVersion?.startsWith('workspace:') || dispersaVersion?.startsWith('file:')) {
+    pkg.dependencies.dispersa = `^${__PKG_VERSION__}`
   }
 
   delete pkg.private

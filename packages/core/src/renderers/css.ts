@@ -20,14 +20,17 @@ import {
 import type { DimensionValue, DurationValue, ResolvedToken, ResolvedTokens } from '@tokens/types'
 import prettier from 'prettier'
 
-import { bundleAsCss } from './bundlers/css'
+import { buildSetLayerBlocks, bundleAsCss } from './bundlers/css'
 import {
   buildInMemoryOutputKey,
   filterTokensBySource,
+  filterTokensFromSets,
   normalizeModifierInputs,
+  resolveBaseFileName,
   resolveMediaQuery,
   resolveFileName,
   resolveSelector,
+  stripInternalMetadata,
 } from './bundlers/utils'
 import type { CssRendererOptions, RenderContext, RenderOutput, Renderer } from './types'
 
@@ -816,6 +819,11 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
 
     const files: Record<string, string> = {}
 
+    const baseResult = await this.buildModifierBaseFile(context, options)
+    if (baseResult) {
+      files[baseResult.fileName] = baseResult.content
+    }
+
     for (const [modifierName, modifierDef] of Object.entries(context.resolver.modifiers)) {
       for (const contextValue of Object.keys(modifierDef.contexts)) {
         const result = await this.buildModifierContextFile(
@@ -831,6 +839,73 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     }
 
     return { kind: 'outputTree', files }
+  }
+
+  private async buildModifierBaseFile(
+    context: RenderContext,
+    options: CssRendererOptions,
+  ): Promise<{ fileName: string; content: string } | undefined> {
+    const basePermutation = context.permutations.find(({ modifierInputs }) =>
+      this.isBasePermutation(modifierInputs, context.meta.defaults),
+    )
+    if (!basePermutation) {
+      return undefined
+    }
+
+    const setTokens = filterTokensFromSets(basePermutation.tokens)
+    if (Object.keys(setTokens).length === 0) {
+      return undefined
+    }
+
+    const setBlocks = buildSetLayerBlocks(setTokens, context.resolver)
+    if (setBlocks.length === 0) {
+      return undefined
+    }
+
+    const modifiers = context.resolver.modifiers!
+    const firstModifierName = Object.keys(modifiers)[0] ?? ''
+    const firstModifierContext = context.meta.defaults[firstModifierName] ?? ''
+    const baseModifierInputs = { ...context.meta.defaults }
+
+    const selector = resolveSelector(
+      options.selector,
+      firstModifierName,
+      firstModifierContext,
+      true,
+      baseModifierInputs,
+    )
+    const mediaQuery = resolveMediaQuery(
+      options.mediaQuery,
+      firstModifierName,
+      firstModifierContext,
+      true,
+      baseModifierInputs,
+    )
+
+    const referenceTokens = basePermutation.tokens
+    const cssBlocks: string[] = []
+    for (const block of setBlocks) {
+      const cleanTokens = stripInternalMetadata(block.tokens)
+      const css = await this.formatTokens(cleanTokens, {
+        selector,
+        mediaQuery,
+        minify: options.minify ?? false,
+        preserveReferences: options.preserveReferences ?? false,
+        referenceTokens,
+      })
+      const header = block.description
+        ? `/* ${block.key} */\n/* ${block.description} */`
+        : `/* ${block.key} */`
+      cssBlocks.push(`${header}\n${css}`)
+    }
+
+    const content = cssBlocks.join('\n')
+
+    const fileName = context.output.file
+      ? resolveBaseFileName(context.output.file, context.meta.defaults)
+      : `${context.output.name}-base.css`
+
+    return { fileName, content }
   }
 
   private collectTokensForModifierContext(
@@ -897,7 +972,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     })
 
     const fileName = context.output.file
-      ? resolveFileName(context.output.file, modifierInputs, modifierName, contextValue)
+      ? resolveFileName(context.output.file, modifierInputs)
       : buildInMemoryOutputKey({
           outputName: context.output.name,
           extension: 'css',

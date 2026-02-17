@@ -242,41 +242,41 @@ export type ShadowValueObject = {
 export type ShadowValue = ShadowValueObject | ShadowValueObject[]
 
 /**
- * Typography token type
+ * Unresolved typography token type (pre-resolution)
  */
-export type TypographyToken = Token & {
+export type UnresolvedTypographyToken = Token & {
   $type: 'typography'
   $value: TypographyValue | TokenValueReference
 }
 
 /**
- * Border token type
+ * Unresolved border token type (pre-resolution)
  */
-export type BorderToken = Token & {
+export type UnresolvedBorderToken = Token & {
   $type: 'border'
   $value: BorderValue | TokenValueReference
 }
 
 /**
- * Stroke style token type
+ * Unresolved stroke style token type (pre-resolution)
  */
-export type StrokeStyleToken = Token & {
+export type UnresolvedStrokeStyleToken = Token & {
   $type: 'strokeStyle'
   $value: StrokeStyleValue | TokenValueReference
 }
 
 /**
- * Transition token type
+ * Unresolved transition token type (pre-resolution)
  */
-export type TransitionToken = Token & {
+export type UnresolvedTransitionToken = Token & {
   $type: 'transition'
   $value: TransitionValue | TokenValueReference
 }
 
 /**
- * Gradient token type
+ * Unresolved gradient token type (pre-resolution)
  */
-export type GradientToken = Token & {
+export type UnresolvedGradientToken = Token & {
   $type: 'gradient'
   $value: GradientValue | TokenValueReference
 }
@@ -380,7 +380,6 @@ export type DesignTokenValue =
   | FontFamilyValue
   | FontWeightValue
   | number
-  | boolean
 
 // ============================================================================
 // TOKEN TYPE GUARDS
@@ -396,19 +395,19 @@ export type DimensionToken = ResolvedToken & { $type: 'dimension' }
 export type ShadowToken = ResolvedToken & { $type: 'shadow' }
 
 /** Type-narrowed token whose `$value` is a `TypographyValue` */
-export type TypographyTokenNarrowed = ResolvedToken & { $type: 'typography' }
+export type TypographyToken = ResolvedToken & { $type: 'typography' }
 
 /** Type-narrowed token whose `$value` is a `BorderValue` */
-export type BorderTokenNarrowed = ResolvedToken & { $type: 'border' }
+export type BorderToken = ResolvedToken & { $type: 'border' }
 
 /** Type-narrowed token whose `$value` is a `DurationValue` */
 export type DurationToken = ResolvedToken & { $type: 'duration' }
 
 /** Type-narrowed token whose `$value` is a `TransitionValue` */
-export type TransitionTokenNarrowed = ResolvedToken & { $type: 'transition' }
+export type TransitionToken = ResolvedToken & { $type: 'transition' }
 
 /** Type-narrowed token whose `$value` is a `GradientValue` */
-export type GradientTokenNarrowed = ResolvedToken & { $type: 'gradient' }
+export type GradientToken = ResolvedToken & { $type: 'gradient' }
 
 /** Check if a resolved token is a color token */
 export function isColorToken(token: ResolvedToken): token is ColorToken {
@@ -426,12 +425,12 @@ export function isShadowToken(token: ResolvedToken): token is ShadowToken {
 }
 
 /** Check if a resolved token is a typography token */
-export function isTypographyToken(token: ResolvedToken): token is TypographyTokenNarrowed {
+export function isTypographyToken(token: ResolvedToken): token is TypographyToken {
   return token.$type === 'typography'
 }
 
 /** Check if a resolved token is a border token */
-export function isBorderToken(token: ResolvedToken): token is BorderTokenNarrowed {
+export function isBorderToken(token: ResolvedToken): token is BorderToken {
   return token.$type === 'border'
 }
 
@@ -441,12 +440,12 @@ export function isDurationToken(token: ResolvedToken): token is DurationToken {
 }
 
 /** Check if a resolved token is a transition token */
-export function isTransitionToken(token: ResolvedToken): token is TransitionTokenNarrowed {
+export function isTransitionToken(token: ResolvedToken): token is TransitionToken {
   return token.$type === 'transition'
 }
 
 /** Check if a resolved token is a gradient token */
-export function isGradientToken(token: ResolvedToken): token is GradientTokenNarrowed {
+export function isGradientToken(token: ResolvedToken): token is GradientToken {
   return token.$type === 'gradient'
 }
 

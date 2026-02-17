@@ -5,6 +5,7 @@ import {
   buildStablePermutationKey,
   generatePermutationKey,
   normalizeModifierInputs,
+  resolveBaseFileName,
   resolveMediaQuery,
   resolveSelector,
 } from '../../../src/renderers/bundlers/utils'
@@ -156,6 +157,75 @@ describe('Bundler Utils - Selector and Media Query Resolution', () => {
         breakpoint: 'mobile',
       })
       expect(result).toBe('(max-width: 768px) and (prefers-color-scheme: dark)')
+    })
+  })
+
+  describe('resolveBaseFileName', () => {
+    it('should replace single-modifier pattern with base', () => {
+      const result = resolveBaseFileName('{theme}/tokens.css', { theme: 'light' })
+      expect(result).toBe('base/tokens.css')
+    })
+
+    it('should collapse multi-modifier pattern to single base', () => {
+      const result = resolveBaseFileName('{theme}-{platform}/tokens.css', {
+        theme: 'light',
+        platform: 'desktop',
+      })
+      expect(result).toBe('base/tokens.css')
+    })
+
+    it('should collapse three modifier patterns', () => {
+      const result = resolveBaseFileName('{theme}-{platform}-{density}/tokens.css', {
+        theme: 'light',
+        platform: 'desktop',
+        density: 'comfortable',
+      })
+      expect(result).toBe('base/tokens.css')
+    })
+
+    it('should collapse inline multi-modifier pattern', () => {
+      const result = resolveBaseFileName('tokens-{theme}-{platform}.css', {
+        theme: 'light',
+        platform: 'desktop',
+      })
+      expect(result).toBe('tokens-base.css')
+    })
+
+    it('should collapse slash-separated multi-modifier pattern', () => {
+      const result = resolveBaseFileName('{theme}/{platform}/tokens.css', {
+        theme: 'light',
+        platform: 'desktop',
+      })
+      expect(result).toBe('base/tokens.css')
+    })
+
+    it('should append -base to plain string filename', () => {
+      const result = resolveBaseFileName('tokens-mod.css', { theme: 'light' })
+      expect(result).toBe('tokens-mod-base.css')
+    })
+
+    it('should append -base to plain string without extension', () => {
+      const result = resolveBaseFileName('tokens', { theme: 'light' })
+      expect(result).toBe('tokens-base')
+    })
+
+    it('should call function with defaults and _base flag', () => {
+      const fn = (inputs: Record<string, string>) => {
+        if (inputs._base === 'true') return 'base/tokens.css'
+        return `${inputs.theme}/tokens.css`
+      }
+      const result = resolveBaseFileName(fn, { theme: 'light' })
+      expect(result).toBe('base/tokens.css')
+    })
+
+    it('should pass actual defaults to function (not synthetic values)', () => {
+      const fn = (inputs: Record<string, string>) => {
+        expect(inputs.theme).toBe('light')
+        expect(inputs.platform).toBe('desktop')
+        return `${inputs._base === 'true' ? 'base' : inputs.theme}/tokens.css`
+      }
+      const result = resolveBaseFileName(fn, { theme: 'light', platform: 'desktop' })
+      expect(result).toBe('base/tokens.css')
     })
   })
 

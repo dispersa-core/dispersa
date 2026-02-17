@@ -18,17 +18,14 @@ import type { Filter } from './types'
  *
  * @example
  * ```typescript
- * const shadowFilter = byType('shadow')
- * dispersa.registerFilter(shadowFilter)
+ * import { byType } from 'dispersa/filters'
  *
- * outputs: [{
- *   css({
- *     name: 'css',
- *     file: 'tokens.css',
- *     preset: 'bundle',
- *     filters: [shadowFilter],
- *   }),
- * }]
+ * css({
+ *   name: 'shadows',
+ *   file: 'shadows.css',
+ *   preset: 'bundle',
+ *   filters: [byType('shadow')],
+ * })
  * ```
  */
 export function byType(type: TokenType): Filter {
@@ -45,13 +42,13 @@ export function byType(type: TokenType): Filter {
  *
  * @example
  * ```typescript
+ * import { byPath } from 'dispersa/filters'
+ *
  * // Filter tokens in 'color.semantic' namespace
- * const semanticColors = byPath(/^color\.semantic/)
- * dispersa.registerFilter(semanticColors)
+ * css({ filters: [byPath(/^color\.semantic/)] })
  *
  * // Filter tokens starting with 'spacing'
- * const spacingTokens = byPath('spacing')
- * dispersa.registerFilter(spacingTokens)
+ * css({ filters: [byPath('spacing')] })
  * ```
  */
 export function byPath(pattern: RegExp | string): Filter {

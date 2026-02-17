@@ -292,37 +292,87 @@ export function filterTokensBySource(
 }
 
 /**
+ * Filter tokens to only include those originating from sets (not modifiers)
+ *
+ * Returns tokens that have no `_sourceModifier` tag, meaning they were defined
+ * in the resolver's sets section and not overridden by any modifier context.
+ */
+export function filterTokensFromSets(tokens: InternalResolvedTokens): InternalResolvedTokens {
+  const filtered: InternalResolvedTokens = {}
+
+  for (const [name, token] of Object.entries(tokens)) {
+    const hasModifierSource =
+      typeof token._sourceModifier === 'string' && token._sourceModifier !== ''
+    if (!hasModifierSource) {
+      filtered[name] = token
+    }
+  }
+
+  return filtered
+}
+
+/**
+ * Resolve a filename for the modifier preset's base file.
+ *
+ * Unlike `resolveFileName`, this does not inject synthetic modifier values.
+ * Instead it handles each filename mode with base-specific logic:
+ *
+ * - **Pattern string**: replaces all `{key}` placeholders with `"base"`, then
+ *   collapses consecutive `base` segments (e.g. `base-base` or `base/base`).
+ * - **Plain string**: appends `-base` before the file extension.
+ * - **Function**: calls with the actual default modifier inputs.
+ *
+ * @param fileName - Filename configuration (string, pattern, or function)
+ * @param defaults - Default modifier inputs for the base permutation
+ * @returns Resolved base filename
+ */
+export function resolveBaseFileName(
+  fileName: string | ((modifierInputs: ModifierInputs) => string),
+  defaults: ModifierInputs,
+): string {
+  if (typeof fileName === 'function') {
+    return fileName({ ...defaults, _base: 'true' })
+  }
+
+  if (/\{.+?\}/.test(fileName)) {
+    const baseInputs = Object.fromEntries(Object.keys(defaults).map((k) => [k, 'base']))
+    return collapseBaseSegments(interpolatePattern(fileName, baseInputs))
+  }
+
+  const extMatch = fileName.match(/(\.[^.]+)$/)
+  const extension = extMatch ? extMatch[1] : ''
+  const baseName = extension ? fileName.slice(0, -extension.length) : fileName
+  return `${baseName}-base${extension}`
+}
+
+/**
+ * Collapse consecutive "base" segments separated by `-` or `/`.
+ * For example `base-base/tokens.css` becomes `base/tokens.css`.
+ */
+function collapseBaseSegments(value: string): string {
+  let result = value
+  let previous = ''
+  while (result !== previous) {
+    previous = result
+    result = result.replace(/\bbase([/-])base\b/, 'base')
+  }
+  return result
+}
+
+/**
  * Interpolate pattern placeholders in a filename string
  *
  * Replaces {key} placeholders with values from modifierInputs.
- * For example, "tokens-{theme}-{platform}.css" with {theme: 'dark', output: 'mobile'}
+ * For example, "tokens-{theme}-{platform}.css" with {theme: 'dark', platform: 'mobile'}
  * becomes "tokens-dark-mobile.css".
- *
- * Also supports {modifierName} and {context} for modifier-specific files.
  *
  * @param pattern - Filename pattern with {key} placeholders
  * @param modifierInputs - Modifier values to interpolate
- * @param modifierName - Optional specific modifier name for {modifierName} placeholder
- * @param context - Optional specific context value for {context} placeholder
  * @returns Interpolated filename
  */
-export function interpolatePattern(
-  pattern: string,
-  modifierInputs: ModifierInputs,
-  modifierName?: string,
-  context?: string,
-): string {
+export function interpolatePattern(pattern: string, modifierInputs: ModifierInputs): string {
   let result = pattern
 
-  // Replace {modifierName} and {context} if provided
-  if (modifierName !== undefined) {
-    result = result.replace(/\{modifierName\}/g, modifierName)
-  }
-  if (context !== undefined) {
-    result = result.replace(/\{context\}/g, context)
-  }
-
-  // Replace modifier input placeholders
   for (const [key, value] of Object.entries(modifierInputs)) {
     result = result.replaceAll(`{${key}}`, value)
   }
@@ -339,15 +389,11 @@ export function interpolatePattern(
  *
  * @param fileName - Filename configuration (string or function)
  * @param modifierInputs - Modifier values for this permutation
- * @param modifierName - Optional specific modifier name for {modifierName} placeholder
- * @param context - Optional specific context value for {context} placeholder
  * @returns Resolved filename
  */
 export function resolveFileName(
   fileName: string | ((modifierInputs: ModifierInputs) => string),
   modifierInputs: ModifierInputs,
-  modifierName?: string,
-  context?: string,
 ): string {
   // Function-based filename
   if (typeof fileName === 'function') {
@@ -356,7 +402,7 @@ export function resolveFileName(
 
   // Pattern-based filename: check if it contains {key} placeholders
   if (/\{.+?\}/.test(fileName)) {
-    return interpolatePattern(fileName, modifierInputs, modifierName, context)
+    return interpolatePattern(fileName, modifierInputs)
   }
 
   // Plain string: apply default pattern (backward compatible)
@@ -364,11 +410,6 @@ export function resolveFileName(
   const extMatch = fileName.match(/(\.[^.]+)$/)
   const extension = extMatch ? extMatch[1] : ''
   const baseName = extension ? fileName.slice(0, -extension.length) : fileName
-
-  // If modifierName and context are provided (modifier mode), use only those
-  if (modifierName !== undefined && context !== undefined) {
-    return `${baseName}-${modifierName}-${context}${extension}`
-  }
 
   // Build modifier suffix from all modifiers
   const modifierSuffix = Object.entries(modifierInputs)
