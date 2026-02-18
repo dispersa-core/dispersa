@@ -28,7 +28,7 @@ const SHARED_STAGES: StageData[] = [
     id: 'resolve',
     name: 'Resolve',
     description:
-      'Loads the DTCG resolver document, merges sets in order, and applies modifier contexts (themes, platforms, densities) to produce the raw token tree for each permutation.',
+      'Loads the DTCG resolver document and validates it against the official DTCG 2025.10 JSON schema, catching structural errors like missing versions, invalid set references, or malformed modifiers. After validation, sets are merged in order and modifier contexts (themes, platforms, densities) are applied to produce the raw token tree for each permutation.',
     input: 'Resolver document + modifier inputs',
     output: 'Raw token tree per permutation',
   },
@@ -44,7 +44,7 @@ const SHARED_STAGES: StageData[] = [
     id: 'parse',
     name: 'Parse',
     description:
-      'Resolves JSON Pointer references ($ref), flattens nested groups to dot-path keys (e.g. color.action.brand), inherits group-level $type, and resolves alias references with circular dependency detection.',
+      'Resolves JSON Pointer references ($ref), flattens nested groups to dot-path keys (e.g. color.action.brand), inherits group-level $type, and resolves alias references with circular dependency detection. Each token document is validated against the DTCG format schema, and individual tokens are checked against their type-specific schemas (color, dimension, etc.).',
     input: 'Preprocessed token tree',
     output: 'Flat map of resolved tokens',
   },
