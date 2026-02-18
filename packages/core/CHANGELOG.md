@@ -1,5 +1,15 @@
 # dispersa
 
+## 0.4.3
+
+### Patch Changes
+
+- - feat: made `nameKebabCase` default behavior since we were having a weird hybrid. `--` prefix was added but token was in dot notatin. Now it's proper css custom property syntax by default
+  - feat: removed `nameCssVar` transformer, as it's not really needed at all
+  - refactor: fixed som stale links in the docs
+
+  this is actually breaking, but since we're still sub v1 we'll only do a `minor` bump
+
 ## 0.4.2
 
 ### Patch Changes
