@@ -4,7 +4,7 @@ import { rm } from 'node:fs/promises'
 import { BuildConfig, css, json } from '../../../src/index'
 import { nameKebabCase, colorToHex } from '../../../src/transforms'
 import { Dispersa } from '../../../src/dispersa'
-import type { ResolverDocument } from '../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../src/resolution/types'
 
 const srgb = (r: number, g: number, b: number) => ({
   colorSpace: 'srgb',

@@ -7,7 +7,7 @@ import {
   colorToHex,
   colorToRgb,
   colorToHsl,
-} from '../../../../../src/processing/processors/transforms/built-in/color-transforms'
+} from '../../../../../src/processing/transforms/built-in/color-transforms'
 import {
   colorToOklch,
   colorToOklab,
@@ -15,7 +15,7 @@ import {
   colorToLab,
   colorToHwb,
   colorToColorFunction,
-} from '../../../../../src/processing/processors/transforms/built-in/color-transforms'
+} from '../../../../../src/processing/transforms/built-in/color-transforms'
 import type { ResolvedToken } from '../../../../../src/tokens/types'
 
 describe('Color Transforms with All Color Spaces', () => {

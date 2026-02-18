@@ -11,7 +11,7 @@ import { CaseInsensitiveMap } from '@shared/utils/case-insensitive-map'
 import { findSimilar } from '@shared/utils/string-similarity'
 import { ValidationHandler } from '@shared/utils/validation-handler'
 
-import type { Modifier, ModifierInputs, ResolverDocument } from './resolution.types'
+import type { Modifier, ModifierInputs, ResolverDocument } from './types'
 
 export type PreparedInputs = {
   normalizedInputs: ModifierInputs

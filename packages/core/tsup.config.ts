@@ -17,7 +17,6 @@ const pathAliases = {
   '@adapters': path.resolve(__dirname, './src/adapters'),
   '@shared': path.resolve(__dirname, './src/shared'),
   '@config': path.resolve(__dirname, './src/config'),
-  '@builders': path.resolve(__dirname, './src/builders'),
   '@tokens': path.resolve(__dirname, './src/tokens'),
   '@codegen': path.resolve(__dirname, './src/codegen'),
   '@processing': path.resolve(__dirname, './src/processing'),

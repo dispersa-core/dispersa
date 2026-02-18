@@ -8,7 +8,7 @@
 import { AliasResolver } from '@resolution/alias-resolver'
 import type { TokenType } from '@tokens/types'
 
-import type { Filter } from './types'
+import type { Filter } from '../types'
 
 /**
  * Factory function to create a filter for a specific token type

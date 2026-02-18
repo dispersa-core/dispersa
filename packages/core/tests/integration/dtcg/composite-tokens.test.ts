@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { OutputConfig } from '../../../src/config'
-import type { ResolverDocument } from '../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../src/resolution/types'
 import { CssRenderer } from '../../../src/renderers/css'
 import { JsonRenderer } from '../../../src/renderers/json'
 import { isOutputTree } from '../../../src/renderers'

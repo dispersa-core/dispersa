@@ -4,13 +4,10 @@
  */
 
 import type { OutputProcessor } from '@build/output-processor'
-import type {
-  BuildConfig,
-  BuildResult,
-  ResolverDocument
-} from '@config/index'
+import type { BuildConfig } from '@config/index'
 import { buildMetadata, resolveResolverDocument } from '@renderers/bundlers/utils'
-import type { PermutationData, RenderContext } from '@renderers/types'
+import type { BuildResult, PermutationData, RenderContext } from '@renderers/types'
+import type { ResolverDocument } from '@resolution/types'
 import { ConfigurationError } from '@shared/errors/index'
 import { toBuildError } from '@shared/utils/error-utils'
 import type { TokenPipeline } from './pipeline/token-pipeline'

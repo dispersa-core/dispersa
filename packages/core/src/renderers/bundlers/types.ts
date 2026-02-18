@@ -2,7 +2,7 @@
  * @fileoverview Types for bundlers
  */
 
-import type { ResolvedTokens } from '@config/index'
+import type { ResolvedTokens } from '@tokens/types'
 
 export type BundleDataItem = {
   tokens: ResolvedTokens

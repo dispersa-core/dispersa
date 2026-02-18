@@ -26,11 +26,10 @@ export type {
   FileFunction,
   LifecycleHooks,
   DispersaOptions,
-  ValidationOptions,
 } from '@config/index'
 
 // Validation types
-export type { ValidationMode } from '@shared/types/validation'
+export type { ValidationMode, ValidationOptions } from '@shared/types/validation'
 
 // Token types
 export type {
@@ -112,7 +111,7 @@ export type {
 } from '@renderers/types'
 
 // Resolver types
-export type { ModifierInputs, ResolverDocument } from '@resolution/resolution.types'
+export type { ModifierInputs, ResolverDocument } from '@resolution/types'
 
 // ============================================================================
 // OUTPUT BUILDERS

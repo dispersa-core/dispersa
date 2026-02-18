@@ -10,7 +10,7 @@
  * @fileoverview JSON bundler for multi-theme output
  */
 
-import type { ResolverDocument } from '@resolution/resolution.types'
+import type { ResolverDocument } from '@resolution/types'
 import { ConfigurationError } from '@shared/errors/index'
 import type { ResolvedTokens } from '@tokens/types'
 

@@ -10,12 +10,11 @@
  * @fileoverview Shared utilities for bundlers
  */
 
-import type { ModifierInputs, ResolvedTokens } from '@config/index'
 import type { MediaQueryFunction, SelectorFunction } from '@renderers/types'
-import type { ResolverDocument } from '@resolution/resolution.types'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import { ConfigurationError } from '@shared/errors/index'
 import { getSortedTokenEntries, stripInternalTokenMetadata } from '@shared/utils/token-utils'
-import type { InternalResolvedTokens, ResolvedToken } from '@tokens/types'
+import type { ResolvedTokens, InternalResolvedTokens, ResolvedToken } from '@tokens/types'
 
 function sanitizeDataAttributeName(value: string): string {
   // Attribute names are more constrained than token/modifier names.

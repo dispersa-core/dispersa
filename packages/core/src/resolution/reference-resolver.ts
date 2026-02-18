@@ -9,7 +9,7 @@ import type { ValidationOptions } from '@shared/types/validation'
 import { ValidationHandler } from '@shared/utils/validation-handler'
 import { JsonPointer } from 'json-ptr'
 
-import type { ReferenceObject } from './resolution.types'
+import type { ReferenceObject } from './types'
 
 type ResolverContext = {
   baseDir: string

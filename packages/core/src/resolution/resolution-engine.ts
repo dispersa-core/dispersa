@@ -10,13 +10,7 @@ import type { InternalTokenDocument } from '@tokens/types'
 
 import { ModifierInputProcessor } from './modifier-input-processor'
 import { ReferenceResolver } from './reference-resolver'
-import type {
-  Modifier,
-  ModifierInputs,
-  ReferenceObject,
-  ResolverDocument,
-  Set,
-} from './resolution.types'
+import type { Modifier, ModifierInputs, ReferenceObject, ResolverDocument, Set } from './types'
 
 const JSON_POINTER_SETS_PREFIX = '#/sets/'
 const JSON_POINTER_MODIFIERS_PREFIX = '#/modifiers/'

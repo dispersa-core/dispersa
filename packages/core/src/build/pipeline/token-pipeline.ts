@@ -7,16 +7,13 @@
  */
 
 import { ResolverLoader } from '@adapters/filesystem/resolver-loader'
-import type {
-  Filter,
-  ModifierInputs,
-  Preprocessor,
-  ResolverDocument,
-  Transform,
-} from '@config/index'
+import type { Filter } from '@processing/filters/types'
+import type { Preprocessor } from '@processing/preprocessors/types'
+import type { Transform } from '@processing/transforms/types'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import type { ValidationOptions } from '@shared/types/validation'
 import { ValidationHandler } from '@shared/utils/validation-handler'
-import { applyFilters, applyTransforms } from '@processing/token-modifier'
+import { applyFilters, applyTransforms } from '@processing/apply'
 import { AliasResolver } from '@resolution/alias-resolver'
 import { ReferenceResolver } from '@resolution/reference-resolver'
 import { ResolutionEngine } from '@resolution/resolution-engine'

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { ResolverParser } from '../../src/adapters/filesystem/resolver-parser'
 import { ReferenceResolver, ResolutionEngine } from '../../src/resolution'
-import type { ResolverDocument } from '../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../src/resolution/types'
 import { TokenParser } from '../../src/tokens/token-parser'
 import { ConfigurationError } from '../../src/shared/errors'
 import { getFixturePath } from '../utils/test-helpers'

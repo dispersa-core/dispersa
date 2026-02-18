@@ -11,7 +11,7 @@
  */
 
 import type { CssRendererOptions } from '@renderers/types'
-import type { ResolverDocument } from '@resolution/resolution.types'
+import type { ResolverDocument } from '@resolution/types'
 import { BasePermutationError, ConfigurationError } from '@shared/errors/index'
 import type { ResolvedToken, ResolvedTokens } from '@tokens/types'
 

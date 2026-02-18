@@ -5,7 +5,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fileUtils from '../../../src/adapters/filesystem/file-utils'
 import { OutputProcessor } from '../../../src/build/output-processor'
-import type { OutputConfig, ResolvedTokens } from '../../../src/config/index'
+import type { OutputConfig } from '../../../src/config/index'
+import type { ResolvedTokens } from '../../../src/tokens/types'
 import { outputTree } from '../../../src/renderers'
 import type { RenderContext } from '../../../src/renderers/types'
 
@@ -13,7 +14,7 @@ vi.mock('../../../src/adapters/filesystem/file-utils', () => ({
   writeOutputFile: vi.fn(),
 }))
 
-vi.mock('../../../src/lib/processing/token-modifier', () => ({
+vi.mock('../../../src/lib/processing/apply', () => ({
   applyFilters: vi.fn((tokens) => tokens),
   applyTransforms: vi.fn((tokens) => tokens),
 }))

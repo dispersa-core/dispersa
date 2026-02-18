@@ -3,7 +3,7 @@ import { TokenCollection } from '../../../src'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
 import { TokenParser } from '../../../src/tokens/token-parser'
 import { TokenPipeline } from '../../../src/build/pipeline/token-pipeline'
-import type { ResolverDocument } from '../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../src/resolution/types'
 
 const srgb = (red: number, green: number, blue: number) => ({
   colorSpace: 'srgb',

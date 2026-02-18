@@ -1,8 +1,14 @@
 /**
  * @fileoverview Renderer system types for token output generation
+ *
+ * Note: renderers/types and config have a mutual type-only dependency.
+ * RenderContext references OutputConfig, while OutputConfig references
+ * Renderer/FormatOptions. This is acceptable because type imports are
+ * erased at runtime and the coupling is genuine.
  */
 
-import type { ModifierInputs, OutputConfig, ResolverDocument } from '@config/index'
+import type { OutputConfig } from '@config/index'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import type { ResolvedTokens } from '@tokens/types'
 
 /**

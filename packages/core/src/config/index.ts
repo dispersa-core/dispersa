@@ -1,27 +1,24 @@
 /**
  * @fileoverview Configuration types for Dispersa
+ *
+ * Note: config and renderers/types have a mutual type-only dependency.
+ * OutputConfig references Renderer/FormatOptions, while RenderContext
+ * references OutputConfig. This is acceptable because type imports are
+ * erased at runtime and the coupling is genuine (config describes how
+ * to drive renderers).
  */
 
 import type { Filter } from '@processing/filters/types'
 import type { Preprocessor } from '@processing/preprocessors/types'
 import type { Transform } from '@processing/transforms/types'
 import type { BuildResult, FormatOptions, Renderer } from '@renderers/types'
-import type { ModifierInputs, ResolverDocument } from '@resolution/resolution.types'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import type { ValidationOptions } from '@shared/types/validation'
 import type {
   BuildConfigBase,
-  CssRendererOptions,
-  JsModuleRendererOptions,
-  JsonRendererOptions,
   OutputConfigBase,
   DispersaOptionsBase,
 } from '@validation/config-schemas'
-
-// Re-export for convenience
-export type { Filter, Preprocessor, Transform }
-
-// Re-export renderer types
-export type { CssRendererOptions, JsModuleRendererOptions, JsonRendererOptions }
 
 // ============================================================================
 // LIFECYCLE HOOK TYPES
@@ -49,18 +46,6 @@ export type LifecycleHooks = {
   /** Called after all outputs have been processed (success or failure) */
   onBuildEnd?: (result: BuildResult) => void | Promise<void>
 }
-
-// Re-export resolver types
-export type { ModifierInputs, ResolverDocument }
-
-// Re-export from renderers
-export type { BuildResult, Renderer } from '@renderers/types'
-
-// Re-export from tokens
-export type { ResolvedToken, ResolvedTokens } from '@tokens/types'
-
-// Re-export validation types
-export type { ValidationOptions } from '@shared/types/validation'
 
 /**
  * Function that generates an output file path based on modifier inputs.
@@ -300,11 +285,6 @@ export type BuildConfig = Omit<
   hooks?: LifecycleHooks
 }
 
-/**
- * Global options for Dispersa instance behavior
- *
- * Uses the generated base type from schemas - all properties match exactly.
- */
 /**
  * Dispersa options with runtime-only validation helpers
  *

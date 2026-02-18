@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TokenPipeline } from '../../../src/build/pipeline/token-pipeline'
-import type { ResolverDocument } from '../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../src/resolution/types'
 
 const srgb = (r: number, g: number, b: number) => ({
   colorSpace: 'srgb',

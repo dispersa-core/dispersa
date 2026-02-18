@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
-import type { ResolverDocument } from '../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../src/resolution/types'
 import { isOutputTree } from '../../../src/renderers'
 import { AndroidRenderer } from '../../../src/renderers/android'
 import type { AndroidRendererOptions } from '../../../src/renderers/android'

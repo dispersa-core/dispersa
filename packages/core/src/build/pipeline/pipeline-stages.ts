@@ -7,7 +7,7 @@
 
 import type { ReferenceResolver } from '@resolution/reference-resolver'
 import type { ResolutionEngine } from '@resolution/resolution-engine'
-import type { ModifierInputs, ResolverDocument } from '@config/index'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import type { InternalResolvedTokens, InternalTokenDocument } from '@tokens/types'
 
 /**

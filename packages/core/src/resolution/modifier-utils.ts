@@ -2,7 +2,7 @@
  * @fileoverview Utilities for extracting modifier information
  */
 
-import type { ModifierInputs, ResolverDocument } from './resolution.types'
+import type { ModifierInputs, ResolverDocument } from './types'
 
 /**
  * Extract modifier dimension, current context, and default context from inputs

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Preprocessor } from '../../../../../src/processing/processors/preprocessors/types'
+import type { Preprocessor } from '../../../../../src/processing/preprocessors/types'
 import { Dispersa } from '../../../../../src/dispersa'
 
 describe('Preprocessor Integration Tests', () => {

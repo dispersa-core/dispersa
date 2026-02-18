@@ -12,17 +12,13 @@ import { TypeWriter } from '@adapters/filesystem/type-writer'
 import { BuildOrchestrator } from '@build/build-orchestrator'
 import { OutputProcessor } from '@build/output-processor'
 import { TokenPipeline } from '@build/pipeline/token-pipeline'
-import type {
-  BuildConfig,
-  BuildResult,
-  ModifierInputs,
-  ResolvedTokens,
-  ResolverDocument,
-  DispersaOptions,
-} from '@config/index'
+import type { BuildConfig, DispersaOptions } from '@config/index'
+import type { BuildResult } from '@renderers/types'
+import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import { ConfigurationError } from '@shared/errors/index'
 import { toBuildError } from '@shared/utils/error-utils'
 import { stripInternalTokenMetadata } from '@shared/utils/token-utils'
+import type { ResolvedTokens } from '@tokens/types'
 import { SchemaValidator } from '@validation/validator'
 
 /**

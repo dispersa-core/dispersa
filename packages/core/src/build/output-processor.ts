@@ -5,8 +5,10 @@
 import * as path from 'node:path'
 
 import { writeOutputFile } from '@adapters/filesystem/file-utils'
-import type { ModifierInputs, OutputConfig, ResolvedTokens } from '@config/index'
-import { applyFilters, applyTransforms } from '@processing/token-modifier'
+import type { OutputConfig } from '@config/index'
+import type { ModifierInputs } from '@resolution/types'
+import type { ResolvedTokens } from '@tokens/types'
+import { applyFilters, applyTransforms } from '@processing/apply'
 import { resolveFileName } from '@renderers/bundlers/utils'
 import { isOutputTree } from '@renderers/output-tree'
 import type {

@@ -12,7 +12,6 @@
       "@resolution/*": ["resolution/*"],
       "@validation/*": ["validation/*"],
       "@build/*": ["build/*"],
-      "@builders/*": ["builders/*"],
       "@renderers/*": ["renderers/*"],
       "@adapters/*": ["adapters/*"],
       "@shared/*": ["shared/*"],

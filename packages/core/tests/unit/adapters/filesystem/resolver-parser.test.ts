@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ResolverParser } from '../../../../src/adapters/filesystem/resolver-parser'
-import type { ResolverDocument } from '../../../../src/resolution/resolution.types'
+import type { ResolverDocument } from '../../../../src/resolution/types'
 import * as fs from 'node:fs/promises'
 
 // Mock fs module

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { applyTransforms, applyFilters } from '../../../../src/processing/token-modifier'
-import type { Transform } from '../../../../src/processing/processors/transforms/types'
-import type { Filter } from '../../../../src/processing/processors/filters/types'
+import { applyTransforms, applyFilters } from '../../../../src/processing/apply'
+import type { Transform } from '../../../../src/processing/transforms/types'
+import type { Filter } from '../../../../src/processing/filters/types'
 import type { ResolvedTokens, ResolvedToken } from '../../../../src/tokens/types'
 
 describe('Token Modifier', () => {

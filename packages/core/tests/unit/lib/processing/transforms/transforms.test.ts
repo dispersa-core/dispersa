@@ -13,8 +13,8 @@ import {
   nameKebabCase,
   namePascalCase,
   nameSnakeCase,
-} from '../../../../../src/processing/processors/transforms/built-in'
-import type { Transform } from '../../../../../src/processing/processors/transforms/types'
+} from '../../../../../src/processing/transforms/built-in'
+import type { Transform } from '../../../../../src/processing/transforms/types'
 import type {
   ColorValueObject,
   ResolvedToken,
