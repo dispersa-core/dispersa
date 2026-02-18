@@ -119,22 +119,6 @@ dispersa build
   A global install is convenient for quick one-off builds, but for team projects you should still add `dispersa` as a local dependency. This ensures everyone on the team uses the same version.
 </Aside>
 
-## TypeScript Setup
-
-Dispersa is written in TypeScript and ships with type definitions. No `@types` packages are required.
-
-If you use TypeScript configs (tsconfig, etc.), ensure **TypeScript 5+** for full compatibility.
-
-## ESM-Only Package
-
-Dispersa is **ESM-only**. Add `"type": "module"` to your `package.json` when using the API or CLI in a Node.js project:
-
-```json
-{
-  "type": "module"
-}
-```
-
 <LinkCard
   title="Your First Build"
   description="Run your scaffolded project and explore the generated output."

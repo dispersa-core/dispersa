@@ -6,16 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {
-  type CSSProperties,
-  Fragment,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from 'react'
+import { type CSSProperties, Fragment, useCallback, useRef, useState, useMemo } from 'react'
+
+import { useContainerWidth } from './hooks/use-container-width'
 
 type StageData = {
   id: string
@@ -168,6 +161,7 @@ function buildFlowCSS(): string {
     `@keyframes cfv10{0%,${bs}%{transform:scaleY(0)}${be}%,${HOLD_END_PCT}%{transform:scaleY(1)}${RESET_PCT}%,100%{transform:scaleY(0)}}`,
     `@keyframes cfh10{0%,${bs}%{transform:scaleX(0)}${be}%,${HOLD_END_PCT}%{transform:scaleX(1)}${RESET_PCT}%,100%{transform:scaleX(0)}}`,
     '@keyframes detailSlideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}',
+    '@media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;animation-iteration-count:1!important}}',
   )
 
   return rules.join('\n')
@@ -182,25 +176,6 @@ const COLORS = {
   muted: 'var(--sl-color-gray-3)',
   accent: 'var(--sl-color-accent)',
   accentBg: 'var(--sl-color-accent-low)',
-}
-
-function useContainerWidth(ref: RefObject<HTMLDivElement | null>) {
-  const [width, setWidth] = useState(0)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) {
-      return undefined
-    }
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) {
-        setWidth(entry.contentRect.width)
-      }
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [ref])
-  return width
 }
 
 type ConnectorProps = {
@@ -450,7 +425,7 @@ export default function PipelineVisualizer() {
       {selectedStage && (
         <div
           style={{
-            marginTop: 12,
+            marginTop: 32,
             padding: 16,
             borderRadius: 8,
             border: `1px solid ${c.border}`,
@@ -546,6 +521,7 @@ function WideLayout({
           <Fragment key={stage.id}>
             <button
               type="button"
+              className="dispersa-focus-ring"
               onClick={() => onStageClick(stage.id)}
               style={getStageStyle(selectedId === stage.id, segment, {
                 gridRow: centerRow,
@@ -590,6 +566,7 @@ function WideLayout({
             />
             <button
               type="button"
+              className="dispersa-focus-ring"
               onClick={() => onStageClick('filter')}
               style={getStageStyle(selectedId === 'filter', 11, { gridRow, gridColumn: 12 })}
               aria-pressed={selectedId === 'filter'}
@@ -606,6 +583,7 @@ function WideLayout({
             />
             <button
               type="button"
+              className="dispersa-focus-ring"
               onClick={() => onStageClick('transform')}
               style={getStageStyle(selectedId === 'transform', 13, { gridRow, gridColumn: 14 })}
               aria-pressed={selectedId === 'transform'}
@@ -622,6 +600,7 @@ function WideLayout({
             />
             <button
               type="button"
+              className="dispersa-focus-ring"
               onClick={() => onStageClick('render')}
               style={getStageStyle(selectedId === 'render', 15, { gridRow, gridColumn: 16 })}
               aria-pressed={selectedId === 'render'}
@@ -664,6 +643,7 @@ function StackedLayout({
           <Fragment key={stage.id}>
             <button
               type="button"
+              className="dispersa-focus-ring"
               onClick={() => onStageClick(stage.id)}
               style={getStageStyle(
                 selectedId === stage.id,
@@ -768,6 +748,7 @@ function StackedLayout({
                 <button
                   key={`${stage.id}-${target.id}`}
                   type="button"
+                  className="dispersa-focus-ring"
                   onClick={() => onStageClick(stage.id)}
                   style={getStageStyle(
                     selectedId === stage.id,

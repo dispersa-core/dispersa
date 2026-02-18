@@ -5,53 +5,10 @@ sidebar:
   order: 3
 ---
 
-import { Aside, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components'
-
-## Install
-
-The quickest way to get a CLI-based project is with the scaffold:
-
-```bash
-pnpm create dispersa
-```
-
-Choose the **CLI** template when prompted. This gives you a `dispersa.config.ts`, token files, and a `dispersa build` script -- ready to run.
+import { Aside, LinkCard } from '@astrojs/starlight/components'
 
 <Aside type="note">
-  The CLI is included in the `dispersa` package. If you're adding it to an existing project, just
-  run `pnpm add dispersa` -- no additional package is needed.
-</Aside>
-
-### Global Install
-
-You can also install Dispersa globally to use the CLI across multiple projects without `npx`:
-
-<Tabs>
-  <TabItem label="pnpm" value="pnpm">
-
-```bash
-pnpm add -g dispersa
-```
-
-  </TabItem>
-  <TabItem label="npm" value="npm">
-
-```bash
-npm install -g dispersa
-```
-
-  </TabItem>
-  <TabItem label="Yarn" value="yarn">
-
-```bash
-yarn global add dispersa
-```
-
-  </TabItem>
-</Tabs>
-
-<Aside type="tip">
-  See the [Installation guide](/getting-started/installation/#global-installation) for more details on global vs local installation.
+  The CLI ships with the `dispersa` package. See [Installation](/getting-started/installation/) for local, global, and scaffold options.
 </Aside>
 
 ## Basic Usage

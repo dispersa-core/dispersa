@@ -182,3 +182,89 @@ hr {
 .header {
   border-bottom-color: var(--sl-color-hairline-light);
 }
+
+/* ----------------------------------------------------------
+ * 10. Hero demo — spectral arrow
+ * ---------------------------------------------------------- */
+
+.dispersa-hero-arrow-h,
+.dispersa-hero-arrow-v {
+  background: linear-gradient(
+    90deg,
+    hsl(272, 80%, 65%),
+    hsl(220, 80%, 60%),
+    hsl(180, 75%, 50%),
+    hsl(140, 70%, 50%),
+    hsl(50, 90%, 55%),
+    hsl(0, 80%, 60%),
+    hsl(272, 80%, 65%)
+  );
+  background-size: 200% 100%;
+  animation: dispersaArrowFlow 3s linear infinite,
+    dispersaArrowGlow 2.5s ease-in-out infinite;
+}
+
+.dispersa-hero-arrow-v {
+  background: linear-gradient(
+    180deg,
+    hsl(272, 80%, 65%),
+    hsl(220, 80%, 60%),
+    hsl(180, 75%, 50%),
+    hsl(140, 70%, 50%),
+    hsl(50, 90%, 55%),
+    hsl(0, 80%, 60%),
+    hsl(272, 80%, 65%)
+  );
+  background-size: 100% 200%;
+  animation: dispersaArrowFlowV 3s linear infinite,
+    dispersaArrowGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes dispersaArrowFlow {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes dispersaArrowFlowV {
+  from {
+    background-position: 50% 0%;
+  }
+  to {
+    background-position: 50% 200%;
+  }
+}
+
+@keyframes dispersaArrowGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px hsla(272, 80%, 65%, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px hsla(272, 80%, 65%, 0.8));
+  }
+}
+
+/* ----------------------------------------------------------
+ * 11. Reduced motion — disable non-essential animations
+ * ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .dispersa-hero-arrow-h,
+  .dispersa-hero-arrow-v {
+    animation: none;
+  }
+}
+
+/* ----------------------------------------------------------
+ * 12. Shared focus-visible ring for interactive components
+ * ---------------------------------------------------------- */
+
+.dispersa-focus-ring:focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

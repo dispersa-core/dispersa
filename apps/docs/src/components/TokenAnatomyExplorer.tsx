@@ -289,11 +289,15 @@ function PathBreadcrumb({ path }: { path: string[] }) {
       <div style={s.breadcrumbPath}>
         {path.map((segment, i) => (
           <span key={segment} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            {i > 0 && <span style={s.breadcrumbSep}>{'>'}</span>}
+            {i > 0 && (
+              <span style={s.breadcrumbSep} aria-hidden="true">
+                {'>'}
+              </span>
+            )}
             <span style={s.breadcrumbSegment}>{segment}</span>
           </span>
         ))}
-        <span style={{ ...s.breadcrumbSep, marginLeft: 4 }}>
+        <span style={{ ...s.breadcrumbSep, marginLeft: 4 }} aria-hidden="true">
           = <span style={{ ...s.inlineCode, marginLeft: 2 }}>{path.join('.')}</span>
         </span>
       </div>
@@ -322,6 +326,7 @@ function PropertyRow({
     <div
       role="row"
       tabIndex={0}
+      className="dispersa-focus-ring"
       style={
         isLast
           ? highlighted

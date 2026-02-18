@@ -50,17 +50,19 @@ function DurationPreview() {
   const toggle = () => setActive((a) => !a)
 
   return (
-    <div
-      style={{ width: '100%', display: 'grid', placeItems: 'center left', cursor: 'pointer' }}
-      onClick={toggle}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          toggle()
-        }
+    <button
+      type="button"
+      style={{
+        width: '100%',
+        display: 'grid',
+        placeItems: 'center left',
+        cursor: 'pointer',
+        background: 'none',
+        border: 'none',
+        padding: 0,
       }}
-      role="button"
-      tabIndex={0}
+      className="dispersa-focus-ring"
+      onClick={toggle}
       aria-label="Replay duration animation"
     >
       <div
@@ -73,7 +75,7 @@ function DurationPreview() {
           transition: 'transform 200ms ease',
         }}
       />
-    </div>
+    </button>
   )
 }
 
@@ -112,17 +114,19 @@ function TransitionPreview() {
   const toggle = () => setActive((a) => !a)
 
   return (
-    <div
-      style={{ width: '100%', display: 'grid', placeItems: 'center', cursor: 'pointer' }}
-      onClick={toggle}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          toggle()
-        }
+    <button
+      type="button"
+      style={{
+        width: '100%',
+        display: 'grid',
+        placeItems: 'center',
+        cursor: 'pointer',
+        background: 'none',
+        border: 'none',
+        padding: 0,
       }}
-      role="button"
-      tabIndex={0}
+      className="dispersa-focus-ring"
+      onClick={toggle}
       aria-label="Toggle transition preview"
     >
       <div
@@ -131,10 +135,11 @@ function TransitionPreview() {
           height: active ? 32 : 48,
           borderRadius: active ? 24 : 8,
           background: active ? COLOR.accent : 'var(--sl-color-gray-5, #3d4152)',
-          transition: 'all 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+          transition:
+            'width 200ms cubic-bezier(0.25, 0.1, 0.25, 1), height 200ms cubic-bezier(0.25, 0.1, 0.25, 1), border-radius 200ms cubic-bezier(0.25, 0.1, 0.25, 1), background 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
         }}
       />
-    </div>
+    </button>
   )
 }
 
@@ -547,8 +552,14 @@ function TokenCard({ token }: { token: TokenType }) {
   )
 
   return (
-    <a href={`#${token.id.toLowerCase()}`} style={cardLinkStyle}>
-      <div style={style} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+    <a href={`#${token.id.toLowerCase()}`} style={cardLinkStyle} className="dispersa-focus-ring">
+      <div
+        style={style}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        onFocus={onEnter}
+        onBlur={onLeave}
+      >
         <div style={previewStyle}>{token.preview}</div>
         <div style={nameStyle}>{token.name}</div>
         <SyntaxBlock code={token.value} />

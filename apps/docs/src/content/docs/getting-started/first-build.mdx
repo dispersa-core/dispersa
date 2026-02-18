@@ -26,7 +26,7 @@ my-dispersa-project/
 │   │   ├── spacing.json       # Spacing scale
 │   │   ├── typography.json    # Font families, sizes, weights
 │   │   └── effects.json       # Shadows and effects
-│   ├── semantic/
+│   ├── alias/
 │   │   ├── colors.json        # Semantic color aliases (text, background, action, …)
 │   │   ├── typography.json    # Semantic typography (heading, body)
 │   │   ├── spacing.json       # Semantic spacing (gap, inset)
@@ -65,7 +65,7 @@ my-dispersa-project/
 }
 ```
 
-**`tokens/semantic/colors.json`** creates purpose-driven names that reference the base tokens. Names follow the six-layer convention: `category.concept.sentiment.prominence.state.scale` (layers can be omitted when not needed):
+**`tokens/alias/colors.json`** creates purpose-driven names that reference the base tokens. Names follow the six-layer convention: `category.concept.sentiment.prominence.state.scale` (layers can be omitted when not needed):
 
 ```json
 {
@@ -106,25 +106,25 @@ my-dispersa-project/
     "colors": {
       "sources": [
         { "$ref": "./tokens/base/colors.json" },
-        { "$ref": "./tokens/semantic/colors.json" }
+        { "$ref": "./tokens/alias/colors.json" }
       ]
     },
     "typography": {
       "sources": [
         { "$ref": "./tokens/base/typography.json" },
-        { "$ref": "./tokens/semantic/typography.json" }
+        { "$ref": "./tokens/alias/typography.json" }
       ]
     },
     "spacing": {
       "sources": [
         { "$ref": "./tokens/base/spacing.json" },
-        { "$ref": "./tokens/semantic/spacing.json" }
+        { "$ref": "./tokens/alias/spacing.json" }
       ]
     },
     "effects": {
       "sources": [
         { "$ref": "./tokens/base/effects.json" },
-        { "$ref": "./tokens/semantic/effects.json" }
+        { "$ref": "./tokens/alias/effects.json" }
       ]
     }
   },
@@ -177,7 +177,7 @@ const result = await dispersa.build({
 })
 
 if (result.success) {
-  console.log('Build complete!')
+  console.log('Build successful!')
 }
 ```
 

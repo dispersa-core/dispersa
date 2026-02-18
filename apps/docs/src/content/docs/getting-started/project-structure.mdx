@@ -17,33 +17,17 @@ my-project/
 │   ├── colors.json
 │   ├── spacing.json
 │   ├── typography.json
-│   └── shadows.json
+│   └── effects.json
 ├── tokens.resolver.json
 ├── dispersa.config.ts        # if using CLI
-├── build-tokens.ts          # if using API directly
-└── dist/                    # generated output
+├── build-tokens.ts           # if using API directly
+└── dist/                     # generated output
     └── tokens.css
 ```
 
 ## Themed Project
 
-Use modifiers for light/dark themes and other contextual variants:
-
-```
-my-project/
-├── tokens/
-│   ├── base/
-│   │   ├── colors.json
-│   │   ├── spacing.json
-│   │   └── typography.json
-│   ├── semantic/
-│   │   └── aliases.json
-│   └── themes/
-│       ├── light.json
-│       └── dark.json
-├── tokens.resolver.json
-└── dist/
-```
+For projects with light/dark themes and semantic aliases, the [TypeScript Starter scaffold](/getting-started/first-build/) uses `base/`, `alias/`, and `themes/` subdirectories. Run `pnpm create dispersa` and choose the **TypeScript** template to get this layout pre-configured.
 
 ## Multi-Platform Project
 
