@@ -80,13 +80,13 @@ export {
 } from '@tokens/types'
 
 // Transform types
-export type { Transform } from '@processing/processors/transforms/types'
+export type { Transform } from '@processing/transforms/types'
 
 // Filter types
-export type { Filter } from '@processing/processors/filters/types'
+export type { Filter } from '@processing/filters/types'
 
 // Preprocessor types
-export type { Preprocessor } from '@processing/processors/preprocessors/types'
+export type { Preprocessor } from '@processing/preprocessors/types'
 
 // Renderer types
 export type {

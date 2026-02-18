@@ -3,28 +3,37 @@
  * Supports DTCG 2025.10 color and dimension object formats
  */
 
-import {
-  colorObjectToHex,
-  isColorObject,
-} from '@processing/processors/transforms/built-in/color-converter'
+import { colorObjectToHex, isColorObject } from '@processing/transforms/built-in/color-converter'
 import {
   dimensionObjectToString,
   isDimensionObject,
-} from '@processing/processors/transforms/built-in/dimension-converter'
+} from '@processing/transforms/built-in/dimension-converter'
+import {
+  durationObjectToString,
+  isDurationObject,
+} from '@processing/transforms/built-in/duration-converter'
 import { ConfigurationError } from '@shared/errors/index'
 import {
   formatDeprecationMessage,
   getPureAliasReferenceName,
   getSortedTokenEntries,
 } from '@shared/utils/token-utils'
-import type { DimensionValue, DurationValue, ResolvedToken, ResolvedTokens } from '@tokens/types'
+import type {
+  DimensionValue,
+  DurationValue,
+  ResolvedToken,
+  ResolvedTokens,
+  ShadowValueObject,
+} from '@tokens/types'
 import prettier from 'prettier'
 
 import { buildSetLayerBlocks, bundleAsCss } from './bundlers/css'
 import {
+  assertFileRequired,
   buildInMemoryOutputKey,
   filterTokensBySource,
   filterTokensFromSets,
+  isBasePermutation,
   normalizeModifierInputs,
   resolveBaseFileName,
   resolveMediaQuery,
@@ -38,15 +47,6 @@ type ResolvedCssOptions = Omit<CssRendererOptions, 'selector' | 'mediaQuery'> & 
   selector?: string
   mediaQuery?: string
   referenceTokens?: ResolvedTokens
-}
-
-type Shadow = {
-  color: unknown
-  offsetX: DimensionValue
-  offsetY: DimensionValue
-  blur: DimensionValue
-  spread?: DimensionValue
-  inset?: boolean
 }
 
 type CssEntry = {
@@ -114,13 +114,11 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       referenceTokens: options?.referenceTokens ?? tokens,
     }
 
-    const groups = this.groupTokens(tokens, opts)
+    const sortedTokens = getSortedTokenEntries(tokens).map(([, token]) => token)
     const referenceTokens = opts.referenceTokens
     const lines: string[] = []
 
-    for (const [selector, groupTokens] of Object.entries(groups)) {
-      this.buildCssBlock(lines, groupTokens, selector, tokens, referenceTokens, opts)
-    }
+    this.buildCssBlock(lines, sortedTokens, opts.selector, tokens, referenceTokens, opts)
 
     const cssString = lines.join('')
     return opts.minify ? cssString : await this.formatWithPrettier(cssString)
@@ -203,19 +201,6 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     } catch {
       // Prettier may fail on edge-case CSS; fall back to raw string
       return css
-    }
-  }
-
-  /**
-   * Group tokens by selector (for theme support)
-   */
-  private groupTokens(
-    tokens: ResolvedTokens,
-    options: Required<CssRendererOptions>,
-  ): Record<string, ResolvedToken[]> {
-    const sortedTokens = getSortedTokenEntries(tokens).map(([, token]) => token)
-    return {
-      [options.selector as string]: sortedTokens,
     }
   }
 
@@ -331,7 +316,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     if (typeof shadow !== 'object' || shadow === null) {
       return String(shadow)
     }
-    const shadowObj = shadow as Shadow
+    const shadowObj = shadow as ShadowValueObject
     const parts: string[] = []
 
     if (shadowObj.inset === true) {
@@ -394,7 +379,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       return
     }
 
-    if (isColorObject(value) || isDimensionObject(value) || this.isDurationObject(value)) {
+    if (isColorObject(value) || isDimensionObject(value) || isDurationObject(value)) {
       leaves.push({ path, value })
       return
     }
@@ -445,8 +430,8 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       return dimensionObjectToString(value)
     }
 
-    if (this.isDurationObject(value)) {
-      return this.formatDurationValue(value)
+    if (isDurationObject(value)) {
+      return durationObjectToString(value)
     }
 
     if (typeof value === 'string') {
@@ -537,23 +522,6 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
   }
 
-  private isDurationObject(value: unknown): value is DurationValue {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      'value' in value &&
-      'unit' in value &&
-      (value as { unit?: unknown }).unit !== undefined
-    )
-  }
-
-  private formatDurationValue(value: DurationValue): string {
-    if (typeof value === 'string') {
-      return value
-    }
-    return `${value.value}${value.unit}`
-  }
-
   /**
    * Format token value for CSS
    * Handles DTCG 2025.10 object formats for colors and dimensions
@@ -580,8 +548,8 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     }
 
     if (type === 'duration') {
-      if (this.isDurationObject(value)) {
-        return this.formatDurationValue(value)
+      if (isDurationObject(value)) {
+        return durationObjectToString(value)
       }
       if (typeof value === 'string') {
         return value
@@ -609,7 +577,9 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
 
   private formatArrayValue(value: unknown[], tokenType?: string): string {
     if (tokenType === 'shadow' && value.length > 0 && typeof value[0] === 'object') {
-      return value.map((shadowObj) => this.formatShadow(shadowObj as unknown as Shadow)).join(', ')
+      return value
+        .map((shadowObj) => this.formatShadow(shadowObj as unknown as ShadowValueObject))
+        .join(', ')
     }
     // For arrays like font families
     return value.map((v) => (typeof v === 'string' && v.includes(' ') ? `"${v}"` : v)).join(', ')
@@ -620,7 +590,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
    */
   private formatCompositeValue(value: Record<string, unknown>, tokenType?: string): string {
     if (tokenType === 'shadow') {
-      return this.formatShadow(value as unknown as Shadow)
+      return this.formatShadow(value as unknown as ShadowValueObject)
     }
 
     if (tokenType === 'border') {
@@ -638,7 +608,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
   /**
    * Format a single shadow object to CSS box-shadow syntax
    */
-  private formatShadow(shadow: Shadow): string {
+  private formatShadow(shadow: ShadowValueObject): string {
     const parts: string[] = []
     if (shadow.inset === true) {
       parts.push('inset')
@@ -695,8 +665,8 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
   private formatTransition(value: Record<string, unknown>): string {
     const parts: string[] = []
 
-    if (this.isDurationObject(value.duration)) {
-      parts.push(this.formatDurationValue(value.duration as DurationValue))
+    if (isDurationObject(value.duration)) {
+      parts.push(durationObjectToString(value.duration as DurationValue))
     } else if (value.duration != null) {
       parts.push(String(value.duration))
     }
@@ -705,8 +675,8 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       parts.push(`cubic-bezier(${value.timingFunction.join(', ')})`)
     }
 
-    if (this.isDurationObject(value.delay)) {
-      parts.push(this.formatDurationValue(value.delay as DurationValue))
+    if (isDurationObject(value.delay)) {
+      parts.push(durationObjectToString(value.delay as DurationValue))
     } else if (value.delay != null) {
       parts.push(String(value.delay))
     }
@@ -718,7 +688,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     const bundleData = context.permutations.map(({ tokens, modifierInputs }) => ({
       tokens,
       modifierInputs,
-      isBase: this.isBasePermutation(modifierInputs, context.meta.defaults),
+      isBase: isBasePermutation(modifierInputs, context.meta.defaults),
     }))
 
     return await bundleAsCss(bundleData, context.resolver, options, async (tokens, resolved) => {
@@ -733,12 +703,12 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     context: RenderContext,
     options: CssRendererOptions,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for standalone CSS output`,
-      )
-    }
+    assertFileRequired(
+      context.buildPath,
+      context.output.file,
+      context.output.name,
+      'standalone CSS',
+    )
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
@@ -760,7 +730,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     context: RenderContext,
     options: CssRendererOptions,
   ): Promise<{ fileName: string; content: string }> {
-    const isBase = this.isBasePermutation(modifierInputs, context.meta.defaults)
+    const isBase = isBasePermutation(modifierInputs, context.meta.defaults)
     const { modifierName, modifierContext } = this.resolveModifierContext(
       modifierInputs,
       context,
@@ -807,12 +777,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     context: RenderContext,
     options: CssRendererOptions,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for modifier CSS output`,
-      )
-    }
+    assertFileRequired(context.buildPath, context.output.file, context.output.name, 'modifier CSS')
     if (!context.resolver.modifiers) {
       throw new ConfigurationError('Modifier preset requires modifiers to be defined in resolver')
     }
@@ -846,7 +811,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     options: CssRendererOptions,
   ): Promise<{ fileName: string; content: string } | undefined> {
     const basePermutation = context.permutations.find(({ modifierInputs }) =>
-      this.isBasePermutation(modifierInputs, context.meta.defaults),
+      isBasePermutation(modifierInputs, context.meta.defaults),
     )
     if (!basePermutation) {
       return undefined
@@ -1011,17 +976,6 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     }
 
     return { modifierName: '', modifierContext: '' }
-  }
-
-  private isBasePermutation(
-    modifierInputs: Record<string, string>,
-    defaults: Record<string, string>,
-  ): boolean {
-    const normalizedInputs = normalizeModifierInputs(modifierInputs)
-    const normalizedDefaults = normalizeModifierInputs(defaults)
-    return Object.entries(normalizedDefaults).every(
-      ([key, value]) => normalizedInputs[key] === value,
-    )
   }
 }
 

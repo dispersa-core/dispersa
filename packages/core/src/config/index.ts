@@ -2,9 +2,9 @@
  * @fileoverview Configuration types for Dispersa
  */
 
-import type { Filter } from '@processing/processors/filters/types'
-import type { Preprocessor } from '@processing/processors/preprocessors/types'
-import type { Transform } from '@processing/processors/transforms/types'
+import type { Filter } from '@processing/filters/types'
+import type { Preprocessor } from '@processing/preprocessors/types'
+import type { Transform } from '@processing/transforms/types'
 import type { BuildResult, FormatOptions, Renderer } from '@renderers/types'
 import type { ModifierInputs, ResolverDocument } from '@resolution/resolution.types'
 import type { ValidationOptions } from '@shared/types/validation'

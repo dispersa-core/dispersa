@@ -13,10 +13,10 @@
 // FILTER TYPE
 // ============================================================================
 
-export type { Filter } from '@processing/processors/filters/types'
+export type { Filter } from '@processing/filters/types'
 
 // ============================================================================
 // BUILT-IN FILTERS
 // ============================================================================
 
-export { byPath, byType, isAlias, isBase } from '@processing/processors/filters/built-in'
+export { byPath, byType, isAlias, isBase } from '@processing/filters/built-in'

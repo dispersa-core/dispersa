@@ -13,7 +13,7 @@
 // TRANSFORM TYPE
 // ============================================================================
 
-export type { Transform } from '@processing/processors/transforms/types'
+export type { Transform } from '@processing/transforms/types'
 
 // ============================================================================
 // COLOR TRANSFORMS
@@ -23,7 +23,7 @@ export {
   colorToHex,
   colorToHsl,
   colorToRgb,
-} from '@processing/processors/transforms/built-in/color-transforms'
+} from '@processing/transforms/built-in/color-transforms'
 
 // ============================================================================
 // MODERN COLOR TRANSFORMS
@@ -36,7 +36,7 @@ export {
   colorToLch,
   colorToOklab,
   colorToOklch,
-} from '@processing/processors/transforms/built-in/color-transforms'
+} from '@processing/transforms/built-in/color-transforms'
 
 // ============================================================================
 // DIMENSION TRANSFORMS
@@ -46,7 +46,7 @@ export {
   dimensionToPx,
   dimensionToRem,
   dimensionToUnitless,
-} from '@processing/processors/transforms/built-in/dimension-transforms'
+} from '@processing/transforms/built-in/dimension-transforms'
 
 // ============================================================================
 // NAME TRANSFORMS
@@ -61,7 +61,7 @@ export {
   namePrefix,
   nameSnakeCase,
   nameSuffix,
-} from '@processing/processors/transforms/built-in/name-transforms'
+} from '@processing/transforms/built-in/name-transforms'
 
 // ============================================================================
 // OTHER TRANSFORMS
@@ -71,4 +71,4 @@ export {
   durationToMs,
   durationToSeconds,
   fontWeightToNumber,
-} from '@processing/processors/transforms/built-in/other-transforms'
+} from '@processing/transforms/built-in/other-transforms'

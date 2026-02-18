@@ -11,21 +11,27 @@
  * Generates CSS with @theme blocks for Tailwind v4+ design token integration
  */
 
-import {
-  colorObjectToHex,
-  isColorObject,
-} from '@processing/processors/transforms/built-in/color-converter'
+import { colorObjectToHex, isColorObject } from '@processing/transforms/built-in/color-converter'
 import {
   dimensionObjectToString,
   isDimensionObject,
-} from '@processing/processors/transforms/built-in/dimension-converter'
-import { ConfigurationError } from '@shared/errors/index'
+} from '@processing/transforms/built-in/dimension-converter'
+import {
+  durationObjectToString,
+  isDurationObject,
+} from '@processing/transforms/built-in/duration-converter'
 import { getSortedTokenEntries } from '@shared/utils/token-utils'
-import type { DimensionValue, DurationValue, ResolvedToken, ResolvedTokens } from '@tokens/types'
+import type { DimensionValue, ResolvedToken, ResolvedTokens } from '@tokens/types'
 import prettier from 'prettier'
 
 import { bundleAsTailwind } from './bundlers/tailwind'
-import { buildInMemoryOutputKey, resolveFileName, stripInternalMetadata } from './bundlers/utils'
+import {
+  assertFileRequired,
+  buildInMemoryOutputKey,
+  isBasePermutation,
+  resolveFileName,
+  stripInternalMetadata,
+} from './bundlers/utils'
 import { outputTree } from './output-tree'
 import type {
   MediaQueryFunction,
@@ -221,8 +227,8 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
       return dimensionObjectToString(value as DimensionValue)
     }
 
-    if (token.$type === 'duration' && this.isDurationObject(value)) {
-      return `${(value as DurationValue).value}${(value as DurationValue).unit}`
+    if (token.$type === 'duration' && isDurationObject(value)) {
+      return durationObjectToString(value)
     }
 
     if (token.$type === 'fontFamily') {
@@ -293,16 +299,6 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     return parts.join(' ')
   }
 
-  private isDurationObject(value: unknown): value is DurationValue {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      'value' in value &&
-      'unit' in value &&
-      (value as { unit?: unknown }).unit !== undefined
-    )
-  }
-
   private async formatWithPrettier(css: string): Promise<string> {
     try {
       return await prettier.format(css, {
@@ -323,7 +319,7 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     const bundleData = context.permutations.map(({ tokens, modifierInputs }) => ({
       tokens,
       modifierInputs,
-      isBase: this.isBasePermutation(modifierInputs, context.meta.defaults),
+      isBase: isBasePermutation(modifierInputs, context.meta.defaults),
     }))
 
     return await bundleAsTailwind(
@@ -339,12 +335,12 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     context: RenderContext,
     options: ResolvedTailwindOptions,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for standalone Tailwind output`,
-      )
-    }
+    assertFileRequired(
+      context.buildPath,
+      context.output.file,
+      context.output.name,
+      'standalone Tailwind',
+    )
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
@@ -363,15 +359,6 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     }
 
     return outputTree(files)
-  }
-
-  private isBasePermutation(
-    modifierInputs: Record<string, string>,
-    defaults: Record<string, string>,
-  ): boolean {
-    return Object.entries(defaults).every(
-      ([key, value]) => modifierInputs[key]?.toLowerCase() === value.toLowerCase(),
-    )
   }
 }
 

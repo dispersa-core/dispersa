@@ -3,11 +3,12 @@
  */
 
 import {
+  assertFileRequired,
   buildInMemoryOutputKey,
+  isBasePermutation,
   resolveFileName,
   stripInternalMetadata,
 } from '@renderers/bundlers/utils'
-import { ConfigurationError } from '@shared/errors/index'
 import { getSortedTokenEntries } from '@shared/utils/token-utils'
 import type { ResolvedTokens } from '@tokens/types'
 import prettier from 'prettier'
@@ -30,7 +31,7 @@ export class JsModuleRenderer implements Renderer<JsModuleRendererOptions> {
       const bundleData = context.permutations.map(({ tokens, modifierInputs }) => ({
         tokens: stripInternalMetadata(tokens),
         modifierInputs,
-        isBase: this.isBasePermutation(modifierInputs, context.meta.defaults),
+        isBase: isBasePermutation(modifierInputs, context.meta.defaults),
       }))
 
       return await bundleAsJsModule(bundleData, context.resolver, opts, async (tokens) => {
@@ -38,12 +39,7 @@ export class JsModuleRenderer implements Renderer<JsModuleRendererOptions> {
       })
     }
 
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for JS module output`,
-      )
-    }
+    assertFileRequired(context.buildPath, context.output.file, context.output.name, 'JS module')
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
@@ -193,13 +189,6 @@ export class JsModuleRenderer implements Renderer<JsModuleRendererOptions> {
       return key
     }
     return `"${key}"`
-  }
-
-  private isBasePermutation(
-    modifierInputs: Record<string, string>,
-    defaults: Record<string, string>,
-  ): boolean {
-    return Object.entries(modifierInputs).every(([key, value]) => value === defaults[key])
   }
 }
 

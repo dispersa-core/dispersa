@@ -3,11 +3,12 @@
  */
 
 import {
+  assertFileRequired,
   buildInMemoryOutputKey,
+  isBasePermutation,
   resolveFileName,
   stripInternalMetadata,
 } from '@renderers/bundlers/utils'
-import { ConfigurationError } from '@shared/errors/index'
 import { getSortedTokenEntries } from '@shared/utils/token-utils'
 import type { ResolvedToken, ResolvedTokens } from '@tokens/types'
 import prettier from 'prettier'
@@ -29,7 +30,7 @@ export class JsonRenderer implements Renderer<JsonRendererOptions> {
       const bundleData = context.permutations.map(({ tokens, modifierInputs }) => ({
         tokens: stripInternalMetadata(tokens),
         modifierInputs,
-        isBase: this.isBasePermutation(modifierInputs, context.meta.defaults),
+        isBase: isBasePermutation(modifierInputs, context.meta.defaults),
       }))
 
       return await bundleAsJson(bundleData, context.resolver, async (tokens) => {
@@ -37,12 +38,7 @@ export class JsonRenderer implements Renderer<JsonRendererOptions> {
       })
     }
 
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for JSON output`,
-      )
-    }
+    assertFileRequired(context.buildPath, context.output.file, context.output.name, 'JSON')
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
@@ -191,13 +187,6 @@ export class JsonRenderer implements Renderer<JsonRendererOptions> {
         token.$deprecated !== false && { $deprecated: token.$deprecated }),
       ...(token.$extensions != null && { $extensions: token.$extensions }),
     }
-  }
-
-  private isBasePermutation(
-    modifierInputs: Record<string, string>,
-    defaults: Record<string, string>,
-  ): boolean {
-    return Object.entries(modifierInputs).every(([key, value]) => value === defaults[key])
   }
 }
 

@@ -22,20 +22,25 @@ import {
   colorObjectToHex,
   isColorObject,
   dtcgObjectToCulori,
-} from '@processing/processors/transforms/built-in/color-converter'
-import { isDimensionObject } from '@processing/processors/transforms/built-in/dimension-converter'
+} from '@processing/transforms/built-in/color-converter'
+import { isDimensionObject } from '@processing/transforms/built-in/dimension-converter'
+import { isDurationObject } from '@processing/transforms/built-in/duration-converter'
 import { ConfigurationError } from '@shared/errors/index'
 import { getSortedTokenEntries } from '@shared/utils/token-utils'
-import type {
-  ColorValueObject,
-  DimensionValue,
-  DurationValue,
-  ResolvedToken,
-  ResolvedTokens,
-} from '@tokens/types'
+import type { ColorValueObject, DimensionValue, ResolvedToken, ResolvedTokens } from '@tokens/types'
 import { converter } from 'culori'
 
-import { buildInMemoryOutputKey, resolveFileName, stripInternalMetadata } from './bundlers/utils'
+import {
+  assertFileRequired,
+  buildGeneratedFileHeader,
+  buildInMemoryOutputKey,
+  groupTokensByType,
+  indentStr,
+  resolveFileName,
+  stripInternalMetadata,
+  toSafeIdentifier,
+} from './bundlers/utils'
+import type { TokenGroup } from './bundlers/utils'
 import { outputTree } from './output-tree'
 import type { RenderContext, RenderOutput, Renderer } from './types'
 
@@ -93,17 +98,13 @@ type ResolvedOptions = {
   colorSpace: 'sRGB' | 'displayP3'
   structure: 'nested' | 'flat'
   visibility: 'public' | 'internal' | undefined
+  visPrefix: string
   indent: number
 }
 
 type TokenTreeNode = {
   children: Map<string, TokenTreeNode>
   token?: ResolvedToken
-}
-
-type TokenGroup = {
-  name: string
-  tokens: ResolvedToken[]
 }
 
 const toSRGB = converter('rgb')
@@ -161,10 +162,6 @@ function resolveColorFormat(format?: string): 'argb_hex' | 'argb_float' {
   return 'argb_hex'
 }
 
-function indent(width: number, level: number): string {
-  return ' '.repeat(width * level)
-}
-
 function escapeKotlinString(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\$/g, '\\$')
 }
@@ -189,42 +186,6 @@ function toResourceName(family: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Identifier helpers
-// ---------------------------------------------------------------------------
-
-function toPascalCase(name: string): string {
-  const pascal = name
-    .replace(/[-._]+(.)/g, (_, c: string) => c.toUpperCase())
-    .replace(/[-._]+$/g, '')
-    .replace(/^[-._]+/g, '')
-
-  const result = pascal.charAt(0).toUpperCase() + pascal.slice(1)
-
-  if (/^\d/.test(result)) {
-    return `_${result}`
-  }
-
-  return KOTLIN_KEYWORDS.has(result.charAt(0).toLowerCase() + result.slice(1))
-    ? `\`${result}\``
-    : result
-}
-
-function toKotlinIdentifier(name: string): string {
-  const camel = name
-    .replace(/[-._]+(.)/g, (_, c: string) => c.toUpperCase())
-    .replace(/[-._]+$/g, '')
-    .replace(/^[-._]+/g, '')
-
-  const identifier = camel.charAt(0).toLowerCase() + camel.slice(1)
-
-  if (/^\d/.test(identifier)) {
-    return `_${identifier}`
-  }
-
-  return KOTLIN_KEYWORDS.has(identifier) ? `\`${identifier}\`` : identifier
-}
-
-// ---------------------------------------------------------------------------
 // Renderer
 // ---------------------------------------------------------------------------
 
@@ -236,6 +197,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       )
     }
 
+    const visibility = options?.visibility
     const opts: ResolvedOptions = {
       preset: options?.preset ?? 'standalone',
       packageName: options.packageName,
@@ -243,7 +205,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       colorFormat: resolveColorFormat(options?.colorFormat),
       colorSpace: options?.colorSpace ?? 'sRGB',
       structure: options?.structure ?? 'nested',
-      visibility: options?.visibility,
+      visibility,
+      visPrefix: visibility ? `${visibility} ` : '',
       indent: options?.indent ?? 4,
     }
 
@@ -286,22 +249,6 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   // Flat structure grouping
   // -----------------------------------------------------------------------
 
-  private groupTokensByType(tokens: ResolvedTokens): TokenGroup[] {
-    const groupMap = new Map<string, ResolvedToken[]>()
-
-    for (const [, token] of getSortedTokenEntries(tokens)) {
-      const groupName = KOTLIN_TYPE_GROUP_MAP[token.$type ?? ''] ?? 'Other'
-      const existing = groupMap.get(groupName) ?? []
-      existing.push(token)
-      groupMap.set(groupName, existing)
-    }
-
-    return Array.from(groupMap.entries()).map(([name, groupTokens]) => ({
-      name,
-      tokens: groupTokens,
-    }))
-  }
-
   /**
    * Builds a flattened camelCase name from a token's path, stripping the
    * type prefix segment (which is already represented by the group object).
@@ -310,7 +257,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     const path = token.path
     const withoutTypePrefix = path.length > 1 ? path.slice(1) : path
     const joined = withoutTypePrefix.join('_')
-    return toKotlinIdentifier(joined)
+    return toSafeIdentifier(joined, KOTLIN_KEYWORDS, false)
   }
 
   // -----------------------------------------------------------------------
@@ -325,25 +272,24 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   private formatAsNested(tokens: ResolvedTokens, options: ResolvedOptions): string {
+    const tokenTypes = this.collectTokenTypesFromEntries(tokens)
     const tree = this.buildTokenTree(tokens)
-    const tokenTypes = new Set<string>()
-    this.collectTokenTypes(tree, tokenTypes)
 
-    return this.buildFile(tokenTypes, options, (lines, vis) => {
+    return this.buildFile(tokenTypes, options, (lines) => {
       lines.push(`@Suppress("unused")`)
-      lines.push(`${vis}object ${options.objectName} {`)
+      lines.push(`${options.visPrefix}object ${options.objectName} {`)
       this.renderTreeChildren(lines, tree, 1, options)
       lines.push('}')
     })
   }
 
   private formatAsFlat(tokens: ResolvedTokens, options: ResolvedOptions): string {
-    const groups = this.groupTokensByType(tokens)
+    const groups = groupTokensByType(tokens, KOTLIN_TYPE_GROUP_MAP)
     const tokenTypes = this.collectTokenTypesFromEntries(tokens)
 
-    return this.buildFile(tokenTypes, options, (lines, vis) => {
+    return this.buildFile(tokenTypes, options, (lines) => {
       lines.push(`@Suppress("unused")`)
-      lines.push(`${vis}object ${options.objectName} {`)
+      lines.push(`${options.visPrefix}object ${options.objectName} {`)
       this.renderFlatGroups(lines, groups, 1, options)
       lines.push('}')
     })
@@ -356,13 +302,12 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   private buildFile(
     tokenTypes: Set<string>,
     options: ResolvedOptions,
-    renderBody: (lines: string[], vis: string) => void,
+    renderBody: (lines: string[]) => void,
   ): string {
     const imports = this.collectImports(tokenTypes, options)
-    const vis = options.visibility ? `${options.visibility} ` : ''
     const lines: string[] = []
 
-    lines.push(this.buildFileHeader())
+    lines.push(buildGeneratedFileHeader())
     lines.push('')
     lines.push(`package ${options.packageName}`)
     lines.push('')
@@ -375,11 +320,11 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     }
 
     if (tokenTypes.has('shadow')) {
-      lines.push(...this.buildShadowTokenClass(vis, options))
+      lines.push(...this.buildShadowTokenClass(options))
       lines.push('')
     }
 
-    renderBody(lines, vis)
+    renderBody(lines)
     lines.push('')
 
     return lines.join('\n')
@@ -391,12 +336,11 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     baseDepth: number,
     options: ResolvedOptions,
   ): void {
-    const vis = options.visibility ? `${options.visibility} ` : ''
-    const groupIndent = indent(options.indent, baseDepth)
-    const valIndent = indent(options.indent, baseDepth + 1)
+    const groupIndent = indentStr(options.indent, baseDepth)
+    const valIndent = indentStr(options.indent, baseDepth + 1)
 
     for (const group of groups) {
-      lines.push(`${groupIndent}${vis}object ${group.name} {`)
+      lines.push(`${groupIndent}${options.visPrefix}object ${group.name} {`)
       for (const token of group.tokens) {
         const kotlinName = this.buildFlatKotlinName(token)
         const kotlinValue = this.formatKotlinValue(token, options, baseDepth + 1)
@@ -405,7 +349,9 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
         if (token.$description) {
           lines.push(`${valIndent}/** ${escapeKDoc(token.$description)} */`)
         }
-        lines.push(`${valIndent}${vis}val ${kotlinName}${annotation} = ${kotlinValue}`)
+        lines.push(
+          `${valIndent}${options.visPrefix}val ${kotlinName}${annotation} = ${kotlinValue}`,
+        )
       }
       lines.push(`${groupIndent}}`)
       lines.push('')
@@ -418,8 +364,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     depth: number,
     options: ResolvedOptions,
   ): void {
-    const vis = options.visibility ? `${options.visibility} ` : ''
-    const pad = indent(options.indent, depth)
+    const pad = indentStr(options.indent, depth)
     const entries = Array.from(node.children.entries())
 
     for (let idx = 0; idx < entries.length; idx++) {
@@ -428,8 +373,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       if (child.token && child.children.size === 0) {
         this.renderLeaf(lines, key, child.token, depth, options)
       } else if (child.children.size > 0 && !child.token) {
-        const objectName = toPascalCase(key)
-        lines.push(`${pad}${vis}object ${objectName} {`)
+        const objectName = toSafeIdentifier(key, KOTLIN_KEYWORDS, true)
+        lines.push(`${pad}${options.visPrefix}object ${objectName} {`)
         this.renderTreeChildren(lines, child, depth + 1, options)
         lines.push(`${pad}}`)
         if (idx < entries.length - 1) {
@@ -449,9 +394,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     depth: number,
     options: ResolvedOptions,
   ): void {
-    const vis = options.visibility ? `${options.visibility} ` : ''
-    const pad = indent(options.indent, depth)
-    const kotlinName = toKotlinIdentifier(key)
+    const pad = indentStr(options.indent, depth)
+    const kotlinName = toSafeIdentifier(key, KOTLIN_KEYWORDS, false)
     const kotlinValue = this.formatKotlinValue(token, options, depth)
     const annotation = this.typeAnnotationSuffix(token)
 
@@ -459,25 +403,18 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       lines.push(`${pad}/** ${escapeKDoc(token.$description)} */`)
     }
 
-    lines.push(`${pad}${vis}val ${kotlinName}${annotation} = ${kotlinValue}`)
-  }
-
-  private buildFileHeader(): string {
-    return [
-      '// Generated by Dispersa - do not edit manually',
-      '// https://github.com/timges/dispersa',
-    ].join('\n')
+    lines.push(`${pad}${options.visPrefix}val ${kotlinName}${annotation} = ${kotlinValue}`)
   }
 
   // -----------------------------------------------------------------------
   // Shadow data class
   // -----------------------------------------------------------------------
 
-  private buildShadowTokenClass(vis: string, options: ResolvedOptions): string[] {
-    const i1 = indent(options.indent, 1)
+  private buildShadowTokenClass(options: ResolvedOptions): string[] {
+    const i1 = indentStr(options.indent, 1)
     return [
       '@Immutable',
-      `${vis}data class ShadowToken(`,
+      `${options.visPrefix}data class ShadowToken(`,
       `${i1}val color: Color,`,
       `${i1}val elevation: Dp,`,
       `${i1}val offsetX: Dp,`,
@@ -532,15 +469,6 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     }
 
     return Array.from(imports).sort()
-  }
-
-  private collectTokenTypes(node: TokenTreeNode, types: Set<string>): void {
-    if (node.token?.$type) {
-      types.add(node.token.$type)
-    }
-    for (const child of node.children.values()) {
-      this.collectTokenTypes(child, types)
-    }
   }
 
   private collectTokenTypesFromEntries(tokens: ResolvedTokens): Set<string> {
@@ -812,9 +740,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   private formatDurationValue(value: unknown): string {
-    if (typeof value === 'object' && value !== null && 'value' in value && 'unit' in value) {
-      const dur = value as DurationValue
-      return dur.unit === 'ms' ? `${dur.value}.milliseconds` : `${dur.value}.seconds`
+    if (isDurationObject(value)) {
+      return value.unit === 'ms' ? `${value.value}.milliseconds` : `${value.value}.seconds`
     }
 
     return typeof value === 'number' ? `${value}.milliseconds` : '0.milliseconds'
@@ -853,8 +780,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       ? this.formatDimensionValue(shadow.offsetY)
       : '0.dp'
 
-    const propIndent = indent(options.indent, depth + 1)
-    const closeIndent = indent(options.indent, depth)
+    const propIndent = indentStr(options.indent, depth + 1)
+    const closeIndent = indentStr(options.indent, depth)
     return [
       'ShadowToken(',
       `${propIndent}color = ${color},`,
@@ -917,8 +844,8 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       return 'TextStyle()'
     }
 
-    const propIndent = indent(options.indent, depth + 1)
-    const closeIndent = indent(options.indent, depth)
+    const propIndent = indentStr(options.indent, depth + 1)
+    const closeIndent = indentStr(options.indent, depth)
     return `TextStyle(\n${parts.map((p) => `${propIndent}${p}`).join(',\n')},\n${closeIndent})`
   }
 
@@ -930,12 +857,12 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     context: RenderContext,
     options: ResolvedOptions,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for standalone Android output`,
-      )
-    }
+    assertFileRequired(
+      context.buildPath,
+      context.output.file,
+      context.output.name,
+      'standalone Android',
+    )
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
@@ -964,12 +891,12 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     context: RenderContext,
     options: ResolvedOptions,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for bundle Android output`,
-      )
-    }
+    assertFileRequired(
+      context.buildPath,
+      context.output.file,
+      context.output.name,
+      'bundle Android',
+    )
 
     const content = this.formatBundleContent(context, options)
     const fileName = context.output.file
@@ -988,17 +915,17 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   private formatBundleContent(context: RenderContext, options: ResolvedOptions): string {
     const allTokenTypes = this.collectAllPermutationTypes(context)
 
-    return this.buildFile(allTokenTypes, options, (lines, vis) => {
-      const i1 = indent(options.indent, 1)
+    return this.buildFile(allTokenTypes, options, (lines) => {
+      const i1 = indentStr(options.indent, 1)
 
       lines.push(`@Suppress("unused")`)
-      lines.push(`${vis}object ${options.objectName} {`)
+      lines.push(`${options.visPrefix}object ${options.objectName} {`)
 
       for (let idx = 0; idx < context.permutations.length; idx++) {
         const { tokens, modifierInputs } = context.permutations[idx]!
         const processedTokens = stripInternalMetadata(tokens)
         const permName = this.buildPermutationName(modifierInputs)
-        lines.push(`${i1}${vis}object ${permName} {`)
+        lines.push(`${i1}${options.visPrefix}object ${permName} {`)
         this.renderBundleTokens(lines, processedTokens, options, 2)
         lines.push(`${i1}}`)
         if (idx < context.permutations.length - 1) {
@@ -1011,16 +938,13 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   private collectAllPermutationTypes(context: RenderContext): Set<string> {
-    const allTokenTypes = new Set<string>()
+    const types = new Set<string>()
     for (const { tokens } of context.permutations) {
-      const processed = stripInternalMetadata(tokens)
-      for (const [, token] of Object.entries(processed)) {
-        if (token.$type) {
-          allTokenTypes.add(token.$type)
-        }
+      for (const t of this.collectTokenTypesFromEntries(stripInternalMetadata(tokens))) {
+        types.add(t)
       }
     }
-    return allTokenTypes
+    return types
   }
 
   private renderBundleTokens(
@@ -1030,7 +954,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     baseDepth: number,
   ): void {
     if (options.structure === 'flat') {
-      const groups = this.groupTokensByType(tokens)
+      const groups = groupTokensByType(tokens, KOTLIN_TYPE_GROUP_MAP)
       this.renderFlatGroups(lines, groups, baseDepth, options)
       return
     }
@@ -1044,7 +968,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     if (values.length === 0) {
       return 'Default'
     }
-    return values.map((v) => toPascalCase(v)).join('')
+    return values.map((v) => toSafeIdentifier(v, KOTLIN_KEYWORDS, true)).join('')
   }
 }
 

@@ -11,13 +11,9 @@
  * Generates Swift code targeting SwiftUI (iOS 17+)
  */
 
-import {
-  isColorObject,
-  dtcgObjectToCulori,
-} from '@processing/processors/transforms/built-in/color-converter'
-import { isDimensionObject } from '@processing/processors/transforms/built-in/dimension-converter'
-import { ConfigurationError } from '@shared/errors/index'
-import { getSortedTokenEntries } from '@shared/utils/token-utils'
+import { isColorObject, dtcgObjectToCulori } from '@processing/transforms/built-in/color-converter'
+import { isDimensionObject } from '@processing/transforms/built-in/dimension-converter'
+import { isDurationObject } from '@processing/transforms/built-in/duration-converter'
 import type {
   ColorValueObject,
   DimensionValue,
@@ -26,9 +22,19 @@ import type {
   ResolvedToken,
   ResolvedTokens,
 } from '@tokens/types'
+import { isBorderToken, isShadowToken, isTypographyToken } from '@tokens/types'
 import { converter } from 'culori'
 
-import { buildInMemoryOutputKey, resolveFileName, stripInternalMetadata } from './bundlers/utils'
+import {
+  assertFileRequired,
+  buildGeneratedFileHeader,
+  buildInMemoryOutputKey,
+  groupTokensByType,
+  indentStr,
+  resolveFileName,
+  stripInternalMetadata,
+  toSafeIdentifier,
+} from './bundlers/utils'
 import { outputTree } from './output-tree'
 import type { RenderContext, RenderOutput, Renderer } from './types'
 
@@ -59,11 +65,6 @@ export type IosRendererOptions = {
   indent?: number
   /** Add @frozen annotation to enums and structs for ABI stability (default false) */
   frozen?: boolean
-}
-
-type TokenGroup = {
-  name: string
-  tokens: ResolvedToken[]
 }
 
 const toSRGB = converter('rgb')
@@ -161,110 +162,78 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   }
 
   private formatTokens(tokens: ResolvedTokens, options: Required<IosRendererOptions>): string {
+    const access = options.accessLevel
+    const groups = groupTokensByType(tokens, SWIFT_TYPE_GROUP_MAP)
+    const imports = this.collectImports(tokens)
+    const i1 = indentStr(options.indent, 1)
+    const i2 = indentStr(options.indent, 2)
+    const staticPrefix = this.staticLetPrefix(options)
+    const frozen = this.frozenPrefix(options)
+    const lines: string[] = []
+
+    lines.push(buildGeneratedFileHeader())
+    lines.push('')
+    for (const imp of imports) {
+      lines.push(`import ${imp}`)
+    }
+
+    lines.push(...this.buildStructDefinitions(tokens, access, options))
+
     if (options.structure === 'grouped') {
-      return this.formatAsGrouped(tokens, options)
-    }
-
-    return this.formatAsEnum(tokens, options)
-  }
-
-  private formatAsEnum(tokens: ResolvedTokens, options: Required<IosRendererOptions>): string {
-    const access = options.accessLevel
-    const groups = this.groupTokensByType(tokens)
-    const imports = this.collectImports(tokens)
-    const i1 = this.indentStr(options.indent, 1)
-    const i2 = this.indentStr(options.indent, 2)
-    const staticPrefix = this.staticLetPrefix(options)
-    const frozen = this.frozenPrefix(options)
-    const lines: string[] = []
-
-    lines.push(this.buildFileHeader())
-    lines.push('')
-    for (const imp of imports) {
-      lines.push(`import ${imp}`)
-    }
-
-    lines.push(...this.buildStructDefinitions(tokens, access, options))
-
-    lines.push('')
-    lines.push(`${frozen}${access} enum ${options.enumName} {`)
-
-    for (const group of groups) {
-      lines.push(`${i1}${frozen}${access} enum ${group.name} {`)
-      for (const token of group.tokens) {
-        const swiftName = this.buildQualifiedSwiftName(token)
-        const swiftValue = this.formatSwiftValue(token, options)
-        const typeAnnotation = this.getTypeAnnotation(token)
-        const annotation = typeAnnotation ? `: ${typeAnnotation}` : ''
-        const docComment = this.buildDocComment(token, i2)
-        if (docComment) {
-          lines.push(docComment)
-        }
-        lines.push(`${i2}${access} ${staticPrefix}${swiftName}${annotation} = ${swiftValue}`)
-      }
-      lines.push(`${i1}}`)
+      const namespace = options.extensionNamespace
       lines.push('')
-    }
+      lines.push(`${frozen}${access} enum ${namespace} {}`)
+      lines.push('')
 
-    lines.push('}')
-    lines.push(...this.buildViewExtensions(tokens, access, options))
-    lines.push('')
-
-    return lines.join('\n')
-  }
-
-  private formatAsGrouped(tokens: ResolvedTokens, options: Required<IosRendererOptions>): string {
-    const access = options.accessLevel
-    const namespace = options.extensionNamespace
-    const groups = this.groupTokensByType(tokens)
-    const imports = this.collectImports(tokens)
-    const i1 = this.indentStr(options.indent, 1)
-    const i2 = this.indentStr(options.indent, 2)
-    const staticPrefix = this.staticLetPrefix(options)
-    const frozen = this.frozenPrefix(options)
-    const lines: string[] = []
-
-    lines.push(this.buildFileHeader())
-    lines.push('')
-    for (const imp of imports) {
-      lines.push(`import ${imp}`)
-    }
-
-    lines.push(...this.buildStructDefinitions(tokens, access, options))
-
-    lines.push('')
-    lines.push(`${frozen}${access} enum ${namespace} {}`)
-    lines.push('')
-
-    for (const group of groups) {
-      lines.push(`${access} extension ${namespace} {`)
-      lines.push(`${i1}${frozen}enum ${group.name} {`)
-      for (const token of group.tokens) {
-        const swiftName = this.buildQualifiedSwiftName(token)
-        const swiftValue = this.formatSwiftValue(token, options)
-        const typeAnnotation = this.getTypeAnnotation(token)
-        const annotation = typeAnnotation ? `: ${typeAnnotation}` : ''
-        const docComment = this.buildDocComment(token, i2)
-        if (docComment) {
-          lines.push(docComment)
-        }
-        lines.push(`${i2}${access} ${staticPrefix}${swiftName}${annotation} = ${swiftValue}`)
+      for (const group of groups) {
+        lines.push(`${access} extension ${namespace} {`)
+        lines.push(`${i1}${frozen}enum ${group.name} {`)
+        this.pushTokenDeclarations(lines, group.tokens, options, access, i2, staticPrefix)
+        lines.push(`${i1}}`)
+        lines.push('}')
+        lines.push('')
       }
-      lines.push(`${i1}}`)
+    } else {
+      lines.push('')
+      lines.push(`${frozen}${access} enum ${options.enumName} {`)
+
+      for (const group of groups) {
+        lines.push(`${i1}${frozen}${access} enum ${group.name} {`)
+        this.pushTokenDeclarations(lines, group.tokens, options, access, i2, staticPrefix)
+        lines.push(`${i1}}`)
+        lines.push('')
+      }
+
       lines.push('}')
-      lines.push('')
     }
 
     lines.push(...this.buildViewExtensions(tokens, access, options))
+    if (options.structure !== 'grouped') {
+      lines.push('')
+    }
 
     return lines.join('\n')
   }
 
-  private buildFileHeader(): string {
-    return [
-      '// Generated by Dispersa - do not edit manually',
-      '// https://github.com/timges/dispersa',
-    ].join('\n')
+  private pushTokenDeclarations(
+    lines: string[],
+    tokens: ResolvedToken[],
+    options: Required<IosRendererOptions>,
+    access: string,
+    indent: string,
+    staticPrefix: string,
+  ): void {
+    for (const token of tokens) {
+      const swiftName = this.buildQualifiedSwiftName(token)
+      const swiftValue = this.formatSwiftValue(token, options)
+      const typeAnnotation = this.getTypeAnnotation(token)
+      const annotation = typeAnnotation ? `: ${typeAnnotation}` : ''
+      const docComment = this.buildDocComment(token, indent)
+      if (docComment) {
+        lines.push(docComment)
+      }
+      lines.push(`${indent}${access} ${staticPrefix}${swiftName}${annotation} = ${swiftValue}`)
+    }
   }
 
   private collectImports(tokens: ResolvedTokens): string[] {
@@ -291,22 +260,6 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return `${indent}/// ${token.$description}`
   }
 
-  private groupTokensByType(tokens: ResolvedTokens): TokenGroup[] {
-    const groupMap = new Map<string, ResolvedToken[]>()
-
-    for (const [, token] of getSortedTokenEntries(tokens)) {
-      const groupName = SWIFT_TYPE_GROUP_MAP[token.$type ?? ''] ?? 'Other'
-      const existing = groupMap.get(groupName) ?? []
-      existing.push(token)
-      groupMap.set(groupName, existing)
-    }
-
-    return Array.from(groupMap.entries()).map(([name, groupTokens]) => ({
-      name,
-      tokens: groupTokens,
-    }))
-  }
-
   /**
    * Builds a qualified Swift name from a token's path, preserving parent
    * hierarchy segments to avoid duplicate identifiers.
@@ -322,7 +275,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     const withoutTypePrefix = path.length > 1 ? path.slice(1) : path
 
     const joined = withoutTypePrefix.join('_')
-    return this.toSwiftIdentifier(joined)
+    return toSafeIdentifier(joined, SWIFT_KEYWORDS, false)
   }
 
   private formatSwiftValue(token: ResolvedToken, options: Required<IosRendererOptions>): string {
@@ -417,10 +370,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
 
   private formatDimensionValue(value: unknown): string {
     if (isDimensionObject(value)) {
-      const dim = value as DimensionValue
-      // Convert rem to points (1rem = 16pt convention)
-      const ptValue = dim.unit === 'rem' ? dim.value * 16 : dim.value
-      return String(ptValue)
+      return this.dimensionToPoints(value as DimensionValue)
     }
 
     return String(value)
@@ -497,7 +447,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   }
 
   private formatDurationValue(value: unknown): string {
-    if (typeof value === 'object' && value !== null && 'value' in value && 'unit' in value) {
+    if (isDurationObject(value)) {
       const dur = value as DurationValue
       const seconds = dur.unit === 'ms' ? dur.value / 1000 : dur.value
       return String(seconds)
@@ -582,9 +532,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     if (!isDimensionObject(typo.letterSpacing)) {
       return '0'
     }
-    const dim = typo.letterSpacing as DimensionValue
-    const ptValue = dim.unit === 'rem' ? dim.value * 16 : dim.value
-    return String(ptValue)
+    return this.dimensionToPoints(typo.letterSpacing as DimensionValue)
   }
 
   private extractLineSpacing(typo: Record<string, unknown>): string {
@@ -594,20 +542,22 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     if (!isDimensionObject(typo.fontSize)) {
       return '0'
     }
-    const dim = typo.fontSize as DimensionValue
-    const basePt = dim.unit === 'rem' ? dim.value * 16 : dim.value
+    const basePt = this.dimensionToNumericPoints(typo.fontSize as DimensionValue)
     const lineHeightPt = Math.round(basePt * typo.lineHeight * 100) / 100
     return String(lineHeightPt - basePt)
   }
 
+  private dimensionToNumericPoints(dim: DimensionValue): number {
+    return dim.unit === 'rem' ? dim.value * 16 : dim.value
+  }
+
   private dimensionToPoints(dim: DimensionValue): string {
-    const ptValue = dim.unit === 'rem' ? dim.value * 16 : dim.value
-    return String(ptValue)
+    return String(this.dimensionToNumericPoints(dim))
   }
 
   /** Formats a dimension as a CGFloat literal (appends `.0` for integers). */
   private dimensionToCGFloat(dim: DimensionValue): string {
-    const ptValue = dim.unit === 'rem' ? dim.value * 16 : dim.value
+    const ptValue = this.dimensionToNumericPoints(dim)
     return Number.isInteger(ptValue) ? `${ptValue}.0` : String(ptValue)
   }
 
@@ -628,33 +578,12 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     }
   }
 
-  private toSwiftIdentifier(name: string): string {
-    // Convert kebab-case, dot-notation, or snake_case to camelCase
-    const camel = name
-      .replace(/[-._]+(.)/g, (_, c: string) => c.toUpperCase())
-      .replace(/[-._]+$/g, '')
-      .replace(/^[-._]+/g, '')
-
-    // Ensure first character is lowercase
-    const identifier = camel.charAt(0).toLowerCase() + camel.slice(1)
-
-    // Prefix with underscore if it starts with a digit
-    const safe = /^\d/.test(identifier) ? `_${identifier}` : identifier
-
-    // Escape Swift reserved keywords with backticks
-    return SWIFT_KEYWORDS.has(safe) ? `\`${safe}\`` : safe
-  }
-
   private escapeSwiftString(str: string): string {
     return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')
   }
 
   private roundComponent(value: number): number {
     return Math.round(value * 10000) / 10000
-  }
-
-  private indentStr(width: number, level: number): string {
-    return ' '.repeat(width * level)
   }
 
   /**
@@ -675,18 +604,6 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return options.swiftVersion === '6.0' ? ': Sendable' : ''
   }
 
-  private hasShadowTokens(tokens: ResolvedTokens): boolean {
-    return Object.values(tokens).some((t) => t.$type === 'shadow')
-  }
-
-  private hasTypographyTokens(tokens: ResolvedTokens): boolean {
-    return Object.values(tokens).some((t) => t.$type === 'typography')
-  }
-
-  private hasBorderTokens(tokens: ResolvedTokens): boolean {
-    return Object.values(tokens).some((t) => t.$type === 'border')
-  }
-
   /** Emits all struct definitions needed by the token set. */
   private buildStructDefinitions(
     tokens: ResolvedTokens,
@@ -695,17 +612,17 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   ): string[] {
     const lines: string[] = []
 
-    if (this.hasShadowTokens(tokens)) {
+    if (Object.values(tokens).some(isShadowToken)) {
       lines.push('')
       lines.push(...this.buildShadowStyleStruct(access, options))
     }
 
-    if (this.hasTypographyTokens(tokens)) {
+    if (Object.values(tokens).some(isTypographyToken)) {
       lines.push('')
       lines.push(...this.buildTypographyStyleStruct(access, options))
     }
 
-    if (this.hasBorderTokens(tokens)) {
+    if (Object.values(tokens).some(isBorderToken)) {
       lines.push('')
       lines.push(...this.buildBorderStyleStruct(access, options))
     }
@@ -714,7 +631,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   }
 
   private buildShadowStyleStruct(access: string, options: Required<IosRendererOptions>): string[] {
-    const i1 = this.indentStr(options.indent, 1)
+    const i1 = indentStr(options.indent, 1)
     const conformances = this.structConformances(options)
     const frozen = this.frozenPrefix(options)
     return [
@@ -732,7 +649,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     access: string,
     options: Required<IosRendererOptions>,
   ): string[] {
-    const i1 = this.indentStr(options.indent, 1)
+    const i1 = indentStr(options.indent, 1)
     const conformances = this.structConformances(options)
     const frozen = this.frozenPrefix(options)
     return [
@@ -745,7 +662,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   }
 
   private buildBorderStyleStruct(access: string, options: Required<IosRendererOptions>): string[] {
-    const i1 = this.indentStr(options.indent, 1)
+    const i1 = indentStr(options.indent, 1)
     const conformances = this.structConformances(options)
     const frozen = this.frozenPrefix(options)
     return [
@@ -763,10 +680,10 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     options: Required<IosRendererOptions>,
   ): string[] {
     const lines: string[] = []
-    const i1 = this.indentStr(options.indent, 1)
-    const i2 = this.indentStr(options.indent, 2)
+    const i1 = indentStr(options.indent, 1)
+    const i2 = indentStr(options.indent, 2)
 
-    if (this.hasShadowTokens(tokens)) {
+    if (Object.values(tokens).some(isShadowToken)) {
       lines.push('')
       lines.push(`${access} extension View {`)
       lines.push(`${i1}func shadowStyle(_ style: ShadowStyle) -> some View {`)
@@ -777,7 +694,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       lines.push('}')
     }
 
-    if (this.hasTypographyTokens(tokens)) {
+    if (Object.values(tokens).some(isTypographyToken)) {
       lines.push('')
       lines.push(`${access} extension View {`)
       lines.push(`${i1}func typographyStyle(_ style: TypographyStyle) -> some View {`)
@@ -828,12 +745,12 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     context: RenderContext,
     options: Required<IosRendererOptions>,
   ): Promise<RenderOutput> {
-    const requiresFile = context.buildPath !== undefined && context.buildPath !== ''
-    if (!context.output.file && requiresFile) {
-      throw new ConfigurationError(
-        `Output "${context.output.name}": file is required for standalone iOS output`,
-      )
-    }
+    assertFileRequired(
+      context.buildPath,
+      context.output.file,
+      context.output.name,
+      'standalone iOS',
+    )
 
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {

@@ -13,7 +13,7 @@
 // PREPROCESSOR TYPE
 // ============================================================================
 
-export type { Preprocessor } from '@processing/processors/preprocessors/types'
+export type { Preprocessor } from '@processing/preprocessors/types'
 
 // ============================================================================
 // BUILT-IN PREPROCESSORS

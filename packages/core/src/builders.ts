@@ -12,8 +12,8 @@
  */
 
 import type { FileFunction, LifecycleHooks, OutputConfig } from '@config/index'
-import type { Filter } from '@processing/processors/filters/types'
-import type { Transform } from '@processing/processors/transforms/types'
+import type { Filter } from '@processing/filters/types'
+import type { Transform } from '@processing/transforms/types'
 import { androidRenderer } from '@renderers/android'
 import { cssRenderer } from '@renderers/css'
 import { iosRenderer } from '@renderers/ios'

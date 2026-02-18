@@ -1,4 +1,12 @@
 /**
+ * @license MIT
+ * Copyright (c) 2025-present Dispersa Contributors
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
  * @fileoverview CSS bundler for multi-theme output
  */
 
@@ -19,31 +27,31 @@ import {
   normalizeModifierInputs,
 } from './utils'
 
+const REF_PREFIX_SETS = '#/sets/'
+const REF_PREFIX_MODIFIERS = '#/modifiers/'
+
 type ResolvedCssOptions = Omit<CssRendererOptions, 'selector' | 'mediaQuery'> & {
   selector?: string
   mediaQuery?: string
   referenceTokens?: ResolvedTokens
 }
 
-type TokenWithSource = ResolvedToken & {
-  _sourceSet?: string
-  _sourceModifier?: string
-}
-
 const getSourceSet = (token: ResolvedToken): string | undefined => {
   if (typeof token !== 'object' || token === null) {
     return undefined
   }
-  const maybe = token as TokenWithSource
-  return typeof maybe._sourceSet === 'string' ? maybe._sourceSet : undefined
+  return '_sourceSet' in token && typeof token._sourceSet === 'string'
+    ? token._sourceSet
+    : undefined
 }
 
 const getSourceModifier = (token: ResolvedToken): string | undefined => {
   if (typeof token !== 'object' || token === null) {
     return undefined
   }
-  const maybe = token as TokenWithSource
-  return typeof maybe._sourceModifier === 'string' ? maybe._sourceModifier : undefined
+  return '_sourceModifier' in token && typeof token._sourceModifier === 'string'
+    ? token._sourceModifier
+    : undefined
 }
 
 /**
@@ -175,6 +183,22 @@ export type SetLayerBlock = {
   tokens: BundleDataItem['tokens']
 }
 
+function addLayerBlock(
+  blocks: SetLayerBlock[],
+  included: Set<string>,
+  key: string,
+  blockTokens: BundleDataItem['tokens'],
+  description?: string,
+): void {
+  if (Object.keys(blockTokens).length === 0) {
+    return
+  }
+  for (const k of Object.keys(blockTokens)) {
+    included.add(k)
+  }
+  blocks.push({ key, description, tokens: blockTokens })
+}
+
 /** Collect tokens belonging to a specific set, excluding already-included tokens */
 function collectSetTokens(
   tokens: BundleDataItem['tokens'],
@@ -234,31 +258,23 @@ export function buildSetLayerBlocks(
   const blocks: SetLayerBlock[] = []
   const included = new Set<string>()
 
-  const addBlock = (key: string, blockTokens: BundleDataItem['tokens'], description?: string) => {
-    if (Object.keys(blockTokens).length === 0) {
-      return
-    }
-    for (const k of Object.keys(blockTokens)) {
-      included.add(k)
-    }
-    blocks.push({ key, description, tokens: blockTokens })
-  }
-
   for (const item of resolver.resolutionOrder) {
     const ref = (item as { $ref?: unknown }).$ref
-    if (typeof ref !== 'string' || !ref.startsWith('#/sets/')) {
+    if (typeof ref !== 'string' || !ref.startsWith(REF_PREFIX_SETS)) {
       continue
     }
 
-    const setName = ref.slice('#/sets/'.length)
-    addBlock(
+    const setName = ref.slice(REF_PREFIX_SETS.length)
+    addLayerBlock(
+      blocks,
+      included,
       `Set: ${setName}`,
       collectSetTokens(tokens, setName, included),
       resolver.sets?.[setName]?.description,
     )
   }
 
-  addBlock('Unattributed', collectRemainder(tokens, included))
+  addLayerBlock(blocks, included, 'Unattributed', collectRemainder(tokens, included))
   return blocks
 }
 
@@ -271,51 +287,57 @@ function buildDefaultLayerBlocks(
   const included = new Set<string>()
   const baseInputs = normalizeModifierInputs(baseModifierInputs)
 
-  const addBlock = (key: string, blockTokens: BundleDataItem['tokens'], description?: string) => {
-    if (Object.keys(blockTokens).length === 0) {
-      return
-    }
-    for (const k of Object.keys(blockTokens)) {
-      included.add(k)
-    }
-    blocks.push({ key, description, tokens: blockTokens })
-  }
-
   for (const item of resolver.resolutionOrder) {
     const ref = (item as { $ref?: unknown }).$ref
     if (typeof ref !== 'string') {
       continue
     }
-
-    if (ref.startsWith('#/sets/')) {
-      const setName = ref.slice('#/sets/'.length)
-      addBlock(
-        `Set: ${setName}`,
-        collectSetTokens(tokens, setName, included),
-        resolver.sets?.[setName]?.description,
-      )
-      continue
-    }
-
-    if (ref.startsWith('#/modifiers/')) {
-      const modifierName = ref.slice('#/modifiers/'.length)
-      const modifier = resolver.modifiers?.[modifierName]
-      const selectedContext = baseInputs[modifierName.toLowerCase()]
-      if (!modifier || !selectedContext) {
-        continue
-      }
-
-      const expectedSource = `${modifierName}-${selectedContext}`.toLowerCase()
-      addBlock(
-        `Modifier: ${modifierName}=${selectedContext} (default)`,
-        collectModifierTokens(tokens, expectedSource, included),
-        modifier.description,
-      )
-    }
+    processResolutionOrderRef(ref, tokens, blocks, included, baseInputs, resolver)
   }
 
-  addBlock('Unattributed', collectRemainder(tokens, included))
+  addLayerBlock(blocks, included, 'Unattributed', collectRemainder(tokens, included))
   return blocks
+}
+
+function processResolutionOrderRef(
+  ref: string,
+  tokens: BundleDataItem['tokens'],
+  blocks: SetLayerBlock[],
+  included: Set<string>,
+  baseInputs: Record<string, string>,
+  resolver: ResolverDocument,
+): void {
+  if (ref.startsWith(REF_PREFIX_SETS)) {
+    const setName = ref.slice(REF_PREFIX_SETS.length)
+    addLayerBlock(
+      blocks,
+      included,
+      `Set: ${setName}`,
+      collectSetTokens(tokens, setName, included),
+      resolver.sets?.[setName]?.description,
+    )
+    return
+  }
+
+  if (!ref.startsWith(REF_PREFIX_MODIFIERS)) {
+    return
+  }
+
+  const modifierName = ref.slice(REF_PREFIX_MODIFIERS.length)
+  const modifier = resolver.modifiers?.[modifierName]
+  const selectedContext = baseInputs[modifierName.toLowerCase()]
+  if (!modifier || !selectedContext) {
+    return
+  }
+
+  const expectedSource = `${modifierName}-${selectedContext}`.toLowerCase()
+  addLayerBlock(
+    blocks,
+    included,
+    `Modifier: ${modifierName}=${selectedContext} (default)`,
+    collectModifierTokens(tokens, expectedSource, included),
+    modifier.description,
+  )
 }
 
 /** Find a permutation that differs from the base in exactly one modifier dimension */
@@ -338,6 +360,50 @@ function findSingleDiffPermutation(
     }
     return Object.entries(baseInputs).every(([k, v]) => k === normalizedModifier || inputs[k] === v)
   })
+}
+
+function pushUniqueBundleItem(
+  ordered: BundleDataItem[],
+  includedKeys: Set<string>,
+  item: BundleDataItem | undefined,
+): void {
+  if (!item) {
+    return
+  }
+  const key = stableInputsKey(item.modifierInputs)
+  if (includedKeys.has(key)) {
+    return
+  }
+  includedKeys.add(key)
+  ordered.push(item)
+}
+
+function appendModifierPermutations(
+  bundleData: BundleDataItem[],
+  modifiers: NonNullable<ResolverDocument['modifiers']>,
+  orderedNames: string[],
+  baseInputs: Record<string, string>,
+  ordered: BundleDataItem[],
+  includedKeys: Set<string>,
+): void {
+  for (const modifierName of orderedNames) {
+    const modifierDef = modifiers[modifierName]
+    if (!modifierDef) {
+      continue
+    }
+
+    const defaultValue = baseInputs[modifierName.toLowerCase()] ?? ''
+    for (const ctx of Object.keys(modifierDef.contexts)) {
+      if (defaultValue === ctx.toLowerCase()) {
+        continue
+      }
+      pushUniqueBundleItem(
+        ordered,
+        includedKeys,
+        findSingleDiffPermutation(bundleData, modifierName, ctx, baseInputs),
+      )
+    }
+  }
 }
 
 function orderBundleData(
@@ -364,34 +430,15 @@ function orderBundleData(
   const includedKeys = new Set<string>()
   const ordered: BundleDataItem[] = []
 
-  const pushUnique = (item: BundleDataItem | undefined) => {
-    if (!item) {
-      return
-    }
-    const key = stableInputsKey(item.modifierInputs)
-    if (includedKeys.has(key)) {
-      return
-    }
-    includedKeys.add(key)
-    ordered.push(item)
-  }
-
-  pushUnique(baseItem)
-
-  for (const modifierName of orderedModifierNames) {
-    const modifierDef = modifiers[modifierName]
-    if (!modifierDef) {
-      continue
-    }
-
-    const defaultValue = baseInputs[modifierName.toLowerCase()] ?? ''
-    for (const ctx of Object.keys(modifierDef.contexts)) {
-      if (defaultValue === ctx.toLowerCase()) {
-        continue
-      }
-      pushUnique(findSingleDiffPermutation(bundleData, modifierName, ctx, baseInputs))
-    }
-  }
+  pushUniqueBundleItem(ordered, includedKeys, baseItem)
+  appendModifierPermutations(
+    bundleData,
+    modifiers,
+    orderedModifierNames,
+    baseInputs,
+    ordered,
+    includedKeys,
+  )
 
   return ordered.length > 0 ? ordered : bundleData
 }
@@ -406,10 +453,10 @@ function getOrderedModifierNames(resolver: ResolverDocument): string[] {
     if (typeof ref !== 'string') {
       continue
     }
-    if (!ref.startsWith('#/modifiers/')) {
+    if (!ref.startsWith(REF_PREFIX_MODIFIERS)) {
       continue
     }
-    const name = ref.slice('#/modifiers/'.length)
+    const name = ref.slice(REF_PREFIX_MODIFIERS.length)
     if (seen.has(name)) {
       continue
     }

@@ -1,4 +1,12 @@
 /**
+ * @license MIT
+ * Copyright (c) 2025-present Dispersa Contributors
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
  * @fileoverview JavaScript module bundler for multi-theme output
  */
 
@@ -8,6 +16,7 @@ import { ConfigurationError } from '@shared/errors/index'
 import type { ResolvedTokens } from '@tokens/types'
 
 import type { BundleDataItem } from './types'
+import type { BundleMetadata } from './utils'
 import { buildMetadata, normalizeModifierInputs, stripInternalMetadata } from './utils'
 
 /**
@@ -15,7 +24,6 @@ import { buildMetadata, normalizeModifierInputs, stripInternalMetadata } from '.
  * More robust than regex for handling nested objects/arrays
  */
 function extractObjectFromJsModule(formattedJs: string): string {
-  // Find the start of the object assignment: "const name = {"
   const assignmentMatch = /const\s+\w+\s*=\s*\{/.exec(formattedJs)
   if (!assignmentMatch) {
     return '{}'
@@ -116,7 +124,7 @@ function buildHelperFunction(dimensions: string[]): string {
 
 /** Assemble the final JS bundle output string */
 function assembleJsBundle(
-  metadata: ReturnType<typeof buildMetadata>,
+  metadata: BundleMetadata,
   jsBlocks: string[],
   generateHelper: boolean,
 ): string {

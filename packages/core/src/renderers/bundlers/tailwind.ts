@@ -92,6 +92,19 @@ export async function bundleAsTailwind(
   return cssBlocks.join('\n')
 }
 
+function resolveModifierSelectorAndMedia(
+  options: ResolvedTailwindOptions,
+  modifier: string,
+  context: string,
+  modifierInputs: Record<string, string>,
+): { selector: string; mediaQuery: string } {
+  const normalized = normalizeModifierInputs(modifierInputs)
+  return {
+    selector: resolveSelector(options.selector, modifier, context, false, normalized),
+    mediaQuery: resolveMediaQuery(options.mediaQuery, modifier, context, false, normalized),
+  }
+}
+
 async function formatModifierOverride(
   { tokens, modifierInputs }: BundleDataItem,
   baseItem: BundleDataItem,
@@ -103,41 +116,26 @@ async function formatModifierOverride(
     minify: boolean,
   ) => Promise<string>,
 ): Promise<string | undefined> {
-  // Skip permutations where multiple modifiers differ from base
   const differenceCount = countModifierDifferences(modifierInputs, baseItem.modifierInputs)
   if (differenceCount > 1) {
     return undefined
   }
 
-  // Include tokens whose resolved value differs from the base permutation.
-  // Source-based filtering alone misses alias tokens that change indirectly
-  // (e.g., background-base references gray.25 which changes in dark mode).
-  // Since the Tailwind renderer resolves all references to final values,
-  // every token with a changed value must appear in the override block.
+  // Value-based filtering catches alias tokens that change indirectly
+  // (e.g., background-base references gray.25 which differs in dark mode).
   const tokensToInclude = filterTokensByValueChange(tokens, baseItem.tokens)
-
   if (Object.keys(tokensToInclude).length === 0) {
     return undefined
   }
 
   const expectedSource = getExpectedSource(modifierInputs, baseItem.modifierInputs)
-
   const [modifier, context] = parseModifierSource(expectedSource)
   const cleanTokens = stripInternalMetadata(tokensToInclude)
-
-  const selector = resolveSelector(
-    options.selector,
+  const { selector, mediaQuery } = resolveModifierSelectorAndMedia(
+    options,
     modifier,
     context,
-    false,
-    normalizeModifierInputs(modifierInputs),
-  )
-  const mediaQuery = resolveMediaQuery(
-    options.mediaQuery,
-    modifier,
-    context,
-    false,
-    normalizeModifierInputs(modifierInputs),
+    modifierInputs,
   )
 
   const css = await formatOverrideBlock(cleanTokens, selector, mediaQuery, options.minify)
