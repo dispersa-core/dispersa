@@ -244,4 +244,4 @@ it('validates DTCG pointer format', () => {
 - [Test Guidelines](../GUIDELINES.md) - General testing guidelines
 - [Unit Tests](../unit/README.md) - Unit test documentation
 - [E2E Tests](../e2e/README.md) - End-to-end test documentation
-- [DTCG Specification](https://design-tokens.github.io/community-group/format/) - Official spec
+- [DTCG Specification](https://www.designtokens.org/TR/2025.10/format/) - Official spec

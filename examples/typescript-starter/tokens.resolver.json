@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
   "name": "TypeScript Starter - Dispersa",
   "version": "2025.10",
   "description": "Design tokens with colors, typography, spacing, effects, and light/dark themes",

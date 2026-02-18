@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
   "name": "Split-by-Type Example - Dispersa",
   "version": "2025.10",
   "description": "Design tokens split into separate CSS files by category",

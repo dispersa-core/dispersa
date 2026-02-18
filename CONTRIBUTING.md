@@ -220,8 +220,8 @@ A blank line separates each group, and entries within a group are alphabetized.
 
 ## Reporting Issues
 
-- Use the [bug report template](https://github.com/timges/dispersa/issues/new?template=bug_report.yml) for bugs.
-- Use the [feature request template](https://github.com/timges/dispersa/issues/new?template=feature_request.yml) for ideas and enhancements.
+- Use the [bug report template](https://github.com/dispersa-core/dispersa/issues/new?template=bug_report.yml) for bugs.
+- Use the [feature request template](https://github.com/dispersa-core/dispersa/issues/new?template=feature_request.yml) for ideas and enhancements.
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schemas.dispersa.dev/resolver-v1.json",
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
   "version": "2025.10",
   "sets": {
     "base": {

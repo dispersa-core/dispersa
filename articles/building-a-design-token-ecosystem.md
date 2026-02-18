@@ -367,7 +367,7 @@ The resolver document is the heart of the system. It tells Dispersa _which_ toke
 
 ```json
 {
-  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
   "name": "My Design Tokens",
   "version": "2025.10",
   "description": "Design tokens with light/dark themes",
@@ -770,7 +770,7 @@ If you want to try it yourself, get started with:
 pnpm create dispersa
 ```
 
-Check out the full documentation at [dispersa.dev](https://dispersa.dev), and star the repo on [GitHub](https://github.com/timges/dispersa) if you find it useful.
+Check out the full documentation at [dispersa.dev](https://dispersa.dev), and star the repo on [GitHub](https://github.com/dispersa-core/dispersa) if you find it useful.
 
 ---
 

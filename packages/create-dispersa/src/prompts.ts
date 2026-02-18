@@ -78,5 +78,5 @@ export async function runCreate(args: string[]): Promise<void> {
     'Next steps',
   )
 
-  p.outro(`Problems? ${pc.underline(pc.cyan('https://github.com/timges/dispersa/issues'))}`)
+  p.outro(`Problems? ${pc.underline(pc.cyan('https://github.com/dispersa-core/dispersa/issues'))}`)
 }

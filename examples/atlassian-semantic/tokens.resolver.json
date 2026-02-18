@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.designtokens.org/schemas/resolver.json",
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
   "name": "Atlassian Semantic Example (DTCG stable) - Dispersa",
   "version": "2025.10",
   "description": "Semantic-first token naming inspired by Atlassian (color.text.*, space.*, elevation.*), implemented as DTCG-stable tokens with resolver modifiers (theme × density × motion).",

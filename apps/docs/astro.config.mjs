@@ -35,7 +35,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/timges/dispersa',
+          href: 'https://github.com/dispersa-core/dispersa',
         },
       ],
       sidebar: [
@@ -49,7 +49,7 @@ export default defineConfig({
         { label: 'API Reference', autogenerate: { directory: 'reference' } },
       ],
       editLink: {
-        baseUrl: 'https://github.com/timges/dispersa/edit/main/apps/docs/',
+        baseUrl: 'https://github.com/dispersa-core/dispersa/edit/main/apps/docs/',
       },
     }),
     react(),
