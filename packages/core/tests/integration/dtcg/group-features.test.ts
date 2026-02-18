@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { TokenCollection } from '../../../src'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
 import { TokenParser } from '../../../src/tokens/token-parser'
+import { TokenPipeline } from '../../../src/build/pipeline/token-pipeline'
+import type { ResolverDocument } from '../../../src/resolution/resolution.types'
 
 const srgb = (red: number, green: number, blue: number) => ({
   colorSpace: 'srgb',
@@ -169,6 +171,70 @@ describe('DTCG Group Features', () => {
 
       expect(flattened).toHaveProperty('color.primary.$root')
       expect(Object.keys(flattened).length).toBe(1)
+    })
+  })
+
+  describe('$root pipeline stripping (post-alias resolution)', () => {
+    it('should strip $root from output tokens after full pipeline', async () => {
+      const resolver: ResolverDocument = {
+        version: '2025.10',
+        sets: {
+          colors: {
+            sources: [
+              {
+                color: {
+                  $type: 'color',
+                  action: {
+                    brand: {
+                      $root: { $value: srgb(0, 0.4, 0.8) },
+                      hover: { $value: srgb(0, 0.3, 0.7) },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        resolutionOrder: [{ $ref: '#/sets/colors' }],
+      }
+
+      const pipeline = new TokenPipeline()
+      const { tokens } = await pipeline.resolve(resolver, {})
+
+      expect(tokens).toHaveProperty('color.action.brand')
+      expect(tokens).not.toHaveProperty('color.action.brand.$root')
+      expect(tokens['color.action.brand'].path).toEqual(['color', 'action', 'brand'])
+    })
+
+    it('should preserve originalValue reference string for traceability', async () => {
+      const resolver: ResolverDocument = {
+        version: '2025.10',
+        sets: {
+          colors: {
+            sources: [
+              {
+                color: {
+                  $type: 'color',
+                  primary: {
+                    $root: { $value: srgb(0, 0.4, 0.8) },
+                    light: { $value: srgb(0.2, 0.53, 0.87) },
+                  },
+                  button: {
+                    bg: { $value: '{color.primary.$root}' },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        resolutionOrder: [{ $ref: '#/sets/colors' }],
+      }
+
+      const pipeline = new TokenPipeline()
+      const { tokens } = await pipeline.resolve(resolver, {})
+
+      expect(tokens['color.button.bg'].originalValue).toBe('{color.primary}')
+      expect(tokens['color.button.bg'].$value).toEqual(srgb(0, 0.4, 0.8))
     })
   })
 

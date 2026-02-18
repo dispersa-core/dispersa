@@ -1,6 +1,6 @@
 /**
  * @fileoverview Token resolution pipeline
- * Handles the flow: parse resolver → resolve tokens → preprocess → resolve $ref → flatten → resolve aliases → apply transforms
+ * Handles the flow: parse resolver → resolve tokens → preprocess → resolve $ref → flatten → resolve aliases → strip $root → apply transforms
  *
  * Pipeline stages are explicitly typed to prevent temporal coupling and ensure
  * operations happen in the correct order.
@@ -22,6 +22,7 @@ import { ReferenceResolver } from '@resolution/reference-resolver'
 import { ResolutionEngine } from '@resolution/resolution-engine'
 import { TokenParser } from '@tokens/token-parser'
 import type { InternalResolvedTokens, InternalTokenDocument } from '@tokens/types'
+import type { TokenValue } from '@tokens/types'
 import type {
   AliasResolvedStage,
   EngineReadyStage,
@@ -32,6 +33,43 @@ import type {
   ReferenceResolvedStage,
   RawTokensStage,
 } from './pipeline-stages'
+
+const ROOT_REF_PATTERN = /\.\$root\}/g
+
+/**
+ * Rewrite `{foo.$root}` → `{foo}` inside alias reference strings.
+ * Handles plain string values and composite objects with nested references.
+ */
+function rewriteRootReferences(value: TokenValue): TokenValue {
+  if (typeof value === 'string') {
+    return ROOT_REF_PATTERN.test(value)
+      ? (value.replace(ROOT_REF_PATTERN, '}') as TokenValue)
+      : value
+  }
+
+  if (Array.isArray(value)) {
+    let changed = false
+    const mapped = value.map((item) => {
+      const rewritten = rewriteRootReferences(item as TokenValue)
+      if (rewritten !== item) changed = true
+      return rewritten
+    })
+    return changed ? (mapped as TokenValue) : value
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    let changed = false
+    const result: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value)) {
+      const rewritten = rewriteRootReferences(v as TokenValue)
+      if (rewritten !== v) changed = true
+      result[k] = rewritten
+    }
+    return changed ? (result as TokenValue) : value
+  }
+
+  return value
+}
 
 export type TokenPipelineOptions = {
   validation?: ValidationOptions
@@ -62,8 +100,9 @@ export class TokenPipeline {
    * 5. Resolve JSON Pointer references
    * 6. Parse and flatten token structure
    * 7. Resolve alias references
-   * 8. Apply filters (if provided) — runs first to remove tokens before transforms
-   * 9. Apply transforms (if provided) — runs on the already-filtered token set
+   * 8. Strip $root from token names/paths (DTCG structural mechanism, transparent in output)
+   * 9. Apply filters (if provided) — runs first to remove tokens before transforms
+   * 10. Apply transforms (if provided) — runs on the already-filtered token set
    *
    * Each stage is explicitly typed to ensure correct order and prevent temporal coupling.
    *
@@ -121,7 +160,8 @@ export class TokenPipeline {
     const refResolved = await this.resolveReferences(preprocessed)
     const flattened = this.flattenTokens(refResolved)
     const aliasResolved = this.resolveAliases(flattened)
-    const filtered = this.applyFilterStage(aliasResolved, filterList)
+    const rootStripped = this.stripRootTokenNames(aliasResolved)
+    const filtered = this.applyFilterStage(rootStripped, filterList)
     return this.applyTransformStage(filtered, transformList)
   }
 
@@ -229,8 +269,43 @@ export class TokenPipeline {
   }
 
   /**
-   * Stage 8: Apply filters to final tokens (before transforms to skip unnecessary work)
+   * Stage 8: Strip `$root` from token names and paths.
+   *
+   * `$root` is a DTCG structural mechanism that allows a group to carry a
+   * default value alongside child tokens. References must use the full path
+   * (`{color.action.brand.$root}`) for alias resolution, but `$root` should
+   * be transparent in output. This stage re-keys tokens so downstream
+   * consumers (filters, transforms, renderers) see clean names.
    */
+  private stripRootTokenNames(stage: AliasResolvedStage): AliasResolvedStage {
+    const tokens = stage.aliasResolvedTokens
+    const result: InternalResolvedTokens = {}
+
+    for (const [key, token] of Object.entries(tokens)) {
+      const rewrittenOriginal = rewriteRootReferences(token.originalValue)
+
+      if (!key.endsWith('.$root')) {
+        result[key] =
+          rewrittenOriginal !== token.originalValue
+            ? { ...token, originalValue: rewrittenOriginal }
+            : token
+        continue
+      }
+
+      const strippedPath = token.path.filter((segment) => segment !== '$root')
+      const strippedName = strippedPath.join('.')
+
+      result[strippedName] = {
+        ...token,
+        path: strippedPath,
+        name: strippedName,
+        originalValue: rewrittenOriginal,
+      }
+    }
+
+    return { ...stage, aliasResolvedTokens: result }
+  }
+
   private applyFilterStage(stage: AliasResolvedStage, filterList?: Filter[]): AliasResolvedStage {
     let tokens = stage.aliasResolvedTokens
 
