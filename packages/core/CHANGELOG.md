@@ -1,5 +1,11 @@
 # dispersa
 
+## 0.4.1
+
+### Patch Changes
+
+- fix missing type export
+
 ## 0.4.0
 
 ### Minor Changes
