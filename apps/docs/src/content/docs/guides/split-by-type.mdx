@@ -73,9 +73,9 @@ Split by token path prefix when your tokens are organized by namespace:
 import { byPath } from 'dispersa/filters'
 
 css({
-  name: 'brand',
-  file: 'brand.css',
-  filters: [byPath('color.brand')],
+  name: 'actions',
+  file: 'actions.css',
+  filters: [byPath('color.action')],
   preset: 'bundle',
   transforms: [nameKebabCase(), colorToHex()],
 })
@@ -85,10 +85,10 @@ css({
 
 ## Combining Strategies
 
-Combine type and path for fine-grained control. For example, brand colors only:
+Combine type and path for fine-grained control. For example, action colors only:
 
 ```typescript
-filters: [byType('color'), byPath('color.brand')],
+filters: [byType('color'), byPath('color.action')],
 ```
 
 <LinkCard

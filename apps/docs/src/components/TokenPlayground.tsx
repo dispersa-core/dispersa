@@ -43,14 +43,14 @@ const EXAMPLES: Example[] = [
     tokens: `{
   "color": {
     "$type": "color",
-    "brand": {
-      "primary": {
+    "palette": {
+      "blue-500": {
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2, 0.4, 0.9]
         }
       },
-      "secondary": {
+      "red-500": {
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9, 0.3, 0.5]
@@ -77,7 +77,7 @@ const EXAMPLES: Example[] = [
     tokens: `{
   "color": {
     "$type": "color",
-    "neutral": {
+    "palette": {
       "white": {
         "$value": {
           "colorSpace": "srgb",
@@ -105,26 +105,34 @@ const EXAMPLES: Example[] = [
       "default": "light",
       "contexts": {
         "light": [{
-          "semantic": {
-            "background": {
-              "$type": "color",
-              "$value": "{color.neutral.white}"
-            },
+          "color": {
             "text": {
               "$type": "color",
-              "$value": "{color.neutral.black}"
+              "default": {
+                "$value": "{color.palette.black}"
+              }
+            },
+            "background": {
+              "$type": "color",
+              "default": {
+                "$value": "{color.palette.white}"
+              }
             }
           }
         }],
         "dark": [{
-          "semantic": {
-            "background": {
-              "$type": "color",
-              "$value": "{color.neutral.black}"
-            },
+          "color": {
             "text": {
               "$type": "color",
-              "$value": "{color.neutral.white}"
+              "default": {
+                "$value": "{color.palette.white}"
+              }
+            },
+            "background": {
+              "$type": "color",
+              "default": {
+                "$value": "{color.palette.black}"
+              }
             }
           }
         }]
@@ -142,18 +150,20 @@ const EXAMPLES: Example[] = [
     description: 'Dimension and font tokens',
     tokens: `{
   "spacing": {
-    "$type": "dimension",
-    "xs": {
-      "$value": { "value": 4, "unit": "px" }
-    },
-    "sm": {
-      "$value": { "value": 8, "unit": "px" }
-    },
-    "md": {
-      "$value": { "value": 16, "unit": "px" }
-    },
-    "lg": {
-      "$value": { "value": 32, "unit": "px" }
+    "scale": {
+      "$type": "dimension",
+      "xs": {
+        "$value": { "value": 4, "unit": "px" }
+      },
+      "sm": {
+        "$value": { "value": 8, "unit": "px" }
+      },
+      "md": {
+        "$value": { "value": 16, "unit": "px" }
+      },
+      "lg": {
+        "$value": { "value": 32, "unit": "px" }
+      }
     }
   },
   "font": {

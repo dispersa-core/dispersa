@@ -34,12 +34,12 @@ type TokenExample = {
 /* ------------------------------------------------------------------ */
 
 const TOKEN: TokenExample = {
-  path: ['color', 'brand', 'primary'],
+  path: ['color', 'action', 'brand'],
   groupType: 'color',
   type: 'color',
   value: { colorSpace: 'srgb', components: [0.2, 0.4, 0.9] },
-  description: 'Primary brand color used for CTAs and links',
-  deprecated: 'Use color.brand.blue instead',
+  description: 'Primary brand action color used for CTAs and links',
+  deprecated: 'Use color.action.brand.hover instead',
   extensions: { 'com.figma': { styleId: 'S:abc123' } },
 }
 

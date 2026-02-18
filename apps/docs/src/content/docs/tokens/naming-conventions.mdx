@@ -1,0 +1,152 @@
+---
+title: Naming Conventions
+description: A recommended six-layer naming convention for design tokens that keeps paths discoverable, predictable, and self-documenting.
+sidebar:
+  order: 6
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+<Aside type="note" title="Convention, not spec">
+This naming convention is a recommendation used by the Dispersa starter templates. It is not part of the DTCG specification -- you are free to name tokens however you like. That said, a consistent convention pays off quickly as your token system grows.
+</Aside>
+
+## The Six-Layer Path
+
+Every token path is a subsequence of six ordered layers:
+
+```
+category.concept.sentiment.prominence.state.scale
+```
+
+| Layer | Purpose | Example values |
+|---|---|---|
+| **category** | Token type or domain | `color`, `spacing`, `typography`, `shadow` |
+| **concept** | What it's used for | `text`, `background`, `surface`, `action`, `border`, `icon`, `overlay`, `gap`, `inset`, `heading`, `body`, `elevation` |
+| **sentiment** | Semantic intent or role | `neutral`, `brand`, `danger`, `success`, `warning`, `info` |
+| **prominence** | Visual weight or emphasis | `default`, `muted`, `subtle`, `strong`, `inverse` |
+| **state** | Interaction state | `hover`, `active`, `focus`, `disabled`, `selected` |
+| **scale** | Size or intensity step | `xs`, `sm`, `md`, `lg`, `xl`, `2xl` |
+
+Each layer has its own **distinct vocabulary** -- values never overlap between layers. `muted` is always prominence. `danger` is always sentiment. `hover` is always state. `md` is always scale. This means layers can be omitted when they're not needed, and there's never ambiguity about which layer a segment belongs to.
+
+## Ordering Rule
+
+Layers can be skipped, but they can never be reordered. Every token path must be a subsequence of the full six-layer order -- broadest classification first, most specific last.
+
+`color.text.danger.muted` is valid (sentiment then prominence). `color.text.muted.danger` is not (prominence before sentiment -- going backwards).
+
+Most tokens use two to four layers:
+
+| Token path | Layers used |
+|---|---|
+| `color.text.default` | category + concept + prominence |
+| `color.text.danger` | category + concept + sentiment |
+| `color.text.muted.disabled` | category + concept + prominence + state |
+| `color.background.danger.subtle` | category + concept + sentiment + prominence |
+| `color.action.brand.hover` | category + concept + sentiment + state |
+| `spacing.gap.md` | category + concept + scale |
+| `typography.heading.lg` | category + concept + scale |
+
+## How Categories Use Layers
+
+Different token categories lean on different subsets:
+
+- **Color** tokens typically use concept through state and skip scale.
+- **Spacing**, **typography**, and **shadow** tokens typically use concept and scale, skipping sentiment, prominence, and state.
+
+The convention is the same -- each category uses the subset it needs.
+
+## Comprehensive Examples
+
+| Token path | Category | Concept | Sentiment | Prominence | State | Scale |
+|---|---|---|---|---|---|---|
+| `color.text.default` | color | text | -- | default | -- | -- |
+| `color.text.muted` | color | text | -- | muted | -- | -- |
+| `color.text.danger` | color | text | danger | -- | -- | -- |
+| `color.text.danger.muted` | color | text | danger | muted | -- | -- |
+| `color.text.muted.disabled` | color | text | -- | muted | disabled | -- |
+| `color.background.default` | color | background | -- | default | -- | -- |
+| `color.background.danger.subtle` | color | background | danger | subtle | -- | -- |
+| `color.surface.default` | color | surface | -- | default | -- | -- |
+| `color.action.brand` | color | action | brand | -- | -- | -- |
+| `color.action.brand.hover` | color | action | brand | -- | hover | -- |
+| `color.action.danger.strong.active` | color | action | danger | strong | active | -- |
+| `color.border.default` | color | border | -- | default | -- | -- |
+| `color.border.default.focus` | color | border | -- | default | focus | -- |
+| `color.icon.success` | color | icon | success | -- | -- | -- |
+| `spacing.gap.md` | spacing | gap | -- | -- | -- | md |
+| `spacing.inset.lg` | spacing | inset | -- | -- | -- | lg |
+| `typography.heading.lg` | typography | heading | -- | -- | -- | lg |
+| `typography.body.sm` | typography | body | -- | -- | -- | sm |
+| `shadow.elevation.md` | shadow | elevation | -- | -- | -- | md |
+
+## Principles
+
+1. **Intent over implementation.** `color.action.brand` instead of `color.blue-500`. When your brand color changes from blue to purple, you rename zero tokens.
+2. **Predictability.** If `color.text.default` exists, a developer can guess that `color.text.muted` and `color.text.subtle` probably do too.
+3. **Orthogonal layers.** Sentiment, prominence, state, and scale answer different questions: "what role?", "how loud?", "what interaction?", and "what size?" Keeping them separate prevents naming collisions and makes the system composable.
+4. **No going back.** Layers always appear in the canonical order. You can skip, but you can't reorder. This keeps every path unambiguous.
+
+## Mapping to DTCG JSON
+
+Each layer becomes a nesting level in the JSON structure:
+
+```json
+{
+  "color": {
+    "text": {
+      "$type": "color",
+      "default": { "$value": "{color.palette.gray-900}" },
+      "muted": {
+        "$root": { "$value": "{color.palette.gray-500}" },
+        "disabled": { "$value": "{color.palette.gray-300}" }
+      },
+      "danger": { "$value": "{color.palette.red-500}" }
+    },
+    "action": {
+      "$type": "color",
+      "brand": {
+        "$root": { "$value": "{color.palette.blue-500}" },
+        "hover": { "$value": "{color.palette.blue-600}" }
+      }
+    }
+  },
+  "spacing": {
+    "gap": {
+      "$type": "dimension",
+      "sm": { "$value": "{spacing.scale.sm}" },
+      "md": { "$value": "{spacing.scale.md}" },
+      "lg": { "$value": "{spacing.scale.lg}" }
+    }
+  }
+}
+```
+
+When a node needs to be both a token and a group (e.g. `color.text.muted` has a value *and* a child `disabled`), use `$root` to hold the node's own value while allowing children alongside it.
+
+Dispersa flattens this structure during parsing, so `color.text.muted` and `color.action.brand.hover` are the token paths you see in build output.
+
+## Base Token Naming
+
+Base tokens sit outside the six-layer convention. They represent raw values without intent and use neutral, descriptive names grouped under a type-specific namespace:
+
+| Category | Base group | Example tokens |
+|---|---|---|
+| Color | `color.palette` | `color.palette.blue-500`, `color.palette.gray-900`, `color.palette.white` |
+| Spacing | `spacing.scale` | `spacing.scale.xs`, `spacing.scale.sm`, `spacing.scale.md` |
+| Shadow | `shadow.raw` | `shadow.raw.sm`, `shadow.raw.md`, `shadow.raw.lg` |
+| Typography | `font.*` | `font.family.sans`, `font.size.lg`, `font.weight.bold` |
+
+Alias tokens (the ones following the six-layer convention) reference these base tokens via `{color.palette.blue-500}` style aliases.
+
+<LinkCard
+  title="References and Aliases"
+  description="Learn how alias tokens reference base tokens using the DTCG alias syntax."
+  href="/tokens/references/"
+/>
+<LinkCard
+  title="Your First Build"
+  description="See the naming convention in action with the starter template walkthrough."
+  href="/getting-started/first-build/"
+/>

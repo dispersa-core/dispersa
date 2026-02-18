@@ -51,7 +51,7 @@ const SHARED_STAGES: StageData[] = [
     id: 'parse',
     name: 'Parse',
     description:
-      'Resolves JSON Pointer references ($ref), flattens nested groups to dot-path keys (e.g. color.brand.primary), inherits group-level $type, and resolves alias references with circular dependency detection.',
+      'Resolves JSON Pointer references ($ref), flattens nested groups to dot-path keys (e.g. color.action.brand), inherits group-level $type, and resolves alias references with circular dependency detection.',
     input: 'Preprocessed token tree',
     output: 'Flat map of resolved tokens',
   },
@@ -125,6 +125,7 @@ const HOLD_END_PCT = 78
 const RESET_PCT = 88
 const ROW_GAP = 6
 const COMPACT_THRESHOLD = 900
+const SMALL_THRESHOLD = 500
 
 function buildFlowCSS(): string {
   const rules: string[] = []
@@ -427,18 +428,20 @@ export default function PipelineVisualizer() {
           numStyle={NUM_STYLE}
           labelStyle={labelStyle}
           colors={c}
+          containerWidth={containerWidth}
           getStageStyle={getStageStyle}
           onStageClick={handleClick}
         />
       ) : (
         <StackedLayout
           stages={SHARED_STAGES}
-          outputs={OUTPUT_TARGETS}
+          outputs={OUTPUT_TARGETS.filter((t) => t.id !== 'js')}
           outputStages={OUTPUT_STAGES}
           selectedId={selectedId}
           numStyle={NUM_STYLE}
           labelStyle={labelStyle}
           colors={c}
+          containerWidth={containerWidth}
           getStageStyle={getStageStyle}
           onStageClick={handleClick}
         />
@@ -509,6 +512,7 @@ type LayoutProps = {
     extra?: CSSProperties,
     vertical?: boolean,
   ) => CSSProperties
+  containerWidth: number
   onStageClick: (id: string) => void
 }
 
@@ -641,10 +645,15 @@ function StackedLayout({
   selectedId,
   numStyle,
   colors: c,
+  containerWidth,
   getStageStyle,
   onStageClick,
 }: LayoutProps) {
-  const colGap = 16
+  const isSmall = containerWidth < SMALL_THRESHOLD
+  const colGap = isSmall ? 4 : 16
+  const compactExtra: CSSProperties | undefined = isSmall
+    ? { padding: '5px 6px', fontSize: 12, gap: 4 }
+    : undefined
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
@@ -656,7 +665,12 @@ function StackedLayout({
             <button
               type="button"
               onClick={() => onStageClick(stage.id)}
-              style={getStageStyle(selectedId === stage.id, segment, { minWidth: 160 }, true)}
+              style={getStageStyle(
+                selectedId === stage.id,
+                segment,
+                compactExtra ?? { minWidth: 160 },
+                true,
+              )}
               aria-pressed={selectedId === stage.id}
               aria-label={`Stage ${i + 1}: ${stage.name}. ${stage.description}`}
             >
@@ -677,7 +691,7 @@ function StackedLayout({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${outputs.length}, auto)`,
+          gridTemplateColumns: `repeat(${outputs.length}, ${isSmall ? '1fr' : 'auto'})`,
           columnGap: colGap,
           rowGap: 2,
           justifyItems: 'stretch',
@@ -755,7 +769,12 @@ function StackedLayout({
                   key={`${stage.id}-${target.id}`}
                   type="button"
                   onClick={() => onStageClick(stage.id)}
-                  style={getStageStyle(selectedId === stage.id, segment, { minWidth: 160 }, true)}
+                  style={getStageStyle(
+                    selectedId === stage.id,
+                    segment,
+                    compactExtra ?? { minWidth: 160 },
+                    true,
+                  )}
                   aria-pressed={selectedId === stage.id}
                   aria-label={`Stage ${stageNum}: ${stage.name} (${target.label}). ${stage.description}`}
                 >

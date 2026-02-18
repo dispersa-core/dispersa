@@ -43,7 +43,7 @@ Stages 1-5 run **once** for the entire build and produce a resolved, flat token 
 
 2. **Preprocess** -- Runs optional preprocessors on the raw token tree. Use this to strip vendor metadata, inject computed tokens, or normalize legacy formats before parsing.
 
-3. **Parse** -- Resolves JSON Pointer `$ref` references (including external files), flattens nested groups to dot-path keys (e.g. `color.brand.primary`), inherits group-level `$type`, and resolves [`{token.name}` alias references](https://www.designtokens.org/TR/2025.10/format/#aliases-references) with circular dependency detection.
+3. **Parse** -- Resolves JSON Pointer `$ref` references (including external files), flattens nested groups to dot-path keys (e.g. `color.action.brand`), inherits group-level `$type`, and resolves [`{token.name}` alias references](https://www.designtokens.org/TR/2025.10/format/#aliases-references) with circular dependency detection.
 
 4. **Global Filter** -- Global filters from `BuildConfig` reduce the token set for all outputs. Tokens excluded here never reach any output.
 

@@ -84,11 +84,11 @@ const dimensionToDp: Transform = {
 The matcher lets you restrict transforms by type, path, or any other property:
 
 ```typescript
-// Only colors under the brand namespace
-matcher: (token) => token.$type === 'color' && token.name.startsWith('color.brand.')
+// Only action colors
+matcher: (token) => token.$type === 'color' && token.name.startsWith('color.action.')
 
 // Only spacing tokens
-matcher: (token) => token.name.startsWith('spacing.')
+matcher: (token) => token.name.startsWith('spacing.gap.')
 
 // Exclude certain paths
 matcher: (token) => !token.name.includes('.deprecated')

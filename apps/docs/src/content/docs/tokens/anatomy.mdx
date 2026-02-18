@@ -23,8 +23,8 @@ The token's [value](https://www.designtokens.org/TR/2025.10/format/#name-and-val
 ```json
 {
   "color": {
-    "brand": {
-      "primary": {
+    "palette": {
+      "blue-500": {
         "$type": "color",
         "$value": {
           "colorSpace": "srgb",
@@ -34,11 +34,13 @@ The token's [value](https://www.designtokens.org/TR/2025.10/format/#name-and-val
     }
   },
   "spacing": {
-    "md": {
-      "$type": "dimension",
-      "$value": {
-        "value": 16,
-        "unit": "px"
+    "gap": {
+      "md": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        }
       }
     }
   }
@@ -56,14 +58,16 @@ Human-readable [description](https://www.designtokens.org/TR/2025.10/format/#des
 ```json
 {
   "color": {
-    "brand": {
-      "primary": {
+    "action": {
+      "brand": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [0, 0.4, 0.8]
-        },
-        "$description": "Primary brand color used for CTAs and links"
+        "$root": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [0, 0.4, 0.8]
+          },
+          "$description": "Primary brand action color used for CTAs and links"
+        }
       }
     }
   }
@@ -81,7 +85,7 @@ Marks a token as [deprecated](https://www.designtokens.org/TR/2025.10/format/#de
     "colorSpace": "srgb",
     "components": [0.8, 0, 0.4]
   },
-  "$deprecated": "Use color.brand.primary instead"
+  "$deprecated": "Use color.action.brand instead"
 }
 ```
 
@@ -106,7 +110,7 @@ Vendor-specific [metadata](https://www.designtokens.org/TR/2025.10/format/#exten
 
 ## Group Nesting
 
-Tokens can be nested in [groups](https://www.designtokens.org/TR/2025.10/format/#groups). Group names become part of the token path (e.g. `color.brand.primary`). Groups can set `$type` so all children inherit it.
+Tokens can be nested in [groups](https://www.designtokens.org/TR/2025.10/format/#groups). Group names become part of the token path (e.g. `color.palette.blue-500`). Groups can set `$type` so all children inherit it.
 
 <Aside type="tip" title="Group-level $type">
 Set `$type` on a group to avoid repeating it on every child token. Child tokens inherit the type unless they override it.
@@ -116,17 +120,17 @@ Set `$type` on a group to avoid repeating it on every child token. Child tokens 
 {
   "color": {
     "$type": "color",
-    "brand": {
-      "primary": {
+    "palette": {
+      "blue-500": {
         "$value": {
           "colorSpace": "srgb",
           "components": [0, 0.4, 0.8]
         }
       },
-      "secondary": {
+      "gray-900": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.4, 0.4, 0.4]
+          "components": [0.1, 0.11, 0.12]
         }
       }
     }
@@ -134,7 +138,7 @@ Set `$type` on a group to avoid repeating it on every child token. Child tokens 
 }
 ```
 
-Here, `color.brand.primary` and `color.brand.secondary` both have type `color` from the group.
+Here, `color.palette.blue-500` and `color.palette.gray-900` both have type `color` from the group.
 
 ### `$root` (optional)
 
@@ -143,15 +147,17 @@ A [root token](https://www.designtokens.org/TR/2025.10/format/#root-tokens-in-gr
 ```json
 {
   "spacing": {
-    "$type": "dimension",
-    "$root": {
-      "$value": { "value": 16, "unit": "px" }
-    },
-    "small": {
-      "$value": { "value": 8, "unit": "px" }
-    },
-    "large": {
-      "$value": { "value": 24, "unit": "px" }
+    "scale": {
+      "$type": "dimension",
+      "$root": {
+        "$value": { "value": 16, "unit": "px" }
+      },
+      "sm": {
+        "$value": { "value": 8, "unit": "px" }
+      },
+      "lg": {
+        "$value": { "value": 24, "unit": "px" }
+      }
     }
   }
 }
@@ -163,17 +169,19 @@ A [root token](https://www.designtokens.org/TR/2025.10/format/#root-tokens-in-gr
 
 ```json
 {
-  "button": {
-    "primary": {
-      "$type": "color",
-      "background": {
-        "$value": { "colorSpace": "srgb", "components": [0, 0.4, 0.8] }
-      }
-    },
-    "secondary": {
-      "$extends": "{button.primary}",
-      "background": {
-        "$value": { "colorSpace": "srgb", "components": [0.4, 0.4, 0.4] }
+  "color": {
+    "action": {
+      "brand": {
+        "$type": "color",
+        "background": {
+          "$value": { "colorSpace": "srgb", "components": [0, 0.4, 0.8] }
+        }
+      },
+      "neutral": {
+        "$extends": "{color.action.brand}",
+        "background": {
+          "$value": { "colorSpace": "srgb", "components": [0.4, 0.4, 0.4] }
+        }
       }
     }
   }

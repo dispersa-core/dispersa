@@ -73,21 +73,21 @@ transforms: [dimensionToRem()]
 
 ## Name Transforms
 
-Transform token paths/names. Input: the current `token.name` (dot-path by default, e.g. `color.brand.primary`). Output: formatted name.
+Transform token paths/names. Input: the current `token.name` (dot-path by default, e.g. `color.action.brand`). Output: formatted name.
 
 | Transform | Import | Input Example | Output Example |
 |-----------|--------|---------------|----------------|
-| nameKebabCase() | `nameKebabCase` | `color.brand.primary` | `color-brand-primary` |
-| nameCamelCase() | `nameCamelCase` | `color.brand.primary` | `colorBrandPrimary` |
-| nameSnakeCase() | `nameSnakeCase` | `color.brand.primary` | `color_brand_primary` |
-| namePascalCase() | `namePascalCase` | `color.brand.primary` | `ColorBrandPrimary` |
-| nameConstantCase() | `nameConstantCase` | `color.brand.primary` | `COLOR_BRAND_PRIMARY` |
-| namePrefix(prefix) | `namePrefix` | `color.brand.primary` + `'ds.'` | `ds.color.brand.primary` |
-| nameSuffix(suffix) | `nameSuffix` | `color.brand.primary` + `'.token'` | `color.brand.primary.token` |
-| nameCssVar() | `nameCssVar` | `color.brand.primary` | `--color-brand-primary` |
+| nameKebabCase() | `nameKebabCase` | `color.action.brand` | `color-action-brand` |
+| nameCamelCase() | `nameCamelCase` | `color.action.brand` | `colorActionBrand` |
+| nameSnakeCase() | `nameSnakeCase` | `color.action.brand` | `color_action_brand` |
+| namePascalCase() | `namePascalCase` | `color.action.brand` | `ColorActionBrand` |
+| nameConstantCase() | `nameConstantCase` | `color.action.brand` | `COLOR_ACTION_BRAND` |
+| namePrefix(prefix) | `namePrefix` | `color.action.brand` + `'ds.'` | `ds.color.action.brand` |
+| nameSuffix(suffix) | `nameSuffix` | `color.action.brand` + `'.token'` | `color.action.brand.token` |
+| nameCssVar() | `nameCssVar` | `color.action.brand` | `--color-action-brand` |
 
 <Aside type="note" title="Transform order matters">
-`namePrefix` and `nameSuffix` operate on the current `token.name`. If you apply `nameKebabCase()` before `namePrefix('ds-')`, the input will already be kebab-case (e.g. `ds-color-brand-primary`). Order your transforms accordingly.
+`namePrefix` and `nameSuffix` operate on the current `token.name`. If you apply `nameKebabCase()` before `namePrefix('ds-')`, the input will already be kebab-case (e.g. `ds-color-action-brand`). Order your transforms accordingly.
 </Aside>
 
 ```typescript

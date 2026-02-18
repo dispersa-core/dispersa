@@ -85,7 +85,7 @@ await dispersa.build({
     }),
     css({
       name: 'spacing',
-      filters: [byType('dimension'), byPath('spacing.')],
+      filters: [byType('dimension'), byPath('spacing.gap')],
       file: 'spacing.css',
       transforms: [nameKebabCase(), dimensionToRem()],
     }),

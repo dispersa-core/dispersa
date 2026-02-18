@@ -81,6 +81,44 @@ yarn add dispersa
   build` once installed.
 </Aside>
 
+## Global Installation
+
+If you use the Dispersa CLI across multiple projects, installing it globally gives you direct access to the `dispersa` command without `npx`:
+
+<Tabs>
+  <TabItem label="pnpm" value="pnpm">
+
+```bash
+pnpm add -g dispersa
+```
+
+  </TabItem>
+  <TabItem label="npm" value="npm">
+
+```bash
+npm install -g dispersa
+```
+
+  </TabItem>
+  <TabItem label="Yarn" value="yarn">
+
+```bash
+yarn global add dispersa
+```
+
+  </TabItem>
+</Tabs>
+
+Once installed globally, the `dispersa` command is available everywhere:
+
+```bash
+dispersa build
+```
+
+<Aside type="caution">
+  A global install is convenient for quick one-off builds, but for team projects you should still add `dispersa` as a local dependency. This ensures everyone on the team uses the same version.
+</Aside>
+
 ## TypeScript Setup
 
 Dispersa is written in TypeScript and ships with type definitions. No `@types` packages are required.

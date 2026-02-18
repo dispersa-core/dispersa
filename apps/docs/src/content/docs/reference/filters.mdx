@@ -74,9 +74,9 @@ Matches tokens whose path starts with the given string (exact prefix, using `sta
 ```typescript
 import { byPath } from 'dispersa/filters'
 
-byPath('color.brand')   // color.brand.primary, color.brand.secondary, etc.
-byPath('spacing')       // spacing.sm, spacing.md, spacing.lg, etc.
-byPath('typography.h1') // typography.h1.fontSize, typography.h1.lineHeight, etc.
+byPath('color.action')   // color.action.brand, color.action.danger, etc.
+byPath('spacing.gap')    // spacing.gap.sm, spacing.gap.md, spacing.gap.lg, etc.
+byPath('typography.heading') // typography.heading.lg, typography.heading.md, etc.
 ```
 
 ### RegExp pattern
@@ -84,16 +84,16 @@ byPath('typography.h1') // typography.h1.fontSize, typography.h1.lineHeight, etc
 Full path matching with regex.
 
 ```typescript
-byPath(/^color\.(brand|semantic)/)  // color.brand.* or color.semantic.*
-byPath(/spacing\.(sm|md|lg)$/)       // Ends with spacing.sm, .md, or .lg
-byPath(/\.primary$/)                 // Any path ending in .primary
+byPath(/^color\.(action|text)/)       // color.action.* or color.text.*
+byPath(/spacing\.gap\.(sm|md|lg)$/)  // Ends with spacing.gap.sm, .md, or .lg
+byPath(/\.default$/)                 // Any path ending in .default
 ```
 
 ```typescript
 css({
-  name: 'brand',
-  file: 'brand.css',
-  filters: [byPath(/^color\.brand/)],
+  name: 'actions',
+  file: 'actions.css',
+  filters: [byPath(/^color\.action/)],
 })
 ```
 
@@ -148,10 +148,10 @@ import { byType, byPath, isBase } from 'dispersa/filters'
 
 filters: [
   byType('color'),
-  byPath('color.brand'),
+  byPath('color.palette'),
   isBase(),
 ]
-// Only base color tokens under color.brand.*
+// Only base color tokens under color.palette.*
 ```
 
 <Aside type="tip" title="Filter before transform">

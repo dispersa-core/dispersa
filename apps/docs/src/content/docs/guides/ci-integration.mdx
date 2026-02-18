@@ -1,0 +1,249 @@
+---
+title: CI Integration
+description: Automate token builds and publish them as an npm package using GitHub Actions, GitLab CI, or CircleCI.
+sidebar:
+  order: 7
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+## Why Automate?
+
+A token source of truth is only as good as its distribution. Automating the build ensures that:
+
+- Every pull request validates that tokens build successfully
+- Merges to `main` publish a versioned package automatically
+- Consumers always get a consistent, tested artifact
+
+## Preparing the Package
+
+Update your token project's `package.json` so it's ready to publish. The `exports` field gives consumers clean import paths like `@my-org/design-tokens/tokens.css` instead of reaching into `dist/`.
+
+```json
+{
+  "name": "@my-org/design-tokens",
+  "version": "1.0.0",
+  "description": "Design tokens for the my-org design system",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./light.json": "./dist/tokens-light.json",
+    "./dark.json": "./dist/tokens-dark.json",
+    "./*": "./dist/*"
+  },
+  "scripts": {
+    "build": "dispersa build"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "dispersa": "latest"
+  }
+}
+```
+
+<Aside type="tip" title="Registry choice">
+The examples below use GitHub Packages, but you can publish to npm, a private Verdaccio instance, or any registry that speaks the npm protocol. Adjust `publishConfig.registry` and the auth setup accordingly.
+</Aside>
+
+## GitHub Actions
+
+Create `.github/workflows/publish-tokens.yml`:
+
+```yaml
+name: Build & Publish Design Tokens
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build tokens
+        run: pnpm build
+
+      - name: Verify build output
+        run: |
+          echo "Build output:"
+          ls -la dist/
+
+      - name: Publish to GitHub Packages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: pnpm publish --no-git-checks --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+This workflow:
+
+1. **Runs on every push and PR** to `main` -- PRs get a build check, but only merges to `main` actually publish.
+2. **Builds the tokens** using your `dispersa.config.ts` (or CLI config).
+3. **Publishes to GitHub Packages** using the built-in `GITHUB_TOKEN` -- no extra secrets needed. The `--access restricted` flag keeps the package private to your organization.
+
+## Versioning Strategy
+
+| Strategy | How it works | Best for |
+|---|---|---|
+| **Manual** | Bump `version` in `package.json` before merging | Small teams, infrequent changes |
+| **Changesets** | PR-based workflow via [changesets](https://github.com/changesets/changesets); generates a release PR automatically | Most token repos -- lets you describe changes in human terms |
+| **Commit-based** | Tools like [semantic-release](https://github.com/semantic-release/semantic-release) derive versions from commit messages | Teams already using conventional commits |
+
+For design token repos, changesets tend to work well. Each token change includes a changeset describing *what changed* ("Updated primary brand color"), which is valuable context for consumers.
+
+## Consuming the Published Package
+
+### Registry Access
+
+Consumers need an `.npmrc` file in their project root to pull from GitHub Packages:
+
+```ini
+@my-org:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+Then install:
+
+```bash
+pnpm add @my-org/design-tokens
+```
+
+### CSS
+
+Import the CSS file in your application's entry point:
+
+```css
+@import '@my-org/design-tokens/tokens.css';
+```
+
+Use the custom properties anywhere:
+
+```css
+.card {
+  background: var(--color-surface-default);
+  border: 1px solid var(--color-border-default);
+  padding: var(--spacing-gap-md);
+  color: var(--color-text-default);
+}
+```
+
+Switch themes by toggling a data attribute:
+
+```html
+<html data-theme="dark">
+```
+
+### JSON / TypeScript
+
+```typescript
+import lightTokens from '@my-org/design-tokens/light.json'
+import darkTokens from '@my-org/design-tokens/dark.json'
+
+const theme = userPrefersDark ? darkTokens : lightTokens
+const primaryColor = theme['color.action.brand']
+```
+
+## Adapting to Other CI Providers
+
+The core steps are the same on any CI: install dependencies, run `pnpm build` (or `dispersa build`), then publish the resulting package. Below are minimal skeletons for two common alternatives.
+
+### GitLab CI
+
+GitLab has a built-in package registry. Create `.gitlab-ci.yml`:
+
+```yaml
+stages:
+  - build
+  - publish
+
+build-tokens:
+  stage: build
+  image: node:20
+  before_script:
+    - corepack enable
+    - pnpm install --frozen-lockfile
+  script:
+    - pnpm build
+  artifacts:
+    paths:
+      - dist/
+
+publish-tokens:
+  stage: publish
+  image: node:20
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - corepack enable
+    - pnpm install --frozen-lockfile
+    - echo "@my-org:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+  script:
+    - pnpm publish --no-git-checks
+```
+
+### CircleCI
+
+Create `.circleci/config.yml`:
+
+```yaml
+version: 2.1
+
+jobs:
+  build-and-publish:
+    docker:
+      - image: cimg/node:20.0
+    steps:
+      - checkout
+      - run: corepack enable && pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run:
+          name: Publish
+          command: |
+            echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" > .npmrc
+            pnpm publish --no-git-checks --access restricted
+
+workflows:
+  main:
+    jobs:
+      - build-and-publish:
+          context: npm-publish
+          filters:
+            branches:
+              only: main
+```
+
+Store the registry auth token in a CircleCI [context](https://circleci.com/docs/contexts/) named `npm-publish` with an `NPM_TOKEN` variable.
+
+<LinkCard
+  title="Enterprise Multi-Brand"
+  description="Scale your token system across multiple brands, platforms, themes, and densities."
+  href="/guides/enterprise/"
+/>

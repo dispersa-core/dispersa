@@ -27,8 +27,10 @@ my-dispersa-project/
 │   │   ├── typography.json    # Font families, sizes, weights
 │   │   └── effects.json       # Shadows and effects
 │   ├── semantic/
-│   │   ├── colors.json        # Semantic aliases referencing base tokens
-│   │   └── typography.json    # Semantic typography aliases
+│   │   ├── colors.json        # Semantic color aliases (text, background, action, …)
+│   │   ├── typography.json    # Semantic typography (heading, body)
+│   │   ├── spacing.json       # Semantic spacing (gap, inset)
+│   │   └── effects.json       # Semantic effects (elevation)
 │   └── themes/
 │       ├── light.json         # Light theme overrides
 │       └── dark.json          # Dark theme overrides
@@ -45,8 +47,8 @@ my-dispersa-project/
 ```json
 {
   "color": {
-    "base": {
-      "blue": {
+    "palette": {
+      "blue-500": {
         "$type": "color",
         "$value": { "colorSpace": "srgb", "components": [0, 0.4, 0.8] }
       },
@@ -63,23 +65,30 @@ my-dispersa-project/
 }
 ```
 
-**`tokens/semantic/colors.json`** creates purpose-driven names that reference the base tokens:
+**`tokens/semantic/colors.json`** creates purpose-driven names that reference the base tokens. Names follow the six-layer convention: `category.concept.sentiment.prominence.state.scale` (layers can be omitted when not needed):
 
 ```json
 {
   "color": {
-    "semantic": {
-      "primary": {
-        "$type": "color",
-        "$value": "{color.base.blue}"
+    "text": {
+      "$type": "color",
+      "default": {
+        "$value": "{color.palette.gray-900}"
       },
-      "background": {
-        "$type": "color",
-        "$value": "{color.base.white}"
-      },
-      "text": {
-        "$type": "color",
-        "$value": "{color.base.gray-900}"
+      "muted": {
+        "$root": { "$value": "{color.palette.gray-500}" }
+      }
+    },
+    "background": {
+      "$type": "color",
+      "default": {
+        "$value": "{color.palette.white}"
+      }
+    },
+    "action": {
+      "$type": "color",
+      "brand": {
+        "$root": { "$value": "{color.palette.blue-500}" }
       }
     }
   }
@@ -99,6 +108,24 @@ my-dispersa-project/
         { "$ref": "./tokens/base/colors.json" },
         { "$ref": "./tokens/semantic/colors.json" }
       ]
+    },
+    "typography": {
+      "sources": [
+        { "$ref": "./tokens/base/typography.json" },
+        { "$ref": "./tokens/semantic/typography.json" }
+      ]
+    },
+    "spacing": {
+      "sources": [
+        { "$ref": "./tokens/base/spacing.json" },
+        { "$ref": "./tokens/semantic/spacing.json" }
+      ]
+    },
+    "effects": {
+      "sources": [
+        { "$ref": "./tokens/base/effects.json" },
+        { "$ref": "./tokens/semantic/effects.json" }
+      ]
     }
   },
   "modifiers": {
@@ -110,7 +137,13 @@ my-dispersa-project/
       }
     }
   },
-  "resolutionOrder": [{ "$ref": "#/sets/colors" }, { "$ref": "#/modifiers/theme" }]
+  "resolutionOrder": [
+    { "$ref": "#/sets/colors" },
+    { "$ref": "#/sets/typography" },
+    { "$ref": "#/sets/spacing" },
+    { "$ref": "#/sets/effects" },
+    { "$ref": "#/modifiers/theme" }
+  ]
 }
 ```
 
@@ -162,18 +195,19 @@ Open `output/tokens.css`. You should see your base tokens and theme overrides re
 
 ```css
 :root {
-  --color-base-blue: #0066cc;
-  --color-base-white: #ffffff;
-  --color-base-gray-900: #1a1c1f;
-  --color-semantic-primary: var(--color-base-blue);
-  --color-semantic-background: var(--color-base-white);
-  --color-semantic-text: var(--color-base-gray-900);
+  --color-palette-blue-500: #0066cc;
+  --color-palette-white: #ffffff;
+  --color-palette-gray-900: #1a1c1f;
+  --color-text-default: var(--color-palette-gray-900);
+  --color-text-muted: var(--color-palette-gray-500);
+  --color-background-default: var(--color-palette-white);
+  --color-action-brand: var(--color-palette-blue-500);
   /* ... */
 }
 
 [data-theme='dark'] {
-  --color-semantic-background: var(--color-base-gray-900);
-  --color-semantic-text: var(--color-base-white);
+  --color-text-default: var(--color-palette-gray-100);
+  --color-background-default: var(--color-palette-gray-900);
 }
 ```
 

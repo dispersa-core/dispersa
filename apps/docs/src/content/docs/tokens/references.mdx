@@ -9,7 +9,7 @@ import { Aside, LinkCard } from '@astrojs/starlight/components'
 
 ## Why References Matter
 
-References let you avoid duplication and build layered token systems: base tokens hold raw values, semantic tokens give them meaning, and component tokens wire them to UI. Change a base token once, and all references update.
+References let you avoid duplication and build layered token systems: base tokens hold raw values and semantic tokens give them meaning. Change a base token once, and all references update.
 
 ## Alias References
 
@@ -20,8 +20,8 @@ References let you avoid duplication and build layered token systems: base token
 ```json
 {
   "color": {
-    "brand": {
-      "primary": {
+    "palette": {
+      "blue-500": {
         "$type": "color",
         "$value": {
           "colorSpace": "srgb",
@@ -29,9 +29,11 @@ References let you avoid duplication and build layered token systems: base token
         }
       }
     },
-    "button": {
-      "background": {
-        "$value": "{color.brand.primary}"
+    "action": {
+      "brand": {
+        "$root": {
+          "$value": "{color.palette.blue-500}"
+        }
       }
     }
   }
@@ -40,7 +42,7 @@ References let you avoid duplication and build layered token systems: base token
 
 ### Type Inference
 
-If the alias token omits `$type`, it inherits from the referenced token. Here, `color.button.background` has type `color` from `color.brand.primary`.
+If the alias token omits `$type`, it inherits from the referenced token. Here, `color.action.brand` has type `color` from `color.palette.blue-500`.
 
 ### Aliases in Composite Values
 
@@ -49,10 +51,10 @@ Aliases can reference other tokens inside composite values. The reference is res
 ```json
 {
   "border": {
-    "primary": {
+    "default": {
       "$type": "border",
       "$value": {
-        "color": "{color.brand.primary}",
+        "color": "{color.palette.blue-500}",
         "width": { "value": 2, "unit": "px" },
         "style": "solid"
       }
@@ -61,13 +63,13 @@ Aliases can reference other tokens inside composite values. The reference is res
 }
 ```
 
-### Complete Example: Base → Semantic → Component
+### Complete Example: Base → Semantic
 
 ```json
 {
   "color": {
-    "base": {
-      "blue-600": {
+    "palette": {
+      "blue-500": {
         "$type": "color",
         "$value": {
           "colorSpace": "srgb",
@@ -75,21 +77,21 @@ Aliases can reference other tokens inside composite values. The reference is res
         }
       }
     },
-    "semantic": {
-      "primary": {
-        "$value": "{color.base.blue-600}"
-      }
-    },
-    "button": {
-      "background": {
-        "$value": "{color.semantic.primary}"
+    "action": {
+      "brand": {
+        "$root": {
+          "$value": "{color.palette.blue-500}"
+        },
+        "hover": {
+          "$value": "{color.palette.blue-600}"
+        }
       }
     }
   }
 }
 ```
 
-**Resolved output** (conceptually): all three -- `color.semantic.primary`, `color.button.background`, and `color.base.blue-600` -- resolve to `{ colorSpace: "srgb", components: [0, 0.4, 0.8] }`.
+**Resolved output** (conceptually): `color.action.brand`, `color.action.brand.hover`, and `color.palette.blue-500` all resolve to color objects. Semantic tokens reference the base palette, and themes can override semantic tokens per context.
 
 <Aside type="tip" title="Circular References">
 Dispersa detects and reports circular reference chains as [required by the spec](https://www.designtokens.org/TR/2025.10/format/#aliases-references). If Token A references Token B, and Token B references Token A (directly or transitively), the build will fail with a clear error.
@@ -105,7 +107,7 @@ Use `$ref` to point to another token or document. Fragment-only references stay 
 
 ```json
 {
-  "$ref": "#/color/brand/primary"
+  "$ref": "#/color/palette/blue-500"
 }
 ```
 
@@ -113,7 +115,7 @@ References to other files include the path and fragment:
 
 ```json
 {
-  "$ref": "./other-file.json#/color/brand/primary"
+  "$ref": "./other-file.json#/color/palette/blue-500"
 }
 ```
 
@@ -130,9 +132,8 @@ References to other files include the path and fragment:
 
 | Layer        | Role                    | Example                          |
 | ------------ | ----------------------- | -------------------------------- |
-| Base         | Raw design values       | `color.base.blue-600` = srgb `[0, 0.4, 0.8]` |
-| Semantic     | Meaningful abstractions | `color.semantic.primary` → base  |
-| Component    | UI-specific usage       | `color.button.background` → semantic |
+| Base         | Raw design values       | `color.palette.blue-500` = srgb `[0, 0.4, 0.8]` |
+| Semantic     | Meaningful abstractions | `color.action.brand` → base palette  |
 
 This layering keeps base values centralized and lets you swap semantic mappings per theme or brand.
 
