@@ -83,26 +83,6 @@ export class ValidationError extends DispersaError {
 }
 
 /**
- * Thrown when a color format cannot be parsed
- */
-export class ColorParseError extends DispersaError {
-  constructor(public colorValue: string) {
-    super(`Color parsing failed: '${colorValue}'. Provide a valid CSS color or DTCG color object.`)
-    this.name = 'ColorParseError'
-  }
-}
-
-/**
- * Thrown when a dimension format is invalid
- */
-export class DimensionFormatError extends DispersaError {
-  constructor(public dimensionValue: string) {
-    super(`Dimension parsing failed: '${dimensionValue}'. Provide a valid DTCG dimension object.`)
-    this.name = 'DimensionFormatError'
-  }
-}
-
-/**
  * Thrown when file operations fail
  */
 export class FileOperationError extends DispersaError {

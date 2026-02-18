@@ -23,6 +23,10 @@ Start with the spec version:
 
 Then add `sets`, `modifiers`, and `resolutionOrder`.
 
+<Aside type="tip" title="Schema Validated">
+Dispersa validates resolver documents against the official DTCG 2025.10 JSON schema at build time. Structural errors — missing version, invalid set references, malformed modifiers — are caught before any tokens are processed. See [Validation](/concepts/validation/) for details and configuration.
+</Aside>
+
 ## Sets
 
 [**Sets**](https://www.designtokens.org/TR/2025.10/resolver/#sets) are named groups of token sources. Each set has a `sources` array pointing to token files or inline token objects. Sets are the base building blocks.

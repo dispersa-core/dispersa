@@ -6,9 +6,7 @@ import type { BuildError } from '@renderers/types'
 import {
   BasePermutationError,
   CircularReferenceError,
-  ColorParseError,
   ConfigurationError,
-  DimensionFormatError,
   FileOperationError,
   ModifierError,
   TokenReferenceError,
@@ -55,12 +53,6 @@ export function toBuildError(error: unknown, outputName?: string): BuildError {
   }
   if (error instanceof ValidationError) {
     return { message, code: 'VALIDATION', severity: 'error' }
-  }
-  if (error instanceof ColorParseError) {
-    return { message, code: 'COLOR_PARSE', severity: 'error' }
-  }
-  if (error instanceof DimensionFormatError) {
-    return { message, code: 'DIMENSION_FORMAT', severity: 'error' }
   }
   if (error instanceof FileOperationError) {
     return { message, code: 'FILE_OPERATION', path: error.filePath, severity: 'error' }

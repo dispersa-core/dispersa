@@ -2,7 +2,7 @@
 title: Error Handling
 description: How Dispersa reports errors, validation modes, and the difference between build() and buildOrThrow().
 sidebar:
-  order: 6
+  order: 7
 ---
 
 import { LinkCard } from '@astrojs/starlight/components'
@@ -58,8 +58,6 @@ type BuildError = {
 | TOKEN_REFERENCE | Unresolved [alias](https://www.designtokens.org/TR/2025.10/format/#aliases-references) `{token.name}` |
 | CIRCULAR_REFERENCE | [Circular alias chain](https://www.designtokens.org/TR/2025.10/format/#circular-reference-detection) |
 | VALIDATION | Schema or structural validation failure |
-| COLOR_PARSE | Invalid [color value](https://www.designtokens.org/TR/2025.10/color/#color-type) |
-| DIMENSION_FORMAT | Invalid [dimension value](https://www.designtokens.org/TR/2025.10/format/#dimension) |
 | FILE_OPERATION | File read/write failure |
 | CONFIGURATION | Invalid config |
 | BASE_PERMUTATION | Missing base permutation for bundle mode |
@@ -70,19 +68,15 @@ type BuildError = {
 
 `TOKEN_REFERENCE` errors often include `suggestions` with similar token names, helping you fix typos or wrong references.
 
-## Validation Modes
+## Validation
 
-In `DispersaOptions` you can configure validation:
+Dispersa validates tokens and resolver documents against the official DTCG 2025.10 JSON schemas. Validation runs automatically during the Resolve and Parse pipeline stages and is configurable via `validation.mode` (`'error'` | `'warn'` | `'off'`).
 
-```typescript
-{
-  validation: { mode: 'error' | 'warn' | 'off' }
-}
-```
-
-- **`'error'`** (default) — Validation failures become errors (or thrown by `buildOrThrow()`)
-- **`'warn'`** — Validation failures are logged via `console.warn`, build continues
-- **`'off'`** — No validation
+<LinkCard
+  title="Validation"
+  description="What gets validated, when it runs, validation modes, and example errors."
+  href="/concepts/validation/"
+/>
 
 ## Checking for Errors
 
@@ -117,7 +111,7 @@ try {
 }
 ```
 
-Available error classes: `DispersaError` (base), `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `ColorParseError`, `DimensionFormatError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`.
+Available error classes: `DispersaError` (base), `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`.
 
 <LinkCard
   title="Subpath Exports"

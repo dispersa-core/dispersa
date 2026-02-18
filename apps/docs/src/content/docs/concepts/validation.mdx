@@ -1,0 +1,114 @@
+---
+title: Validation
+description: How Dispersa validates tokens and resolver documents against the official DTCG 2025.10 JSON schemas.
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+Dispersa validates your token files and resolver documents against the official [DTCG 2025.10 JSON schemas](https://www.designtokens.org/TR/2025.10/) before any transforms or rendering run. Malformed tokens, invalid resolver structures, and spec violations are caught early — not buried in broken output.
+
+## What Gets Validated
+
+### Resolver Documents
+
+The [resolver document](/tokens/resolver/) is validated against the DTCG resolver schema. This covers:
+
+- Document structure and required `version` field
+- [Set](https://www.designtokens.org/TR/2025.10/resolver/#sets) definitions and their `sources` arrays
+- [Modifier](https://www.designtokens.org/TR/2025.10/resolver/#modifiers) definitions, contexts, and defaults
+- [`resolutionOrder`](https://www.designtokens.org/TR/2025.10/resolver/#resolution-order) presence and reference pointers
+- Spec constraints such as sets not referencing modifiers
+
+### Token Documents
+
+Each token file is validated against the DTCG format schema:
+
+- Document-level structure and allowed properties
+- [Group](https://www.designtokens.org/TR/2025.10/format/#groups) nesting rules — groups cannot contain both a `$value` and child tokens
+- Token and group names — no `{`, `}`, or `.` characters, no `$` prefix (except `$root`)
+
+### Individual Tokens
+
+Every token is checked against its type-specific schema. For example:
+
+- [Color](https://www.designtokens.org/TR/2025.10/color/#color-type) tokens must have a valid `colorSpace` and `components` array
+- [Dimension](https://www.designtokens.org/TR/2025.10/format/#dimension) tokens must be a number with a unit
+- Tokens must have an explicit `$type`, inherit one from a parent group, or be a reference
+
+This applies to all DTCG token types: color, dimension, fontFamily, fontWeight, duration, cubicBezier, number, strokeStyle, border, transition, shadow, gradient, and typography.
+
+## When Validation Runs
+
+Validation is part of the [pipeline](/concepts/pipeline/), not a separate step. It runs at two points during the shared stages:
+
+1. **During Resolve (stage 1)** — The resolver document is validated as soon as it is loaded, before sets are merged or modifiers are applied.
+2. **During Parse (stage 3)** — Token documents are validated when they are parsed, and each individual token is checked against its type-specific schema during flattening.
+
+This means validation errors surface as early as possible. A malformed resolver never reaches token resolution, and an invalid token never reaches transforms or rendering.
+
+## Validation Modes
+
+By default, validation failures are errors. You can change this behavior in `DispersaOptions`:
+
+```typescript
+const dispersa = new Dispersa({
+  resolver: './tokens.resolver.json',
+  validation: { mode: 'error' },
+})
+```
+
+| Mode | Behavior |
+|------|----------|
+| `'error'` (default) | Validation failures become errors. `build()` collects them in `result.errors`; `buildOrThrow()` throws immediately. |
+| `'warn'` | Validation failures are logged via `console.warn`. The build continues. |
+| `'off'` | No schema validation. Structural checks are skipped entirely. |
+
+<Aside type="caution" title="Turning validation off">
+Disabling validation can be useful during migration from a non-DTCG format, but it means Dispersa won't catch malformed tokens. Prefer `'warn'` over `'off'` when possible.
+</Aside>
+
+## Example Errors
+
+A resolver with a missing `resolutionOrder`:
+
+```
+ValidationError: Resolver document must have a non-empty resolutionOrder
+```
+
+A color token with an invalid value:
+
+```
+ValidationError: Invalid token at color.palette.blue-500: must have required property 'colorSpace'
+```
+
+A group that mixes a `$value` with child tokens:
+
+```
+ValidationError: Invalid structure at "color.action": Object contains both
+$value/$ref and child tokens/groups. Per DTCG specification, groups cannot
+have both a value and children.
+```
+
+A token name using forbidden characters:
+
+```
+ValidationError: Invalid token/group name at "color.gray{50}": Names cannot
+contain '{', '}', or '.' characters. Found: {, }
+```
+
+## The DTCG Schemas
+
+Dispersa vendors the official DTCG 2025.10 JSON schemas and validates with [AJV](https://ajv.js.org/). The schema set includes the format module (tokens, groups, token types, value definitions) and the resolver module (sets, modifiers, resolution order). All schemas are linked by `$ref`, so cross-schema constraints are enforced automatically.
+
+<LinkCard
+  title="Error Handling"
+  description="How build() and buildOrThrow() report errors, error codes, and error classes."
+  href="/concepts/errors/"
+/>
+<LinkCard
+  title="The Pipeline"
+  description="See how validation fits into the full resolve → transform → render flow."
+  href="/concepts/pipeline/"
+/>

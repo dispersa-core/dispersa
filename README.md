@@ -639,8 +639,6 @@ type BuildError = {
 | `TOKEN_REFERENCE`    | Unresolved alias reference (`{token.name}`) |
 | `CIRCULAR_REFERENCE` | Circular alias chain detected               |
 | `VALIDATION`         | Schema or structural validation failure     |
-| `COLOR_PARSE`        | Invalid color value                         |
-| `DIMENSION_FORMAT`   | Invalid dimension value                     |
 | `FILE_OPERATION`     | File read/write failure                     |
 | `CONFIGURATION`      | Invalid build or renderer configuration     |
 | `BASE_PERMUTATION`   | Missing base permutation for bundle mode    |

@@ -12,10 +12,6 @@ import PipelineVisualizer from '../../../components/PipelineVisualizer'
 
 Dispersa processes design tokens through a **pipeline** from resolution to rendered output. Tokens flow from a resolver document through shared stages (run once) and per-output stages (run for each output), being resolved, filtered, transformed, and formatted along the way.
 
-```
-Resolve → Preprocess → Parse → Global Filter → Global Transform → Filter → Transform → Render
-```
-
 Click any stage below to see what it does:
 
 <PipelineVisualizer client:visible />
@@ -24,9 +20,9 @@ Click any stage below to see what it does:
 
 | Stage | Scope | Description |
 |-------|-------|-------------|
-| 1. Resolve | Shared | Load the resolver document, merge sets, apply modifier contexts |
+| 1. Resolve | Shared | Load and validate the resolver document, merge sets, apply modifier contexts |
 | 2. Preprocess | Shared | Run optional preprocessors on the raw token tree |
-| 3. Parse | Shared | Resolve references, flatten groups to dot-paths, resolve aliases |
+| 3. Parse | Shared | Validate and flatten token documents, resolve references and aliases |
 | 4. Global Filter | Shared | Remove tokens globally before per-output processing |
 | 5. Global Transform | Shared | Transform all tokens before per-output processing |
 | 6. Filter | Per-output | Further narrow tokens for each specific output |
@@ -39,11 +35,11 @@ Stages 1-5 run **once** for the entire build and produce a resolved, flat token 
 
 ### Stages 1-5: Shared (run once)
 
-1. **Resolve** -- Loads and parses the [resolver document](https://www.designtokens.org/TR/2025.10/resolver/). Merges sets in order, then applies modifier contexts (themes, platforms, densities) to produce the raw token tree for each permutation.
+1. **Resolve** -- Loads and parses the [resolver document](https://www.designtokens.org/TR/2025.10/resolver/). The resolver is validated against the official DTCG 2025.10 JSON schema, catching structural errors like missing versions, invalid set references, or malformed modifiers. After validation, sets are merged in order and modifier contexts (themes, platforms, densities) are applied to produce the raw token tree for each permutation.
 
 2. **Preprocess** -- Runs optional preprocessors on the raw token tree. Use this to strip vendor metadata, inject computed tokens, or normalize legacy formats before parsing.
 
-3. **Parse** -- Resolves JSON Pointer `$ref` references (including external files), flattens nested groups to dot-path keys (e.g. `color.action.brand`), inherits group-level `$type`, and resolves [`{token.name}` alias references](https://www.designtokens.org/TR/2025.10/format/#aliases-references) with circular dependency detection.
+3. **Parse** -- Resolves JSON Pointer `$ref` references (including external files), flattens nested groups to dot-path keys (e.g. `color.action.brand`), inherits group-level `$type`, and resolves [`{token.name}` alias references](https://www.designtokens.org/TR/2025.10/format/#aliases-references) with circular dependency detection. During parsing, each token document is validated against the DTCG format schema, and individual tokens are checked against their type-specific schemas (color, dimension, etc.). Token names and group structures are also validated per the DTCG specification.
 
 4. **Global Filter** -- Global filters from `BuildConfig` reduce the token set for all outputs. Tokens excluded here never reach any output.
 

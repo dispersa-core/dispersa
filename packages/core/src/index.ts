@@ -143,8 +143,6 @@ export {
   TokenReferenceError,
   CircularReferenceError,
   ValidationError,
-  ColorParseError,
-  DimensionFormatError,
   FileOperationError,
   ConfigurationError,
   BasePermutationError,

@@ -10,9 +10,7 @@ import { describe, expect, it } from 'vitest'
 import {
   BasePermutationError,
   CircularReferenceError,
-  ColorParseError,
   ConfigurationError,
-  DimensionFormatError,
   DispersaError,
   FileOperationError,
   ModifierError,
@@ -127,22 +125,6 @@ describe('ValidationError', () => {
     const error = new ValidationError('Config invalid', errors)
     expect(error.errors).toBe(errors)
     expect(error.message).toBe('Config invalid')
-  })
-})
-
-describe('ColorParseError', () => {
-  it('should include color value in message', () => {
-    const error = new ColorParseError('not-a-color')
-    expect(error.colorValue).toBe('not-a-color')
-    expect(error.message).toContain('not-a-color')
-  })
-})
-
-describe('DimensionFormatError', () => {
-  it('should include dimension value in message', () => {
-    const error = new DimensionFormatError('bad-dim')
-    expect(error.dimensionValue).toBe('bad-dim')
-    expect(error.message).toContain('bad-dim')
   })
 })
 

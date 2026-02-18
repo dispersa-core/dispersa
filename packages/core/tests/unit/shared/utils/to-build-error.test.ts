@@ -10,9 +10,7 @@ import { describe, expect, it } from 'vitest'
 import {
   BasePermutationError,
   CircularReferenceError,
-  ColorParseError,
   ConfigurationError,
-  DimensionFormatError,
   FileOperationError,
   ModifierError,
   TokenReferenceError,
@@ -66,24 +64,6 @@ describe('toBuildError', () => {
     expect(result.code).toBe('VALIDATION')
     expect(result.severity).toBe('error')
     expect(result.message).toContain('Config invalid')
-  })
-
-  it('should convert ColorParseError', () => {
-    const error = new ColorParseError('not-a-color')
-    const result = toBuildError(error)
-
-    expect(result.code).toBe('COLOR_PARSE')
-    expect(result.severity).toBe('error')
-    expect(result.message).toContain('not-a-color')
-  })
-
-  it('should convert DimensionFormatError', () => {
-    const error = new DimensionFormatError('bad-dim')
-    const result = toBuildError(error)
-
-    expect(result.code).toBe('DIMENSION_FORMAT')
-    expect(result.severity).toBe('error')
-    expect(result.message).toContain('bad-dim')
   })
 
   it('should convert FileOperationError with file path', () => {
