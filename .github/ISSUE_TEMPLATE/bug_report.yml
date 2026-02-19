@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report a bug or unexpected behavior
-labels: [bug]
+labels: [pending triage]
 body:
   - type: markdown
     attributes:
@@ -26,6 +26,15 @@ body:
         3. See error ...
     validations:
       required: true
+
+  - type: input
+    id: reproduction-link
+    attributes:
+      label: Reproduction link
+      description: Link to a minimal reproduction (GitHub repo, StackBlitz, or similar). A reproduction is required for investigation.
+      placeholder: https://github.com/your-username/dispersa-bug-repro
+    validations:
+      required: false
 
   - type: textarea
     id: expected
@@ -62,6 +71,31 @@ body:
       required: true
 
   - type: dropdown
+    id: package-manager
+    attributes:
+      label: Package manager
+      options:
+        - pnpm
+        - npm
+        - yarn
+        - bun
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: output-format
+    attributes:
+      label: Output format
+      description: Which output format(s) are you using?
+      options:
+        - CSS
+        - JSON
+        - JS
+        - Multiple formats
+        - Other
+
+  - type: dropdown
     id: os
     attributes:
       label: Operating system
@@ -74,7 +108,43 @@ body:
       required: true
 
   - type: textarea
+    id: regression
+    attributes:
+      label: Regression information
+      description: Did this work in a previous version? If so, which version was the last known working one?
+      placeholder: e.g. "Yes, last worked in 0.0.5, broke in 0.1.0" or "No, this never worked"
+    validations:
+      required: false
+
+  - type: textarea
+    id: token-example
+    attributes:
+      label: Minimal token example
+      description: If relevant, provide a minimal token file that reproduces the issue.
+      placeholder: |
+        ```json
+        {
+          "color": {
+            "primary": { "$value": "#0066cc", "$type": "color" }
+          }
+        }
+        ```
+
+  - type: textarea
     id: additional
     attributes:
       label: Additional context
-      description: Any other context, screenshots, or token files that help explain the problem.
+      description: Any other context, screenshots, or config files that help explain the problem.
+
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Validations
+      description: Before submitting, please confirm the following
+      options:
+        - label: I have searched existing issues to make sure this is not a duplicate
+          required: true
+        - label: I have read the documentation
+          required: true
+        - label: I have provided a minimal reproduction link
+          required: true

@@ -1,0 +1,53 @@
+name: Documentation
+description: Report an issue with the documentation
+labels: [documentation, pending triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please describe the issue you've found.
+
+  - type: dropdown
+    id: doc-status
+    attributes:
+      label: Documentation is
+      description: What type of documentation issue is this?
+      options:
+        - Missing
+        - Outdated
+        - Confusing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the documentation issue. What's unclear, missing, or incorrect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: How would you improve this documentation? If you have a specific suggestion, please share it.
+    validations:
+      required: true
+
+  - type: input
+    id: doc-link
+    attributes:
+      label: Affected documentation page
+      description: Link to the affected documentation page (if applicable).
+      placeholder: https://dispersa.dev/...
+
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Validations
+      description: Before submitting, please confirm the following
+      options:
+        - label: I have searched existing issues to make sure this is not a duplicate
+          required: true
