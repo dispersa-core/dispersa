@@ -1,5 +1,11 @@
 # dispersa
 
+## 1.3.0
+
+### Minor Changes
+
+- [`1a587ad`](https://github.com/dispersa-core/dispersa/commit/1a587ad19cf68968cbe94168fa1dbe0d63a58e93) Thanks [@timges](https://github.com/timges)! - rework and clean up project file and folder structure
+
 ## 1.2.0
 
 ### Minor Changes
