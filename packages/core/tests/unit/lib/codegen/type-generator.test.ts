@@ -7,7 +7,7 @@ import { TypeGenerator } from '../../../../src/codegen/type-generator'
 import { ResolverParser } from '../../../../src/adapters/filesystem/resolver-parser'
 import { ReferenceResolver, ResolutionEngine } from '../../../../src/resolution'
 import { AliasResolver } from '../../../../src/resolution/alias-resolver'
-import { TokenParser } from '../../../../src/tokens/token-parser'
+import { TokenParser } from '../../../../src/engine/token-parser'
 import { getFixturePath } from '../../../utils/test-helpers'
 
 describe('Type Generation Integration Tests', () => {

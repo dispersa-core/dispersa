@@ -2,7 +2,7 @@
  * @fileoverview Preprocessor system types for raw token transformation
  */
 
-import type { InternalTokenDocument } from '@tokens/types'
+import type { InternalTokenDocument } from '@shared/token-types'
 import type { PreprocessorPluginBase } from '@validation/config-schemas'
 
 /**

@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { isOutputTree } from '../../../src/renderers'
-import { AndroidRenderer } from '../../../src/renderers/android'
-import type { AndroidRendererOptions } from '../../../src/renderers/android'
-import type { RenderContext } from '../../../src/renderers/types'
+import { isOutputTree } from '@outputs'
+import { AndroidRenderer } from '@outputs/android'
+import type { AndroidRendererOptions } from '@outputs/android'
+import type { RenderContext } from '@outputs/types'
 import type { ResolvedToken, ResolvedTokens } from '../../../src/tokens/types'
 
 const makeToken = (

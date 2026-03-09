@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { isOutputTree } from '../../../src/renderers'
-import { IosRenderer } from '../../../src/renderers/ios'
-import type { IosRendererOptions } from '../../../src/renderers/ios'
-import type { RenderContext } from '../../../src/renderers/types'
+import { isOutputTree } from '@outputs'
+import { IosRenderer } from '@outputs/ios'
+import type { IosRendererOptions } from '@outputs/ios'
+import type { RenderContext } from '@outputs/types'
 import type { ResolvedToken, ResolvedTokens } from '../../../src/tokens/types'
 
 const makeToken = (

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { bundleAsCss } from '../../../src/renderers/bundlers/css'
+import { bundleAsCss } from '@outputs/css/presets'
 
 describe('CSS bundler ordering', () => {
   it('should order single-dimension modifiers by resolutionOrder', async () => {

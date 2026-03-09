@@ -1,5 +1,17 @@
 /**
- * @fileoverview Transforms module exports
+ * @fileoverview Transforms - Subpath export for dispersa/transforms
+ *
+ * This is the public entry point when importing from 'dispersa/transforms'.
+ *
+ * @example
+ * ```typescript
+ * import { colorToHex, dimensionToPx, nameKebabCase } from 'dispersa/transforms'
+ *
+ * css({
+ *   name: 'tokens',
+ *   transforms: [colorToHex(), dimensionToPx(), nameKebabCase()],
+ * })
+ * ```
  */
 
 export type { Transform } from './types'

@@ -1,9 +1,18 @@
 /**
- * @fileoverview Custom error classes for Dispersa
+ * @fileoverview Error classes - Subpath export for dispersa/errors
+ *
+ * This is the public entry point when importing from 'dispersa/errors'.
  *
  * Error classes are intentionally kept as simple value objects with no
  * imports from utility modules. Suggestion formatting is done at call
  * sites to keep the error hierarchy dependency-free.
+ *
+ * @example
+ * ```typescript
+ * import { ValidationError, ConfigurationError } from 'dispersa/errors'
+ *
+ * throw new ValidationError('Invalid token', { message: 'Token missing $value' })
+ * ```
  */
 
 /**

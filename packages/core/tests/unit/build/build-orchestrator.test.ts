@@ -3,13 +3,13 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { BuildOrchestrator } from '../../../src/build/build-orchestrator'
-import { TokenPipeline } from '../../../src/build/pipeline/token-pipeline'
-import { OutputProcessor } from '../../../src/build/output-processor'
+import { BuildOrchestrator } from '../../../src/engine/build-orchestrator'
+import { TokenPipeline } from '../../../src/engine/pipeline/token-pipeline'
+import { OutputProcessor } from '../../../src/engine/output-processor'
 import type { BuildConfig } from '../../../src/config/index'
 import type { ResolverDocument } from '../../../src/resolution/types'
 import { ReferenceResolver, ResolutionEngine } from '../../../src/resolution'
-import type { PermutationData } from '../../../src/renderers/types'
+import type { PermutationData } from '@outputs/types'
 
 describe('BuildOrchestrator', () => {
   let orchestrator: BuildOrchestrator

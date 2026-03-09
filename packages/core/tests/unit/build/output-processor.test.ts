@@ -4,11 +4,11 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fileUtils from '../../../src/adapters/filesystem/file-utils'
-import { OutputProcessor } from '../../../src/build/output-processor'
+import { OutputProcessor } from '../../../src/engine/output-processor'
 import type { OutputConfig } from '../../../src/config/index'
 import type { ResolvedTokens } from '../../../src/tokens/types'
-import { outputTree } from '../../../src/renderers'
-import type { RenderContext } from '../../../src/renderers/types'
+import { outputTree } from '@outputs'
+import type { RenderContext } from '@outputs/types'
 
 vi.mock('../../../src/adapters/filesystem/file-utils', () => ({
   writeOutputFile: vi.fn(),

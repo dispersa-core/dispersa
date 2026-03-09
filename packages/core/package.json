@@ -48,62 +48,52 @@
     },
     "./transforms": {
       "import": {
-        "types": "./dist/transforms.d.ts",
-        "default": "./dist/transforms.js"
+        "types": "./dist/processing/transforms/index.d.ts",
+        "default": "./dist/processing/transforms/index.js"
       },
       "require": {
-        "types": "./dist/transforms.d.cts",
-        "default": "./dist/transforms.cjs"
+        "types": "./dist/processing/transforms/index.d.cts",
+        "default": "./dist/processing/transforms/index.cjs"
       }
     },
     "./filters": {
       "import": {
-        "types": "./dist/filters.d.ts",
-        "default": "./dist/filters.js"
+        "types": "./dist/processing/filters/index.d.ts",
+        "default": "./dist/processing/filters/index.js"
       },
       "require": {
-        "types": "./dist/filters.d.cts",
-        "default": "./dist/filters.cjs"
+        "types": "./dist/processing/filters/index.d.cts",
+        "default": "./dist/processing/filters/index.cjs"
       }
     },
-    "./builders": {
+    "./outputs": {
       "import": {
-        "types": "./dist/builders.d.ts",
-        "default": "./dist/builders.js"
+        "types": "./dist/outputs/index.d.ts",
+        "default": "./dist/outputs/index.js"
       },
       "require": {
-        "types": "./dist/builders.d.cts",
-        "default": "./dist/builders.cjs"
-      }
-    },
-    "./renderers": {
-      "import": {
-        "types": "./dist/renderers.d.ts",
-        "default": "./dist/renderers.js"
-      },
-      "require": {
-        "types": "./dist/renderers.d.cts",
-        "default": "./dist/renderers.cjs"
+        "types": "./dist/outputs/index.d.cts",
+        "default": "./dist/outputs/index.cjs"
       }
     },
     "./preprocessors": {
       "import": {
-        "types": "./dist/preprocessors.d.ts",
-        "default": "./dist/preprocessors.js"
+        "types": "./dist/processing/preprocessors/index.d.ts",
+        "default": "./dist/processing/preprocessors/index.js"
       },
       "require": {
-        "types": "./dist/preprocessors.d.cts",
-        "default": "./dist/preprocessors.cjs"
+        "types": "./dist/processing/preprocessors/index.d.cts",
+        "default": "./dist/processing/preprocessors/index.cjs"
       }
     },
     "./errors": {
       "import": {
-        "types": "./dist/errors.d.ts",
-        "default": "./dist/errors.js"
+        "types": "./dist/shared/errors/index.d.ts",
+        "default": "./dist/shared/errors/index.js"
       },
       "require": {
-        "types": "./dist/errors.d.cts",
-        "default": "./dist/errors.cjs"
+        "types": "./dist/shared/errors/index.d.cts",
+        "default": "./dist/shared/errors/index.cjs"
       }
     },
     "./config": {
@@ -120,12 +110,12 @@
     },
     "./lint": {
       "import": {
-        "types": "./dist/lint.d.ts",
-        "default": "./dist/lint.js"
+        "types": "./dist/lint/index.d.ts",
+        "default": "./dist/lint/index.js"
       },
       "require": {
-        "types": "./dist/lint.d.cts",
-        "default": "./dist/lint.cjs"
+        "types": "./dist/lint/index.d.cts",
+        "default": "./dist/lint/index.cjs"
       }
     }
   },

@@ -800,8 +800,7 @@ When calling `build()` or `buildOrThrow()`, pass a `BuildConfig` object:
 | `dispersa`               | Core functions (`build`, `lint`, etc.), builder functions, types       |
 | `dispersa/transforms`    | Built-in transform factories                                           |
 | `dispersa/filters`       | Built-in filter factories                                              |
-| `dispersa/builders`      | Output builder functions                                               |
-| `dispersa/renderers`     | Renderer types, `defineRenderer`, and `outputTree` helper              |
+| `dispersa/outputs`       | Renderer types, builder functions, `defineRenderer`, and `outputTree`  |
 | `dispersa/preprocessors` | Preprocessor type                                                      |
 | `dispersa/errors`        | Error classes (`DispersaError`, `TokenReferenceError`, etc.)           |
 | `dispersa/config`        | `defineConfig` helper for CLI config files                             |

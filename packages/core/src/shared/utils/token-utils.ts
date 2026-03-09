@@ -7,7 +7,7 @@ import type {
   ResolvedToken,
   ResolvedTokens,
   TokenValue,
-} from '@tokens/types'
+} from '@shared/token-types'
 
 /**
  * Format deprecation message for a token

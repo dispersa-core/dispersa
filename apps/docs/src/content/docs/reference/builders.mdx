@@ -11,10 +11,12 @@ import { Aside, LinkCard } from '@astrojs/starlight/components'
 
 Builder functions create `OutputConfig` objects used in the `outputs` array of `BuildConfig`. Each builder returns a configured output ready to pass to `build()`.
 
-Import from `dispersa` or `dispersa/builders`:
+Import from `dispersa` or `dispersa/outputs`:
 
 ```typescript
 import { css, json, js, tailwind, ios, android } from 'dispersa'
+// or
+import { css, json, js, tailwind, ios, android } from 'dispersa/outputs'
 ```
 
 ## Common Options

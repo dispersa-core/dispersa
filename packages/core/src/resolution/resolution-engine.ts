@@ -6,7 +6,7 @@ import { ConfigurationError, ModifierError } from '@shared/errors/index'
 import type { ValidationOptions } from '@shared/types/validation'
 import { CaseInsensitiveMap } from '@shared/utils/case-insensitive-map'
 import { ValidationHandler } from '@shared/utils/validation-handler'
-import type { InternalTokenDocument } from '@tokens/types'
+import type { InternalTokenDocument } from '@shared/token-types'
 
 import { ModifierInputProcessor } from './modifier-input-processor'
 import { ReferenceResolver } from './reference-resolver'

@@ -8,7 +8,7 @@ import {
   buildSwiftDeprecationAttribute,
   buildTokenDeprecationComment,
   buildTokenDescriptionComment,
-} from '../../../src/renderers/metadata'
+} from '@outputs/metadata'
 
 describe('metadata utilities', () => {
   describe('buildTokenDescriptionComment', () => {

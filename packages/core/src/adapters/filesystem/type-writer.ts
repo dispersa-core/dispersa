@@ -6,7 +6,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import * as path from 'node:path'
 
 import { TypeGenerator, type TypeGeneratorOptions } from '@codegen/type-generator'
-import type { ResolvedTokens } from '@tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 
 export type TypeWriterOptions = TypeGeneratorOptions & {
   fileName: string

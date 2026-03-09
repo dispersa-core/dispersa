@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { resolveAllPermutations, resolveTokens } from '../../dist'
-import { css } from '../../src/builders'
+import { css } from '@outputs'
 import { build } from '../../src/dispersa'
 import type { ResolverDocument } from '../../src/resolution/types'
 

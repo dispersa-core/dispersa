@@ -12,8 +12,8 @@ const sharedExternal = [
 ]
 
 const pathAliases = {
-  '@build': path.resolve(__dirname, './src/build'),
-  '@renderers': path.resolve(__dirname, './src/renderers'),
+  '@engine': path.resolve(__dirname, './src/engine'),
+  '@outputs': path.resolve(__dirname, './src/outputs'),
   '@adapters': path.resolve(__dirname, './src/adapters'),
   '@shared': path.resolve(__dirname, './src/shared'),
   '@config': path.resolve(__dirname, './src/config'),
@@ -30,13 +30,13 @@ export default defineConfig([
   {
     entry: [
       'src/index.ts',
-      'src/transforms.ts',
-      'src/filters.ts',
-      'src/builders.ts',
-      'src/renderers.ts',
-      'src/preprocessors.ts',
-      'src/errors.ts',
-      'src/lint.ts',
+      'src/processing/transforms/index.ts',
+      'src/processing/filters/index.ts',
+      'src/outputs/builders.ts',
+      'src/outputs/index.ts',
+      'src/processing/preprocessors/index.ts',
+      'src/shared/errors/index.ts',
+      'src/lint/index.ts',
     ],
     format: ['esm', 'cjs'],
     dts: true,

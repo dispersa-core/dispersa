@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { build, css, json } from '../../../src/index'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { colorToHex, nameKebabCase } from '../../../src/transforms'
+import { colorToHex, nameKebabCase } from '@processing/transforms'
 
 /**
  * Minimal inline resolver for hook tests (no filesystem needed)

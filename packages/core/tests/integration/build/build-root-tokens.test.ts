@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { build } from '../../../src/dispersa'
 import { BuildConfig, css, json } from '../../../src/index'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { colorToHex, nameKebabCase } from '../../../src/transforms'
+import { colorToHex, nameKebabCase } from '@processing/transforms'
 
 const srgb = (r: number, g: number, b: number) => ({
   colorSpace: 'srgb',

@@ -16,7 +16,7 @@
  * - Interpolating message templates with data
  */
 
-import type { InternalResolvedTokens, TokenType } from '@tokens/types'
+import type { InternalResolvedTokens, TokenType } from '@shared/token-types'
 
 import { PluginLoader } from './plugin-loader'
 import type {

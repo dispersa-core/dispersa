@@ -3,7 +3,7 @@
  * Handles duration object format { value: number, unit: 'ms' | 's' }
  */
 
-import type { DurationValue } from '@tokens/types'
+import type { DurationValue } from '@shared/token-types'
 
 /**
  * Check if a value is in duration object format

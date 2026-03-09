@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { build, generateTypes, resolveAllPermutations, resolveTokens } from '../../src/dispersa'
 import { css, js, json } from '../../src/index'
-import { colorToHex, colorToRgb, dimensionToRem } from '../../src/transforms'
+import { colorToHex, colorToRgb, dimensionToRem } from '@processing/transforms'
 import {
   cleanupTempDir,
   createTempDir,

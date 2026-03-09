@@ -6,12 +6,12 @@ import path from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { CssRenderer } from '../../../src/renderers/css'
-import { JsonRenderer } from '../../../src/renderers/json'
-import { isOutputTree } from '../../../src/renderers'
-import type { RenderContext } from '../../../src/renderers/types'
+import { CssRenderer } from '@outputs/css'
+import { JsonRenderer } from '@outputs/json'
+import { isOutputTree } from '@outputs'
+import type { RenderContext } from '@outputs/types'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
-import { TokenParser } from '../../../src/tokens/token-parser'
+import { TokenParser } from '../../../src/engine/token-parser'
 
 describe('Composite Tokens', () => {
   let parser: TokenParser

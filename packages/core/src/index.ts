@@ -30,13 +30,8 @@ export type { LintOptions } from './dispersa'
 // ============================================================================
 
 // Config types
-export type {
-  OutputConfig,
-  BuildConfig,
-  FileFunction,
-  LifecycleHooks,
-  DispersaOptions,
-} from '@config/index'
+export type { OutputConfig, FileFunction, LifecycleHooks } from '@outputs/types'
+export type { BuildConfig, DispersaOptions } from '@engine/types'
 
 // Validation types
 export type { ValidationMode, ValidationOptions } from '@shared/types/validation'
@@ -74,7 +69,7 @@ export type {
   TransitionValue,
   GradientValue,
   GradientStop,
-} from '@tokens/types'
+} from '@shared/token-types'
 
 // Token type guards
 export {
@@ -86,7 +81,7 @@ export {
   isDurationToken,
   isTransitionToken,
   isGradientToken,
-} from '@tokens/types'
+} from '@shared/token-types'
 
 // Transform types
 export type { Transform } from '@processing/transforms/types'
@@ -118,7 +113,7 @@ export type {
   RenderOutput,
   SelectorFunction,
   TailwindRendererOptions,
-} from '@renderers/types'
+} from '@outputs/types'
 
 // Resolver types
 export type { ModifierInputs, ResolverDocument } from '@resolution/types'
@@ -127,7 +122,7 @@ export type { ModifierInputs, ResolverDocument } from '@resolution/types'
 // OUTPUT BUILDERS
 // ============================================================================
 
-export { css, json, js, tailwind, ios, android } from './builders'
+export { css, json, js, tailwind, ios, android } from '@outputs'
 export type {
   AndroidBuilderConfig,
   CssBuilderConfig,
@@ -135,14 +130,13 @@ export type {
   JsBuilderConfig,
   JsonBuilderConfig,
   TailwindBuilderConfig,
-} from './builders'
+} from '@outputs'
 
 // ============================================================================
 // CUSTOM RENDERER HELPERS
 // ============================================================================
 
-export { defineRenderer } from '@renderers/types'
-export { outputTree, isOutputTree } from '@renderers/output-tree'
+export { defineRenderer, outputTree, isOutputTree } from '@outputs'
 
 // ============================================================================
 // ERROR CLASSES

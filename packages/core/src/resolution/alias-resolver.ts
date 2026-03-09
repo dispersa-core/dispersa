@@ -9,7 +9,7 @@ import type { ValidationOptions } from '@shared/types/validation'
 import { findSimilar } from '@shared/utils/string-similarity'
 import { getPureAliasReferenceName } from '@shared/utils/token-utils'
 import { ValidationHandler } from '@shared/utils/validation-handler'
-import type { InternalResolvedToken, InternalResolvedTokens, TokenValue } from '@tokens/types'
+import type { InternalResolvedToken, InternalResolvedTokens, TokenValue } from '@shared/token-types'
 
 export type AliasResolutionOptions = {
   maxDepth?: number

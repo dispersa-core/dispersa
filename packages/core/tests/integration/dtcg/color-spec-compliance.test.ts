@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { TokenParser } from '../../../src/tokens/token-parser'
+import { TokenParser } from '../../../src/engine/token-parser'
 import Ajv from 'ajv'
 import { dtcgSchemaRegistry, tokenSchema } from '../../../src/validation/schemas'
 

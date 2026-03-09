@@ -2,14 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
-import { isOutputTree } from '../../../src/renderers'
-import { TailwindRenderer } from '../../../src/renderers/tailwind'
-import type { TailwindRendererOptions } from '../../../src/renderers/tailwind'
-import type {
-  MediaQueryFunction,
-  RenderContext,
-  SelectorFunction,
-} from '../../../src/renderers/types'
+import { isOutputTree } from '@outputs'
+import { TailwindRenderer } from '@outputs/tailwind'
+import type { TailwindRendererOptions } from '@outputs/tailwind'
+import type { MediaQueryFunction, RenderContext, SelectorFunction } from '@outputs/types'
 import type {
   InternalResolvedToken,
   ResolvedToken,

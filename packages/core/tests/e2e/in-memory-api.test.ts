@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 import { build, resolveAllPermutations, resolveTokens } from '../../src/dispersa'
 import { css, json } from '../../src/index'
 import type { ResolverDocument } from '../../src/resolution/types'
-import { colorToHex, dimensionToRem } from '../../src/transforms'
+import { colorToHex, dimensionToRem } from '@processing/transforms'
 
 describe('In-Memory API E2E Tests', () => {
   describe('Inline Resolver Documents', () => {

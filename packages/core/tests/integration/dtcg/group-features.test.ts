@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
-import { TokenParser } from '../../../src/tokens/token-parser'
-import { TokenPipeline } from '../../../src/build/pipeline/token-pipeline'
+import { TokenParser } from '../../../src/engine/token-parser'
+import { TokenPipeline } from '../../../src/engine/pipeline/token-pipeline'
 import type { ResolverDocument } from '../../../src/resolution/types'
 import { TokenCollection } from '../../../src/tokens'
 

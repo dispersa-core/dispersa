@@ -8,12 +8,12 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import * as BuildersAPI from '../../src/builders'
-import * as FiltersAPI from '../../src/filters'
+import * as BuildersAPI from '../../src/outputs/builders'
+import * as FiltersAPI from '@processing/filters'
 import * as DispersaAPI from '../../src/index'
-import * as PreprocessorsAPI from '../../src/preprocessors'
-import * as RenderersAPI from '../../src/renderers'
-import * as TransformsAPI from '../../src/transforms'
+import * as PreprocessorsAPI from '@processing/preprocessors'
+import * as RenderersAPI from '@outputs'
+import * as TransformsAPI from '@processing/transforms'
 
 describe('Public API Contract Tests', () => {
   describe('Primary API', () => {
@@ -135,7 +135,7 @@ describe('Public API Contract Tests', () => {
     })
   })
 
-  describe('Subpath Exports - dispersa/builders', () => {
+  describe('Builder Functions (outputs/builders)', () => {
     it('should export all output builder functions', () => {
       expect(BuildersAPI).toHaveProperty('css')
       expect(BuildersAPI).toHaveProperty('json')
@@ -212,7 +212,7 @@ describe('Public API Contract Tests', () => {
     })
   })
 
-  describe('Subpath Exports - dispersa/renderers', () => {
+  describe('Subpath Exports - dispersa/outputs', () => {
     it('should export outputTree helper', () => {
       expect(RenderersAPI).toHaveProperty('outputTree')
       expect(RenderersAPI).toHaveProperty('isOutputTree')
@@ -220,15 +220,26 @@ describe('Public API Contract Tests', () => {
       expect(typeof RenderersAPI.isOutputTree).toBe('function')
     })
 
-    it('should NOT export renderer factories or classes', () => {
+    it('should export renderer factories', () => {
       const actualExports = Object.keys(RenderersAPI)
 
-      expect(actualExports).not.toContain('cssRenderer')
-      expect(actualExports).not.toContain('jsonRenderer')
-      expect(actualExports).not.toContain('jsRenderer')
-      expect(actualExports).not.toContain('CssRenderer')
-      expect(actualExports).not.toContain('JsonRenderer')
-      expect(actualExports).not.toContain('JsModuleRenderer')
+      expect(actualExports).toContain('cssRenderer')
+      expect(actualExports).toContain('jsonRenderer')
+      expect(actualExports).toContain('jsRenderer')
+      expect(actualExports).toContain('tailwindRenderer')
+      expect(actualExports).toContain('iosRenderer')
+      expect(actualExports).toContain('androidRenderer')
+    })
+
+    it('should export builder functions', () => {
+      const actualExports = Object.keys(RenderersAPI)
+
+      expect(actualExports).toContain('css')
+      expect(actualExports).toContain('json')
+      expect(actualExports).toContain('js')
+      expect(actualExports).toContain('tailwind')
+      expect(actualExports).toContain('ios')
+      expect(actualExports).toContain('android')
     })
   })
 

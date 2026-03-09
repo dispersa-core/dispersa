@@ -7,7 +7,7 @@
  * that must be resolved before transforms run.
  */
 
-import type { ColorValue, ResolvedToken } from '@tokens/types'
+import type { ColorValue, ResolvedToken } from '@shared/token-types'
 import { formatCss } from 'culori'
 
 import type { Transform } from '../types'

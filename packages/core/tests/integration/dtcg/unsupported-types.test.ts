@@ -3,7 +3,7 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { TokenParser } from '../../../src/tokens/token-parser'
+import { TokenParser } from '../../../src/engine/token-parser'
 import { SchemaValidator } from '../../../src/validation/validator'
 
 describe('Composite Token Types', () => {

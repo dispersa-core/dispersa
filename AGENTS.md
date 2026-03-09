@@ -91,8 +91,8 @@ import { colorObjectToHex } from './color-converter'
 ### Naming Conventions
 
 - **Files**: kebab-case (`color-transforms.ts`, `token-utils.ts`)
-- **Folders**: kebab-case, plural for collections of things (`renderers/`, `tokens/`, `adapters/`), singular for domains/concerns (`resolution/`, `validation/`, `processing/`, `config/`, `build/`)
-- **Type files**: `types.ts` inside their module directory (e.g. `renderers/types.ts`, `resolution/types.ts`)
+- **Folders**: kebab-case, plural for collections of things (`outputs/`, `tokens/`, `adapters/`), singular for domains/concerns (`resolution/`, `validation/`, `processing/`, `config/`, `engine/`)
+- **Type files**: `types.ts` inside their module directory (e.g. `outputs/types.ts`, `resolution/types.ts`)
 - **Barrel exports**: `index.ts` in each module directory
 - **Classes**: PascalCase (`Dispersa`, `TokenReferenceError`)
 - **Functions**: camelCase (`colorToHex`, `formatDeprecationMessage`)
@@ -105,23 +105,33 @@ import { colorObjectToHex } from './color-converter'
 ```
 src/
 ├── index.ts              # Main public API
-├── dispersa.ts           # Dispersa class
-├── builders.ts           # Output builder functions (css, json, js, ...)
-├── transforms.ts         # Subpath: dispersa/transforms
-├── filters.ts            # Subpath: dispersa/filters
-├── renderers.ts          # Subpath: dispersa/renderers
-├── preprocessors.ts      # Subpath: dispersa/preprocessors
-├── errors.ts             # Subpath: dispersa/errors
-├── adapters/filesystem/  # File I/O, resolver loading/parsing
-├── build/pipeline/       # Build orchestration and pipeline stages
+├── dispersa.ts           # Functional exports (build, resolveTokens, lint, ...)
+├── adapters/filesystem/  # File I/O, resolver loading/parsing, type generation
 ├── cli/                  # CLI entry point and config
 ├── codegen/              # Type generation for tokens
 ├── config/               # BuildConfig, OutputConfig, DispersaOptions
+├── engine/               # Build orchestration and pipeline stages
+│   ├── build-orchestrator.ts
+│   ├── output-processor.ts
+│   └── pipeline/         # Token resolution and transformation pipeline
+├── outputs/              # Output format renderers
+│   ├── builders.ts       # Output builder functions (css, json, js, ...)
+│   ├── types.ts          # Renderer types and interfaces
+│   ├── android/          # Android resource format renderer
+│   ├── css/              # CSS output renderer
+│   ├── ios/              # iOS asset catalog renderer
+│   ├── js/               # JavaScript module renderer
+│   ├── json/             # JSON output renderer
+│   ├── tailwind/         # Tailwind CSS configuration renderer
+│   └── utils.ts          # Shared output utilities
 ├── processing/           # Transforms, filters, preprocessors
-│   ├── filters/built-in/ # Built-in filter implementations
-│   ├── transforms/built-in/ # Built-in transform implementations
-│   └── preprocessors/    # Preprocessor types
-├── renderers/bundlers/   # Format-specific renderers + bundling presets
+│   ├── filters/          # Token filtering
+│   │   ├── built-in/     # Built-in filter implementations (by-path, by-type, is-alias, is-base)
+│   │   └── index.ts      # Subpath: dispersa/filters
+│   ├── transforms/       # Token value transformation
+│   │   ├── built-in/     # Built-in transform implementations
+│   │   └── index.ts      # Subpath: dispersa/transforms
+│   └── preprocessors/    # Preprocessor types (subpath: dispersa/preprocessors)
 ├── resolution/           # Alias/reference resolution, modifier processing
 ├── shared/               # Cross-cutting: errors, utils, constants
 ├── tokens/               # Token types, parser, group extension resolver
@@ -132,8 +142,9 @@ src/
 
 - Import types from their **source module**, not through re-exports
 - `config/` only exports what it defines: `BuildConfig`, `OutputConfig`, `DispersaOptions`, `LifecycleHooks`, `FileFunction`
-- `config/` and `renderers/types` have an accepted mutual type-only dependency (OutputConfig uses Renderer, RenderContext uses OutputConfig)
+- `config/` and `outputs/types` have an accepted mutual type-only dependency (OutputConfig uses Renderer, RenderContext uses OutputConfig)
 - Root-level files (`transforms.ts`, `filters.ts`, etc.) are curated subpath entry points -- they may differ from internal barrel exports
+- Use subpath exports for transforms, filters, outputs, preprocessors, errors, and config
 
 ## Architecture Patterns
 

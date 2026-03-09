@@ -2,7 +2,7 @@
  * @fileoverview Other built-in value transforms
  */
 
-import { ResolvedToken } from '@tokens/types'
+import { ResolvedToken } from '@shared/token-types'
 
 import type { Transform } from '../types'
 

@@ -13,7 +13,7 @@
  * architecture for validating design tokens against semantic rules.
  */
 
-import type { TokenType, InternalResolvedTokens, ResolvedToken } from '@tokens/types'
+import type { TokenType, InternalResolvedTokens, ResolvedToken } from '@shared/token-types'
 
 // ============================================================================
 // SEVERITY

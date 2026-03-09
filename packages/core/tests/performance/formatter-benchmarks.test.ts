@@ -7,10 +7,10 @@ import { describe, expect, it } from 'vitest'
 import type { OutputConfig } from '../../src/config'
 import type { ResolverDocument } from '../../src/resolution/types'
 import type { ResolvedTokens } from '../../src/tokens/types'
-import type { RenderContext, Renderer } from '../../src/renderers/types'
-import { cssRenderer } from '../../src/renderers/css'
-import { jsonRenderer } from '../../src/renderers/json'
-import { jsRenderer } from '../../src/renderers/js-module'
+import type { RenderContext, Renderer } from '@outputs/types'
+import { cssRenderer } from '@outputs/css'
+import { jsonRenderer } from '@outputs/json'
+import { jsRenderer } from '@outputs/js'
 
 describe('Renderer Performance Benchmarks', () => {
   function generateTokens(count: number): ResolvedTokens {

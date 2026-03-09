@@ -16,8 +16,7 @@ Dispersa exposes a main entry point and several subpath exports. Use subpaths to
 | `dispersa`               | build, css, json, js, tailwind, ios, android, lint, defineRenderer, outputTree, isOutputTree, type guards, error classes, all public types | Main entry; full builds         |
 | `dispersa/transforms`    | colorToHex, nameKebabCase, dimensionToRem, etc. (23 factories) + Transform type                                                            | Per-output or global transforms |
 | `dispersa/filters`       | byType, byPath, isAlias, isBase + Filter type                                                                                              | Token filtering                 |
-| `dispersa/builders`      | css, json, js, tailwind, ios, android + builder config types                                                                               | Output configuration only       |
-| `dispersa/renderers`     | defineRenderer, outputTree, isOutputTree + all renderer/build types                                                                        | Custom renderers                |
+| `dispersa/outputs`       | Renderer functions, builders (css, json, js, tailwind, ios, android), defineRenderer, outputTree, isOutputTree + all types                 | Custom renderers, outputs       |
 | `dispersa/preprocessors` | Preprocessor type                                                                                                                          | Custom preprocessors            |
 | `dispersa/errors`        | All 8 error classes                                                                                                                        | Error handling                  |
 | `dispersa/config`        | defineConfig, CliConfig                                                                                                                    | CLI config files                |
@@ -71,30 +70,15 @@ Use when you only need filters for token inclusion.
 
 ---
 
-## dispersa/builders
+## dispersa/outputs
 
-**Values:** `css`, `json`, `js`, `tailwind`, `ios`, `android`
+**Values:** `cssRenderer`, `jsRenderer`, `jsonRenderer`, `tailwindRenderer`, `iosRenderer`, `androidRenderer`, `outputTree`, `isOutputTree`, `defineRenderer`, `css`, `json`, `js`, `tailwind`, `ios`, `android`
 
-**Types:** `CssBuilderConfig`, `JsonBuilderConfig`, `JsBuilderConfig`, `TailwindBuilderConfig`, `IosBuilderConfig`, `AndroidBuilderConfig`
-
-```typescript
-import { css, json } from 'dispersa/builders'
-import type { CssBuilderConfig } from 'dispersa/builders'
-```
-
-Use when you need only the builder functions, e.g. in a shared config file.
-
----
-
-## dispersa/renderers
-
-**Values:** `defineRenderer`, `outputTree`, `isOutputTree`
-
-**Types:** `Renderer`, `RenderContext`, `RenderMeta`, `PermutationData`, `RenderOutput`, `FormatOptions`, `OutputTree`, `BuildResult`, `BuildOutput`, `BuildError`, `ErrorCode`, `SelectorFunction`, `MediaQueryFunction`, `CssRendererOptions`, `JsonRendererOptions`, `JsModuleRendererOptions`, `TailwindRendererOptions`, `IosRendererOptions`, `AndroidRendererOptions`
+**Types:** `Renderer`, `RenderContext`, `RenderMeta`, `PermutationData`, `RenderOutput`, `FormatOptions`, `OutputTree`, `BuildResult`, `BuildOutput`, `BuildError`, `ErrorCode`, `SelectorFunction`, `MediaQueryFunction`, `CssRendererOptions`, `JsonRendererOptions`, `JsModuleRendererOptions`, `TailwindRendererOptions`, `IosRendererOptions`, `AndroidRendererOptions`, builder config types
 
 ```typescript
-import { defineRenderer, outputTree } from 'dispersa/renderers'
-import type { RenderContext, Renderer } from 'dispersa/renderers'
+import { defineRenderer, outputTree } from 'dispersa/outputs'
+import type { RenderContext, Renderer } from 'dispersa/outputs'
 ```
 
 Use when building custom renderers. Lighter than the main entry if you don't need Dispersa or builders. Also re-exports build result types and all renderer option types for convenience.

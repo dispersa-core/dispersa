@@ -9,19 +9,19 @@
  */
 
 import { TypeWriter } from '@adapters/filesystem/type-writer'
-import { BuildOrchestrator } from '@build/build-orchestrator'
-import { OutputProcessor } from '@build/output-processor'
-import { TokenPipeline } from '@build/pipeline/token-pipeline'
-import type { BuildConfig, DispersaOptions } from '@config/index'
+import { BuildOrchestrator } from '@engine/build-orchestrator'
+import { OutputProcessor } from '@engine/output-processor'
+import { TokenPipeline } from '@engine/pipeline/token-pipeline'
+import type { BuildConfig, DispersaOptions } from '@engine/types'
 import { LintRunner } from '@lint/lint-runner'
 import type { LintConfig, LintResult } from '@lint/types'
-import type { BuildResult } from '@renderers/types'
+import type { BuildResult } from '@outputs/types'
 import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import { ConfigurationError, LintError } from '@shared/errors/index'
 import type { ValidationOptions } from '@shared/types/validation'
 import { toBuildError } from '@shared/utils/error-utils'
 import { stripInternalTokenMetadata } from '@shared/utils/token-utils'
-import type { ResolvedTokens, InternalResolvedTokens } from '@tokens/types'
+import type { ResolvedTokens, InternalResolvedTokens } from '@shared/token-types'
 import { SchemaValidator } from '@validation/validator'
 
 function createValidator(): SchemaValidator {

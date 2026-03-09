@@ -4,7 +4,7 @@
 
 import type { Filter } from '@processing/filters/types'
 import type { Transform } from '@processing/transforms/types'
-import type { ResolvedTokens } from '@tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 
 /**
  * Apply a list of transforms to tokens

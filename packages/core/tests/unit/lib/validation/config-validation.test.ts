@@ -9,8 +9,8 @@
 import { describe, expect, it } from 'vitest'
 import { build } from '../../../../src/dispersa'
 import { css } from '../../../../src/index'
-import { cssRenderer } from '../../../../src/renderers/css'
-import { nameKebabCase } from '../../../../src/transforms'
+import { cssRenderer } from '@outputs/css'
+import { nameKebabCase } from '@processing/transforms'
 
 describe('Configuration Validation', () => {
   describe('BuildConfig Validation', () => {

@@ -5,7 +5,7 @@
  */
 
 import { DEFAULT_BASE_FONT_SIZE_PX } from '@shared/constants'
-import type { DimensionValue, ResolvedToken } from '@tokens/types'
+import type { DimensionValue, ResolvedToken } from '@shared/token-types'
 
 import type { Transform } from '../types'
 

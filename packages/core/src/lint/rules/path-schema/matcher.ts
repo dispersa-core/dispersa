@@ -11,7 +11,7 @@
  */
 
 import { matchesGlob } from '@lint/utils'
-import type { ResolvedToken } from '@tokens/types'
+import type { ResolvedToken } from '@shared/token-types'
 
 import type { PathSchemaConfig, SegmentDefinition, TransitionRule } from './types'
 

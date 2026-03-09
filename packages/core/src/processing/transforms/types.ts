@@ -2,7 +2,7 @@
  * @fileoverview Transform types (re-exported from main types for convenience)
  */
 
-import type { ResolvedToken } from '@tokens/types'
+import type { ResolvedToken } from '@shared/token-types'
 
 /**
  * Transform definition for modifying tokens during processing

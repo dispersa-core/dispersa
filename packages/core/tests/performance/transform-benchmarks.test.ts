@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { colorToHex, dimensionToRem, nameKebabCase } from '../../src/transforms'
+import { colorToHex, dimensionToRem, nameKebabCase } from '@processing/transforms'
 import type { ResolvedToken } from '../../src/tokens/types'
 
 describe('Transform Performance Benchmarks', () => {

@@ -4,13 +4,13 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { defineRenderer, isOutputTree } from '../../src/renderers'
-import { cssRenderer } from '../../src/renderers/css'
-import { jsRenderer } from '../../src/renderers/js-module'
-import { jsonRenderer } from '../../src/renderers/json'
+import { defineRenderer, isOutputTree } from '@outputs'
+import { cssRenderer } from '@outputs/css'
+import { jsRenderer } from '@outputs/js'
+import { jsonRenderer } from '@outputs/json'
 import type { OutputConfig } from '../../src/config'
 import type { ResolverDocument } from '../../src/resolution/types'
-import type { FormatOptions, RenderContext, Renderer } from '../../src/renderers/types'
+import type { FormatOptions, RenderContext, Renderer } from '@outputs/types'
 
 const baseResolver: ResolverDocument = {
   sets: {},
@@ -156,7 +156,7 @@ describe('Renderer Interface Contract', () => {
   })
 
   describe('defineRenderer Helper', () => {
-    it('should be exported from dispersa/renderers', () => {
+    it('should be exported from dispersa/outputs', () => {
       expect(defineRenderer).toBeDefined()
       expect(typeof defineRenderer).toBe('function')
     })

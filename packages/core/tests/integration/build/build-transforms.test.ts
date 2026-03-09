@@ -8,7 +8,7 @@ import {
     css,
     json,
 } from '../../../src/index'
-import { colorToHex, nameKebabCase } from '../../../src/transforms'
+import { colorToHex, nameKebabCase } from '@processing/transforms'
 import { getFixturePath } from '../../utils/test-helpers'
 
 describe('Build Transform Integration', () => {

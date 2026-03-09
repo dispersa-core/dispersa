@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { build, buildPermutation } from '../../../src/dispersa'
 import { BuildConfig, css, json } from '../../../src/index'
-import { nameKebabCase } from '../../../src/transforms'
+import { nameKebabCase } from '@processing/transforms'
 import { getFixturePath } from '../../utils/test-helpers'
 
 describe('Build Permutation Generation', () => {

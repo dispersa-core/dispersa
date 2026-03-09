@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { ResolverDocument } from '../../../../src/resolution/types'
 import type { ResolvedTokens } from '../../../../src/tokens/types'
-import type { BundleDataItem } from '../../../../src/renderers/bundlers/types'
-import { bundleAsJson } from '../../../../src/renderers/bundlers/json'
+import type { BundleDataItem } from '@outputs/json/presets/types'
+import { bundleAsJson } from '@outputs/json/presets/bundle'
 
 describe('JSON Bundler', () => {
   const mockResolver: ResolverDocument = {

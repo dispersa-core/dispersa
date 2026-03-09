@@ -8,7 +8,7 @@ import {
   resolveBaseFileName,
   resolveMediaQuery,
   resolveSelector,
-} from '../../../src/renderers/bundlers/utils'
+} from '@outputs/utils'
 
 describe('Bundler Utils - Selector and Media Query Resolution', () => {
   const mockModifierInputs = {

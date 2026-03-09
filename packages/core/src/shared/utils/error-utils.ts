@@ -2,7 +2,7 @@
  * @fileoverview Error handling utilities
  */
 
-import type { BuildError } from '@renderers/types'
+import type { BuildError } from '@outputs/types'
 import {
   BasePermutationError,
   CircularReferenceError,

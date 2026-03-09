@@ -2,7 +2,7 @@
  * @fileoverview Built-in name transforms using change-case library for robust case conversion
  */
 
-import { ResolvedToken } from '@tokens/types'
+import { ResolvedToken } from '@shared/token-types'
 import { camelCase, kebabCase, snakeCase, pascalCase, constantCase } from 'change-case'
 
 import type { Transform } from '../types'

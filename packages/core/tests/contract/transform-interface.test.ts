@@ -20,7 +20,7 @@ import {
   nameKebabCase,
   namePascalCase,
   nameSnakeCase,
-} from '../../src/transforms'
+} from '@processing/transforms'
 
 const srgb = (red: number, green: number, blue: number) => ({
   colorSpace: 'srgb',

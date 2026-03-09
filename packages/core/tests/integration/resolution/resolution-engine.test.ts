@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ResolverParser } from '../../../src/adapters/filesystem/resolver-parser'
 import { ReferenceResolver, ResolutionEngine } from '../../../src/resolution'
-import { TokenParser } from '../../../src/tokens/token-parser'
+import { TokenParser } from '../../../src/engine/token-parser'
 import { getFixturePath } from '../../utils/test-helpers'
 
 describe('Resolution Engine Integration', () => {
