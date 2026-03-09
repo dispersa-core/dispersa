@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['apps/docs/**']
-  pull_request:
-    paths: ['apps/docs/**']
+  workflow_dispatch:
 
 concurrency:
   group: docs-${{ github.ref }}
@@ -13,7 +12,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
