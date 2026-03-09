@@ -34,7 +34,8 @@ export default tseslint.config(
   {
     files: ['**/*.ts', '**/*.tsx'],
     plugins: {
-      import: importPlugin,
+      // TODO: Wait for the new version of the plugin thats compatible with eslint v10
+      // import: importPlugin,
     },
     languageOptions: {
       parserOptions: {
@@ -68,19 +69,19 @@ export default tseslint.config(
       '@typescript-eslint/prefer-optional-chain': 'warn',
 
       // Import organization
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-        },
-      ],
-      'import/no-duplicates': 'error',
-      'import/no-unresolved': 'off', // TypeScript handles this
+      // 'import/order': [
+      //   'error',
+      //   {
+      //     groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+      //     'newlines-between': 'always',
+      //     alphabetize: {
+      //       order: 'asc',
+      //       caseInsensitive: true,
+      //     },
+      //   },
+      // ],
+      // 'import/no-duplicates': 'error',
+      // 'import/no-unresolved': 'off', // TypeScript handles this
 
       // General code quality
       'no-console': 'warn',
