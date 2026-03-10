@@ -69,7 +69,7 @@ describe('Lint Integration', () => {
         modifierInputs: { theme: 'light', scale: 'mobile' },
         plugins: { dispersa: recommendedConfig.plugins?.dispersa },
         rules: {
-          'dispersa/naming-convention': ['warn', { format: 'kebab-case' }],
+          'dispersa/case-check': ['warn', { format: 'kebab-case' }],
         },
       })
 

@@ -7,20 +7,20 @@
  */
 
 /**
- * @fileoverview Rule: naming-convention
+ * @fileoverview Rule: case-check
  *
- * Enforces consistent token naming conventions.
+ * Enforces consistent token case formatting.
  */
 
 import { createRule } from '@lint/create-rule'
 import { matchesGlob } from '@lint/utils'
 
-export const NamingConventionMessages = {
+export const CasingMessages = {
   INVALID_FORMAT: 'INVALID_FORMAT',
   INVALID_SEGMENT: 'INVALID_SEGMENT',
 } as const
 
-export type NamingConventionOptions = {
+export type CaseCheckOptions = {
   /**
    * Naming format to enforce
    * - 'kebab-case': color-brand-primary, red-500, blue-600
@@ -51,13 +51,13 @@ const PATTERNS: Record<string, RegExp> = {
 
 const DEFAULT_PATTERN = /^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/
 
-export const namingConvention = createRule<
-  (typeof NamingConventionMessages)[keyof typeof NamingConventionMessages],
-  NamingConventionOptions
+export const caseCheck = createRule<
+  (typeof CasingMessages)[keyof typeof CasingMessages],
+  CaseCheckOptions
 >({
   meta: {
-    name: 'naming-convention',
-    description: 'Enforce consistent token naming conventions',
+    name: 'case-check',
+    description: 'Enforce consistent token case formatting',
     messages: {
       INVALID_FORMAT: "Token '{{name}}' does not match '{{format}}' format",
       INVALID_SEGMENT:

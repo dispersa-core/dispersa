@@ -8,10 +8,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { namingConvention } from '../../../../src/lint/rules/naming-convention'
+import { caseCheck } from '../../../../src/lint/rules/case-check'
 import { collectReports, createMockTokens } from '../lint-test-helpers'
 
-describe('naming-convention rule', () => {
+describe('case-check rule', () => {
   describe('kebab-case (default)', () => {
     it('should accept valid kebab-case names', async () => {
       const tokens = createMockTokens({
@@ -19,7 +19,7 @@ describe('naming-convention rule', () => {
         'spacing-base-sm': { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(0)
     })
@@ -32,7 +32,7 @@ describe('naming-convention rule', () => {
         'border-radius-4': { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(0)
     })
@@ -43,7 +43,7 @@ describe('naming-convention rule', () => {
         COLOR_PRIMARY: { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(2)
     })
@@ -54,7 +54,7 @@ describe('naming-convention rule', () => {
         textMuted: { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(2)
     })
@@ -65,7 +65,7 @@ describe('naming-convention rule', () => {
         font_size: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(2)
     })
@@ -80,7 +80,7 @@ describe('naming-convention rule', () => {
         'opacity.50': { type: 'number' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(0)
     })
@@ -90,7 +90,7 @@ describe('naming-convention rule', () => {
         'spacing.0': { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         allowNumericSegments: false,
       })
 
@@ -107,7 +107,7 @@ describe('naming-convention rule', () => {
         spacingBaseSm: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'camelCase',
       })
 
@@ -120,7 +120,7 @@ describe('naming-convention rule', () => {
         ColorPrimary: { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'camelCase',
       })
 
@@ -135,7 +135,7 @@ describe('naming-convention rule', () => {
         SpacingBaseSm: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'PascalCase',
       })
 
@@ -150,7 +150,7 @@ describe('naming-convention rule', () => {
         spacing_base_sm: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'snake_case',
       })
 
@@ -163,7 +163,7 @@ describe('naming-convention rule', () => {
         color_blue_600: { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'snake_case',
       })
 
@@ -178,7 +178,7 @@ describe('naming-convention rule', () => {
         SPACING_BASE_SM: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'screaming-snake',
       })
 
@@ -191,7 +191,7 @@ describe('naming-convention rule', () => {
         COLOR_BLUE_600: { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         format: 'screaming-snake',
       })
 
@@ -206,7 +206,7 @@ describe('naming-convention rule', () => {
         spacing_base_sm: { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         pattern: '^[a-z]+(_[a-z]+)*$',
       })
 
@@ -218,7 +218,7 @@ describe('naming-convention rule', () => {
         'color-brand-primary': { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         pattern: '^[a-z]+(_[a-z]+)*$',
       })
 
@@ -233,7 +233,7 @@ describe('naming-convention rule', () => {
         'spacing.INVALID': { type: 'dimension' },
       })
 
-      const reports = await collectReports(namingConvention, tokens, {
+      const reports = await collectReports(caseCheck, tokens, {
         ignore: ['Color*'],
       })
 
@@ -248,7 +248,7 @@ describe('naming-convention rule', () => {
         'color.Brand-Primary': { type: 'color' },
       })
 
-      const reports = await collectReports(namingConvention, tokens)
+      const reports = await collectReports(caseCheck, tokens)
 
       expect(reports).toHaveLength(1)
       expect(reports[0]?.messageId).toBe('INVALID_SEGMENT')

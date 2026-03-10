@@ -17,7 +17,7 @@
  *   plugins: { dispersa: dispersaPlugin },
  *   rules: {
  *     'dispersa/require-description': 'warn',
- *     'dispersa/naming-convention': ['error', { format: 'kebab-case' }],
+ *     'dispersa/case-check': ['error', { format: 'kebab-case' }],
  *   },
  * })
  *
@@ -97,7 +97,7 @@ export {
   strictConfig,
   minimalConfig,
   requireDescription,
-  namingConvention,
+  caseCheck,
   noDeprecatedUsage,
   noDuplicateValues,
   pathSchema,
@@ -106,7 +106,7 @@ export {
   type TransitionRule,
   // Option types for plugin authors
   type RequireDescriptionOptions,
-  type NamingConventionOptions,
+  type CaseCheckOptions,
   type NoDeprecatedUsageOptions,
   type NoDuplicateValuesOptions,
 } from './rules'

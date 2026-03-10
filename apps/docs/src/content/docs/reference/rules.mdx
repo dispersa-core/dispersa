@@ -36,13 +36,13 @@ rules: {
 
 ---
 
-## naming-convention
+## case-check
 
-Enforces consistent token naming conventions. Checks each path segment individually, allowing tokens like `color.brand.500` where numeric scales are common.
+Enforces consistent token case formatting. Checks each path segment individually, allowing tokens like `color.brand.500` where numeric scales are common.
 
 ```typescript
 rules: {
-  'dispersa/naming-convention': ['error', { format: 'kebab-case' }]
+  'dispersa/case-check': ['error', { format: 'kebab-case' }]
 }
 ```
 
@@ -69,7 +69,7 @@ rules: {
 
 ```typescript
 rules: {
-  'dispersa/naming-convention': ['error', { pattern: '^[a-z][a-z0-9-]*$' }]
+  'dispersa/case-check': ['error', { pattern: '^[a-z][a-z0-9-]*$' }]
 }
 ```
 

@@ -48,7 +48,7 @@ export type LintRunnerOptions = LintConfig & {
  *   },
  *   rules: {
  *     'dispersa/require-description': 'warn',
- *     'dispersa/naming-convention': ['error', { format: 'kebab-case' }],
+ *     'dispersa/case-check': ['error', { format: 'kebab-case' }],
  *   },
  * }
  *

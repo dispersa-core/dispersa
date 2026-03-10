@@ -12,8 +12,8 @@
 
 import type { LintPlugin, LintConfig } from '@lint/types'
 
-import type { NamingConventionOptions } from './naming-convention'
-import { namingConvention } from './naming-convention'
+import type { CaseCheckOptions } from './case-check'
+import { caseCheck } from './case-check'
 import type { NoDeprecatedUsageOptions } from './no-deprecated-usage'
 import { noDeprecatedUsage } from './no-deprecated-usage'
 import type { NoDuplicateValuesOptions } from './no-duplicate-values'
@@ -25,7 +25,7 @@ import { requireDescription } from './require-description'
 
 // Re-export rules for direct use
 export { requireDescription } from './require-description'
-export { namingConvention } from './naming-convention'
+export { caseCheck } from './case-check'
 export { noDeprecatedUsage } from './no-deprecated-usage'
 export { noDuplicateValues } from './no-duplicate-values'
 export {
@@ -37,7 +37,7 @@ export {
 
 // Export option types for plugin authors
 export type { RequireDescriptionOptions } from './require-description'
-export type { NamingConventionOptions } from './naming-convention'
+export type { CaseCheckOptions } from './case-check'
 export type { NoDeprecatedUsageOptions } from './no-deprecated-usage'
 export type { NoDuplicateValuesOptions } from './no-duplicate-values'
 
@@ -51,7 +51,7 @@ export type { NoDuplicateValuesOptions } from './no-duplicate-values'
 function buildDispersaPlugin() {
   const rules = {
     'require-description': requireDescription,
-    'naming-convention': namingConvention,
+    'case-check': caseCheck,
     'no-deprecated-usage': noDeprecatedUsage,
     'no-duplicate-values': noDuplicateValues,
     'path-schema': pathSchema,
@@ -63,7 +63,7 @@ function buildDispersaPlugin() {
     plugins: { dispersa: plugin },
     rules: {
       'dispersa/require-description': 'warn',
-      'dispersa/naming-convention': ['error', { format: 'kebab-case' }],
+      'dispersa/case-check': ['error', { format: 'kebab-case' }],
       'dispersa/no-deprecated-usage': 'warn',
     },
   }
@@ -72,7 +72,7 @@ function buildDispersaPlugin() {
     plugins: { dispersa: plugin },
     rules: {
       'dispersa/require-description': 'error',
-      'dispersa/naming-convention': ['error', { format: 'kebab-case' }],
+      'dispersa/case-check': ['error', { format: 'kebab-case' }],
       'dispersa/no-deprecated-usage': 'error',
       'dispersa/no-duplicate-values': 'error',
     },
@@ -110,7 +110,7 @@ const {
  *   plugins: { dispersa: dispersaPlugin },
  *   rules: {
  *     'dispersa/require-description': 'warn',
- *     'dispersa/naming-convention': ['error', { format: 'kebab-case' }],
+ *     'dispersa/case-check': ['error', { format: 'kebab-case' }],
  *   },
  * }
  * ```
@@ -133,7 +133,7 @@ export { minimalConfig }
 declare module '../types' {
   interface RulesRegistry {
     'dispersa/require-description': RequireDescriptionOptions
-    'dispersa/naming-convention': NamingConventionOptions
+    'dispersa/case-check': CaseCheckOptions
     'dispersa/no-deprecated-usage': NoDeprecatedUsageOptions
     'dispersa/no-duplicate-values': NoDuplicateValuesOptions
     'dispersa/path-schema': PathSchemaConfig

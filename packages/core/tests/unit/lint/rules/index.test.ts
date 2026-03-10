@@ -14,7 +14,7 @@ import {
   strictConfig,
   minimalConfig,
   requireDescription,
-  namingConvention,
+  caseCheck,
   noDeprecatedUsage,
   noDuplicateValues,
   pathSchema,
@@ -29,7 +29,7 @@ describe('lint/rules', () => {
     it('should have all 5 built-in rules', () => {
       expect(dispersaPlugin.rules).toBeDefined()
       expect(dispersaPlugin.rules['require-description']).toBe(requireDescription)
-      expect(dispersaPlugin.rules['naming-convention']).toBe(namingConvention)
+      expect(dispersaPlugin.rules['case-check']).toBe(caseCheck)
       expect(dispersaPlugin.rules['no-deprecated-usage']).toBe(noDeprecatedUsage)
       expect(dispersaPlugin.rules['no-duplicate-values']).toBe(noDuplicateValues)
       expect(dispersaPlugin.rules['path-schema']).toBe(pathSchema)
@@ -57,8 +57,8 @@ describe('lint/rules', () => {
       expect(recommendedConfig.rules?.['dispersa/require-description']).toBe('warn')
     })
 
-    it('should set naming-convention with kebab-case options', () => {
-      expect(recommendedConfig.rules?.['dispersa/naming-convention']).toEqual([
+    it('should set case-check with kebab-case options', () => {
+      expect(recommendedConfig.rules?.['dispersa/case-check']).toEqual([
         'error',
         { format: 'kebab-case' },
       ])
@@ -81,7 +81,7 @@ describe('lint/rules', () => {
 
     it('should set all rules to error', () => {
       expect(strictConfig.rules?.['dispersa/require-description']).toBe('error')
-      expect(strictConfig.rules?.['dispersa/naming-convention']).toEqual([
+      expect(strictConfig.rules?.['dispersa/case-check']).toEqual([
         'error',
         { format: 'kebab-case' },
       ])
@@ -112,10 +112,10 @@ describe('lint/rules', () => {
       expect(typeof requireDescription.create).toBe('function')
     })
 
-    it('should export namingConvention rule', () => {
-      expect(namingConvention).toBeDefined()
-      expect(namingConvention.meta.name).toBe('naming-convention')
-      expect(typeof namingConvention.create).toBe('function')
+    it('should export caseCheck rule', () => {
+      expect(caseCheck).toBeDefined()
+      expect(caseCheck.meta.name).toBe('case-check')
+      expect(typeof caseCheck.create).toBe('function')
     })
 
     it('should export noDeprecatedUsage rule', () => {

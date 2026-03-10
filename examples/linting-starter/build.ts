@@ -4,7 +4,7 @@
  * Linting Starter - Dispersa
  *
  * Comprehensive example demonstrating:
- * - Built-in lint rules (require-description, naming-convention, path-schema, etc.)
+ * - Built-in lint rules (require-description, case-check, path-schema, etc.)
  * - Custom lint plugin with multiple rules
  * - Three-tier token validation (base, semantic, component)
  * - Running lint as part of build or standalone
@@ -203,12 +203,12 @@ console.log('   - dispersa/no-deprecated-usage: warn')
 
 console.log('\n2. Recommended config (rules):')
 console.log('   - dispersa/require-description: warn')
-console.log('   - dispersa/naming-convention: warn')
+console.log('   - dispersa/case-check: warn')
 console.log('   - dispersa/no-deprecated-usage: warn')
 
 console.log('\n3. Strict config (rules):')
 console.log('   - dispersa/require-description: error')
-console.log('   - dispersa/naming-convention: error')
+console.log('   - dispersa/case-check: error')
 console.log('   - dispersa/no-deprecated-usage: error')
 console.log('   - dispersa/no-duplicate-values: error')
 console.log('   - dispersa/path-schema: error (component token structure)')

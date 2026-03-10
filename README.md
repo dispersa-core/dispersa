@@ -33,7 +33,7 @@ const result = await lint({
 console.log(`Found ${result.errorCount} errors, ${result.warningCount} warnings`)
 ```
 
-Built-in rules include `require-description`, `naming-convention`, `no-deprecated-usage`, `no-duplicate-values`, and `path-schema`. Create custom rules with the `createRule()` factory or build reusable plugins.
+Built-in rules include `require-description`, `case-check`, `no-deprecated-usage`, `no-duplicate-values`, and `path-schema`. Create custom rules with the `createRule()` factory or build reusable plugins.
 
 ## Getting started
 
