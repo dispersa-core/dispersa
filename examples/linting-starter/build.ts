@@ -34,7 +34,6 @@ const pathSchemaSegments = {
   },
   tier: {
     values: ['palette', 'scale', 'raw'],
-    description: 'Base token tier (palette for colors, scale for dimensions)',
   },
   concept: {
     values: [
@@ -51,27 +50,21 @@ const pathSchemaSegments = {
       'body',
       'elevation',
     ],
-    description: 'Semantic concept - what the token is used for',
   },
   sentiment: {
     values: ['neutral', 'brand', 'danger', 'success', 'warning', 'info'],
-    optional: true,
   },
   prominence: {
     values: ['default', 'muted', 'subtle', 'strong', 'inverse'],
-    optional: true,
   },
   state: {
     values: ['hover', 'active', 'focus', 'disabled', 'selected'],
-    optional: true,
   },
   scale: {
     values: ['xs', 'sm', 'md', 'lg', 'xl', 'two-xl', 'three-xl'],
-    optional: true,
   },
   component: {
     values: ['button'],
-    description: 'Component name',
   },
   property: {
     values: ['background', 'text', 'border', 'padding', 'shadow', 'radius', 'gap'],

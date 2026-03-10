@@ -167,8 +167,6 @@ rules: {
 {
   category: {
     values: ['color', 'spacing', 'typography'],  // or RegExp
-    description: 'Token domain',
-    optional: true,
   }
 }
 ```
@@ -185,7 +183,7 @@ rules: {
 }
 ```
 
-Use `{segment}` for named segments and `*` for wildcard segments.
+Use `{segment}` for named segments, `*` for wildcard segments, `{name?}` for optional segments, and `{a|b}` for OR syntax (matches segment definitions `a` OR `b`).
 
 ### Transition Rules
 
@@ -214,27 +212,23 @@ const lintRules = {
         },
         component: {
           values: ['button'],
-          description: 'Component name',
         },
         variant: {
           values: ['primary', 'secondary', 'ghost', 'danger'],
-          optional: true,
         },
         property: {
           values: ['background', 'text', 'border', 'padding'],
         },
         state: {
           values: ['hover', 'active', 'focus', 'disabled'],
-          optional: true,
         },
       },
       paths: [
         '{category}.{component}.{property}',
-        '{category}.{component}.{property}.{state}',
-        '{category}.{component}.{variant}.{property}',
-        '{category}.{component}.{variant}.{property}.{state}',
+        '{category}.{component}.{property}.{state?}',
+        '{category}.{component}.{variant?}.{property}',
+        '{category}.{component}.{variant?}.{property}.{state?}',
       ],
-
     },
   ],
 }
