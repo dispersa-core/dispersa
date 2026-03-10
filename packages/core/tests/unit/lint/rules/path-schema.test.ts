@@ -23,8 +23,9 @@ describe('path-schema rule', () => {
         segments: {
           domain: { values: ['color', 'spacing'] },
           layer: { values: ['base', 'semantic'] },
+          name: { values: ['brand', 'md'] },
         },
-        paths: ['{domain}.{layer}.{name}'],
+        paths: ['{domain}.{layer}.*'],
       })
 
       expect(reports).toHaveLength(0)
@@ -90,8 +91,10 @@ describe('path-schema rule', () => {
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
           domain: { values: ['color', 'spacing'] },
+          layer: { values: ['base', 'semantic'] },
+          name: { values: ['primary', 'body'] },
         },
-        paths: ['{domain}.*.*'],
+        paths: ['{domain}.{layer}.*'],
       })
 
       expect(reports).toHaveLength(1)
@@ -163,37 +166,6 @@ describe('path-schema rule', () => {
     })
   })
 
-  describe('strict mode', () => {
-    it('should allow all paths when strict is false', async () => {
-      const tokens = createMockTokens({
-        'any.random.path': { type: 'color' },
-      })
-
-      const reports = await collectReports(pathSchema, tokens, {
-        paths: ['{domain}.{layer}.{name}'],
-        strict: false,
-      })
-
-      expect(reports).toHaveLength(0)
-    })
-
-    it('should enforce patterns when strict is true (default)', async () => {
-      const tokens = createMockTokens({
-        'any.random.path': { type: 'color' },
-      })
-
-      const reports = await collectReports(pathSchema, tokens, {
-        segments: {
-          domain: { values: ['color', 'spacing'] },
-        },
-        paths: ['{domain}.{layer}.{name}'],
-        strict: true,
-      })
-
-      expect(reports).toHaveLength(1)
-    })
-  })
-
   describe('ignore option', () => {
     it('should ignore tokens matching patterns', async () => {
       const tokens = createMockTokens({
@@ -202,7 +174,11 @@ describe('path-schema rule', () => {
       })
 
       const reports = await collectReports(pathSchema, tokens, {
-        paths: ['{domain}.{layer}.{name}'],
+        segments: {
+          domain: { values: ['color', 'spacing'] },
+          layer: { values: ['base', 'semantic'] },
+        },
+        paths: ['{domain}.{layer}.*'],
         ignore: ['invalid.*'],
       })
 
@@ -223,52 +199,52 @@ describe('path-schema rule', () => {
   })
 
   describe('optional segments', () => {
-    it('should accept path when required segment present', async () => {
+    it('should accept path when required segment present with optional marker', async () => {
       const tokens = createMockTokens({
         'color.button.primary': { type: 'color' },
       })
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          category: { values: ['color', 'spacing'], optional: false },
-          component: { values: ['button'], optional: true },
+          category: { values: ['color', 'spacing'] },
+          component: { values: ['button'] },
           state: { values: ['primary', 'secondary'] },
         },
-        paths: ['{category}.{component}.{state}'],
+        paths: ['{category}.{component}?.{state}'],
       })
 
       expect(reports).toHaveLength(0)
     })
 
-    it('should accept path when optional segment omitted', async () => {
+    it('should accept path when optional segment omitted using {name}? syntax', async () => {
       const tokens = createMockTokens({
         'color.primary': { type: 'color' },
       })
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          category: { values: ['color', 'spacing'], optional: false },
-          component: { values: ['button'], optional: true },
+          category: { values: ['color', 'spacing'] },
+          component: { values: ['button'] },
           state: { values: ['primary', 'secondary'] },
         },
-        paths: ['{category}.{component}.{state}'],
+        paths: ['{category}.{component}?.{state}'],
       })
 
       expect(reports).toHaveLength(0)
     })
 
-    it('should accept path with gap when middle segment optional', async () => {
+    it('should accept path with gap when middle segment optional using {name}? syntax', async () => {
       const tokens = createMockTokens({
         'color.primary': { type: 'color' },
       })
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          category: { values: ['color'], optional: false },
-          component: { values: ['button'], optional: true },
-          state: { values: ['primary'], optional: false },
+          category: { values: ['color'] },
+          component: { values: ['button'] },
+          state: { values: ['primary'] },
         },
-        paths: ['{category}.{component}.{state}'],
+        paths: ['{category}.{component}?.{state}'],
       })
 
       expect(reports).toHaveLength(0)
@@ -281,18 +257,18 @@ describe('path-schema rule', () => {
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          category: { values: ['color'], optional: false },
-          component: { values: ['button'], optional: true },
-          state: { values: ['primary'], optional: false },
+          category: { values: ['color'] },
+          component: { values: ['button'] },
+          state: { values: ['primary'] },
         },
-        paths: ['{category}.{component}.{state}'],
+        paths: ['{category}.{component}?.{state}'],
       })
 
       expect(reports).toHaveLength(1)
       expect(reports[0]?.messageId).toBe('INVALID_PATH')
     })
 
-    it('should handle multiple optional segments', async () => {
+    it('should handle multiple optional segments using {name}? syntax', async () => {
       const tokens = createMockTokens({
         color: { type: 'color' },
         'color.button': { type: 'color' },
@@ -303,32 +279,31 @@ describe('path-schema rule', () => {
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          category: { values: ['color'], optional: true },
-          component: { values: ['button'], optional: true },
-          state: { values: ['primary'], optional: true },
-          modifier: { values: ['hover'], optional: true },
+          category: { values: ['color'] },
+          component: { values: ['button'] },
+          state: { values: ['primary'] },
+          modifier: { values: ['hover'] },
         },
-        paths: ['{category}.{component}.{state}.{modifier}'],
+        paths: ['{category}?.{component}?.{state}?.{modifier}?'],
       })
 
       expect(reports).toHaveLength(0)
     })
 
-    it('should work with all segments optional', async () => {
+    it('should work with all segments optional using {name}? syntax', async () => {
       const tokens = createMockTokens({
         anything: { type: 'color' },
       })
 
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
-          a: { values: [/.*/], optional: true },
-          b: { values: [/.*/], optional: true },
-          c: { values: [/.*/], optional: true },
+          a: { values: [/.*/] },
+          b: { values: [/.*/] },
+          c: { values: [/.*/] },
         },
-        paths: ['{a}.{b}.{c}'],
+        paths: ['{a}?.{b}?.{c}?'],
       })
 
-      // 'anything' should match since all segments are optional
       expect(reports.length).toBe(0)
     })
 
@@ -358,10 +333,343 @@ describe('path-schema rule', () => {
       const reports = await collectReports(pathSchema, tokens, {
         segments: {
           category: { values: ['color'] },
-          component: { values: ['button'], optional: true },
+          component: { values: ['button'] },
           state: { values: ['primary', 'secondary'] },
         },
-        paths: ['{category}.{component}.{state}'],
+        paths: ['{category}.{component}?.{state}'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.messageId).toBe('INVALID_PATH')
+    })
+  })
+
+  describe('OR syntax', () => {
+    it('should accept path when OR segment name matches and value matches that definition', async () => {
+      const tokens = createMockTokens({
+        'color.blue.primary': { type: 'color' },
+        'color.red.primary': { type: 'color' },
+        'color.primary.secondary': { type: 'color' },
+        'color.secondary.tertiary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          palette: { values: ['blue', 'red'] },
+          semantic: { values: ['primary', 'secondary'] },
+        },
+        paths: ['color.{palette|semantic}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should reject path when OR segment value does not match any segment definition', async () => {
+      const tokens = createMockTokens({
+        'color.blue.primary': { type: 'color' },
+        'color.invalid.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          palette: { values: ['blue', 'red'] },
+          semantic: { values: ['primary', 'secondary'] },
+        },
+        paths: ['color.{palette|semantic}.*'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.tokenName).toBe('color.invalid.primary')
+    })
+
+    it('should combine OR with optional using {a|b}? syntax', async () => {
+      const tokens = createMockTokens({
+        'color.blue': { type: 'color' },
+        'color.primary': { type: 'color' },
+        'color.blue.500': { type: 'color' },
+        'color.primary.700': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          palette: { values: ['blue', 'red'] },
+          semantic: { values: ['primary', 'secondary'] },
+        },
+        paths: ['color.{palette|semantic}?.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should work with multiple OR segments in same pattern', async () => {
+      const tokens = createMockTokens({
+        'color.blue.light': { type: 'color' },
+        'spacing.lg.compact': { type: 'dimension' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          color: { values: ['color'] },
+          spacing: { values: ['spacing'] },
+          palette: { values: ['blue', 'red'] },
+          layout: { values: ['lg', 'md'] },
+        },
+        paths: ['{color|spacing}.{palette|layout}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should reject when OR segment value does not match any definition', async () => {
+      const tokens = createMockTokens({
+        'color.blue.500': { type: 'color' },
+        'color.invalid.500': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          palette: { values: ['blue', 'red'] },
+          semantic: { values: ['primary', 'secondary'] },
+        },
+        paths: ['color.{palette|semantic}.*'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.tokenName).toBe('color.invalid.500')
+    })
+  })
+
+  describe('hyphenated values', () => {
+    it('should accept hyphenated segment names using {name} syntax', async () => {
+      const tokens = createMockTokens({
+        'color.my-component.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          category: { values: ['color'] },
+          component: { values: ['my-component'] },
+        },
+        paths: ['{category}.{component}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should accept hyphenated OR values using {a|b} syntax', async () => {
+      const tokens = createMockTokens({
+        'color.primary-color.primary': { type: 'color' },
+        'color.secondary-color.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          theme: { values: ['primary-color', 'secondary-color'] },
+        },
+        paths: ['color.{theme}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should reject hyphenated values not in OR list', async () => {
+      const tokens = createMockTokens({
+        'color.primary-color.primary': { type: 'color' },
+        'color.tertiary-color.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          theme: { values: ['primary-color', 'secondary-color'] },
+        },
+        paths: ['color.{theme}.*'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.tokenName).toBe('color.tertiary-color.primary')
+    })
+
+    it('should accept hyphenated optional segments using {name}? syntax', async () => {
+      const tokens = createMockTokens({
+        'color.primary': { type: 'color' },
+        'color.my-component.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          component: { values: ['my-component'] },
+        },
+        paths: ['color.{component}?.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should accept hyphenated OR optional segments using {a|b}? syntax', async () => {
+      const tokens = createMockTokens({
+        'color.primary-color': { type: 'color' },
+        'color.secondary-color': { type: 'color' },
+        'color.primary-color.primary': { type: 'color' },
+        'color.secondary-color.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          theme: { values: ['primary-color', 'secondary-color'] },
+        },
+        paths: ['color.{theme}?.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should work with multiple hyphenated segments in same pattern', async () => {
+      const tokens = createMockTokens({
+        'color.base-scale.md': { type: 'color' },
+        'color.semantic-scale.lg': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          scale: { values: ['base-scale', 'semantic-scale'] },
+        },
+        paths: ['color.{scale}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+  })
+
+  describe('segment without definition', () => {
+    it('should reject segment name used in pattern but not defined', async () => {
+      const tokens = createMockTokens({
+        'color.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        paths: ['{undefinedSegment}.*'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.messageId).toBe('INVALID_PATH')
+    })
+
+    it('should throw when OR segment references undefined segment', async () => {
+      const tokens = createMockTokens({
+        'color.blue.primary': { type: 'color' },
+      })
+
+      await expect(() =>
+        collectReports(pathSchema, tokens, {
+          segments: {
+            palette: { values: ['blue', 'red'] },
+          },
+          paths: ['color.{palette|undefinedSegment}.*'],
+        }),
+      ).rejects.toThrow(
+        "OR segment '{palette|undefinedSegment}' references undefined segment(s): undefinedSegment",
+      )
+    })
+
+    it('should throw when OR segment has no defined segment names', async () => {
+      const tokens = createMockTokens({
+        'color.blue.primary': { type: 'color' },
+      })
+
+      await expect(() =>
+        collectReports(pathSchema, tokens, {
+          paths: ['color.{undefinedA|undefinedB}.*'],
+        }),
+      ).rejects.toThrow(
+        "OR segment '{undefinedA|undefinedB}' references undefined segment(s): undefinedA, undefinedB",
+      )
+    })
+
+    it('should reject optional segment when segment name not defined', async () => {
+      const tokens = createMockTokens({
+        color: { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        paths: ['{undefinedSegment}?'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.messageId).toBe('INVALID_PATH')
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should accept regular segment with single value definition', async () => {
+      const tokens = createMockTokens({
+        'color.singlevalue.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          singlevalue: { values: ['singlevalue'] },
+        },
+        paths: ['color.{singlevalue}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should validate segment values against their definitions', async () => {
+      const tokens = createMockTokens({
+        'color.base.primary': { type: 'color' },
+        'color.semantic.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          layer: { values: ['base', 'semantic'] },
+          name: { values: ['primary'] },
+        },
+        paths: ['color.{layer}.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should handle pattern with explicit segments and wildcards', async () => {
+      const tokens = createMockTokens({
+        'color.palette.blue.500': { type: 'color' },
+        'color.palette.red.500': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          category: { values: ['color'] },
+        },
+        paths: ['{category}.palette.*.*'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should handle optional segment matching single path segment', async () => {
+      const tokens = createMockTokens({
+        color: { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          category: { values: ['color'] },
+        },
+        paths: ['{category}?'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should reject path with multiple segments when pattern has single optional segment', async () => {
+      const tokens = createMockTokens({
+        'color.primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        paths: ['{category}?'],
       })
 
       expect(reports).toHaveLength(1)

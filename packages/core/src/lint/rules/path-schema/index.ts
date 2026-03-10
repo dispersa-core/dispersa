@@ -21,7 +21,6 @@ export { type PathSchemaConfig, type SegmentDefinition, type TransitionRule } fr
 
 export const PathSchemaMessages = {
   INVALID_PATH: 'INVALID_PATH',
-  UNKNOWN_SEGMENT: 'UNKNOWN_SEGMENT',
   FORBIDDEN_TRANSITION: 'FORBIDDEN_TRANSITION',
 } as const
 
@@ -34,7 +33,6 @@ export const pathSchema = createRule<
     description: 'Enforce token path segment structure',
     messages: {
       INVALID_PATH: "Token path '{{path}}' does not match any defined pattern",
-      UNKNOWN_SEGMENT: "Segment '{{segment}}' at position {{position}} in '{{path}}' is not valid",
       FORBIDDEN_TRANSITION: "Segment '{{to}}' cannot follow '{{from}}' in path '{{path}}'",
     },
   },

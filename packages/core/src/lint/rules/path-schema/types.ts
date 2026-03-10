@@ -16,10 +16,6 @@
 export type SegmentDefinition = {
   /** Allowed values (array of strings or regex pattern, or single regex) */
   values: string[] | RegExp | Array<string | RegExp>
-  /** Human-readable description */
-  description?: string
-  /** Whether this segment is optional */
-  optional?: boolean
 }
 
 /**
@@ -40,20 +36,25 @@ export type TransitionRule = {
 export type PathPattern = string
 
 /**
+ * Pattern type for transition rules
+ */
+export type Pattern = string | string[] | RegExp
+
+/**
  * Configuration for path-schema rule
  */
 export type PathSchemaConfig = {
   /**
    * Named segment definitions.
-   * Maps segment name to allowed values/description.
+   * Maps segment name to allowed values.
    *
    * @example
    * ```typescript
    * {
-   *   domain: { values: ['color', 'spacing'], description: 'Token domain' },
+   *   domain: { values: ['color', 'spacing'] },
    *   layer: { values: ['base', 'semantic', 'component'] },
    *   scale: { values: ['xs', 'sm', 'md', 'lg', 'xl'] },
-   *   brand: { values: /^[a-z]+$/, description: 'Brand name' },
+   *   brand: { values: /^[a-z]+$/ },
    * }
    * ```
    */

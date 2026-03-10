@@ -13,18 +13,23 @@
 import { matchesGlob } from '@lint/utils'
 import type { ResolvedToken } from '@shared/token-types'
 
-import type { PathSchemaConfig, SegmentDefinition, TransitionRule } from './types'
+import type { PathSchemaConfig, Pattern, SegmentDefinition, TransitionRule } from './types'
 
 export type Violation = {
-  type: 'INVALID_PATH' | 'UNKNOWN_SEGMENT' | 'FORBIDDEN_TRANSITION'
+  type: 'INVALID_PATH' | 'FORBIDDEN_TRANSITION'
   data: Record<string, string | number>
 }
 
-type Pattern = string | string[] | RegExp
-
 type CompiledPattern = Array<
-  { type: 'segment'; name: string } | { type: 'literal'; value: string } | { type: 'wildcard' }
+  | { type: 'segment'; name: string }
+  | { type: 'segment'; name: string; optional: true }
+  | { type: 'segment'; name: string; orValues: string[] }
+  | { type: 'segment'; name: string; orValues: string[]; optional: true }
+  | { type: 'literal'; value: string }
+  | { type: 'wildcard' }
 >
+
+type CompiledPatternPart = CompiledPattern[number] & { value?: string }
 
 type CompiledTransition = {
   from: Pattern
@@ -32,7 +37,25 @@ type CompiledTransition = {
   allow: boolean
 }
 
+type TransitionRulesByFrom = {
+  string: Map<string, CompiledTransition[]>
+  pattern: CompiledTransition[]
+}
+
 export { matchesGlob }
+
+function isRegExp(value: unknown): value is RegExp {
+  return value instanceof RegExp || Object.prototype.toString.call(value) === '[object RegExp]'
+}
+
+const SEGMENT_NAME_PATTERN = '([\\w-]+)'
+const OR_SEGMENT_PATTERN = '([\\w-]+\\|[\\w-]+(?:\\|[\\w-]+)*)'
+const REGEX_OR_OPTIONAL = new RegExp(`^\\{${OR_SEGMENT_PATTERN}\\}\\?`)
+const REGEX_OPTIONAL = new RegExp(`^\\{${SEGMENT_NAME_PATTERN}\\}\\?`)
+const REGEX_OR = new RegExp(`^\\{${OR_SEGMENT_PATTERN}\\}`)
+const REGEX_SEGMENT = new RegExp(`^\\{${SEGMENT_NAME_PATTERN}\\}`)
+const REGEX_WILDCARD = /^\*/
+const REGEX_LITERAL = /^[^{}*]+/
 
 /**
  * Compiles and validates token paths against a schema
@@ -40,12 +63,70 @@ export { matchesGlob }
 export class PathSchemaMatcher {
   private segments: Record<string, SegmentDefinition>
   private pathPatterns: CompiledPattern[]
-  private transitionRules: CompiledTransition[]
+  private pathPatternParts: CompiledPattern[]
+  private transitionRules: TransitionRulesByFrom
 
   constructor(config: PathSchemaConfig) {
     this.segments = config.segments ?? {}
-    this.pathPatterns = this.compilePaths(config.paths ?? [], this.segments)
+    this.assertSegmentsValid(this.segments)
+    const compiled = this.compilePaths(config.paths ?? [])
+    this.pathPatterns = compiled.patterns
+    this.pathPatternParts = compiled.parts
     this.transitionRules = this.compileTransitions(config.transitions ?? [])
+  }
+
+  private assertSegmentsValid(segments: Record<string, SegmentDefinition>): void {
+    for (const [name, def] of Object.entries(segments)) {
+      if (Array.isArray(def.values)) {
+        if (def.values.length === 0) {
+          throw new Error(`Segment '${name}' has empty values array`)
+        }
+        for (const v of def.values) {
+          if (typeof v === 'string') {
+            if (v === '') {
+              throw new Error(`Segment '${name}' has empty string value`)
+            }
+          } else if (v instanceof RegExp) {
+            this.validateRegex(v, `segment '${name}'`)
+          } else {
+            throw new Error(`Segment '${name}' has invalid value type: ${typeof v}`)
+          }
+        }
+      } else if (def.values instanceof RegExp) {
+        this.validateRegex(def.values, `segment '${name}'`)
+      } else {
+        throw new Error(`Segment '${name}' has invalid values type: ${typeof def.values}`)
+      }
+    }
+  }
+
+  private validateOrSegmentNames(segmentNames: string[], pattern: string): void {
+    const undefinedSegments = segmentNames.filter((name) => !this.segments[name])
+    if (undefinedSegments.length > 0) {
+      throw new Error(
+        `OR segment '${pattern}' references undefined segment(s): ${undefinedSegments.join(', ')}`,
+      )
+    }
+  }
+
+  private validateRegex(regex: RegExp, context: string): void {
+    try {
+      new RegExp(regex.source, regex.flags)
+    } catch {
+      throw new Error(`Invalid regex in ${context}: /${regex.source}/${regex.flags}`)
+    }
+  }
+
+  private validateTransitionPattern(pattern: Pattern, context: string): void {
+    if (isRegExp(pattern)) {
+      this.validateRegex(pattern, `transition '${context}'`)
+    } else if (Array.isArray(pattern)) {
+      for (const p of pattern) {
+        if (isRegExp(p)) {
+          this.validateRegex(p, `transition '${context}'`)
+        }
+      }
+    }
   }
 
   /**
@@ -55,7 +136,8 @@ export class PathSchemaMatcher {
     const violations: Violation[] = []
     const pathSegments = token.path
     const hasPaths = this.pathPatterns.length > 0
-    const hasTransitions = this.transitionRules.length > 0
+    const hasTransitions =
+      this.transitionRules.string.size > 0 || this.transitionRules.pattern.length > 0
 
     // Check transitions if defined
     if (hasTransitions) {
@@ -65,7 +147,9 @@ export class PathSchemaMatcher {
 
     // Check against path patterns if defined
     if (hasPaths) {
-      const matchesAny = this.pathPatterns.some((p) => this.matchPattern(p, pathSegments))
+      const matchesAny = this.pathPatterns.some((_, idx) =>
+        this.matchPattern(this.pathPatternParts[idx]!, pathSegments),
+      )
       if (!matchesAny) {
         violations.push({
           type: 'INVALID_PATH',
@@ -94,14 +178,25 @@ export class PathSchemaMatcher {
         continue
       }
 
-      const applicableRules = this.transitionRules.filter((r) => this.matchesPattern(from, r.from))
+      const applicableRules: CompiledTransition[] = []
+
+      const stringRules = this.transitionRules.string.get(from)
+      if (stringRules) {
+        applicableRules.push(...stringRules)
+      }
+
+      for (const rule of this.transitionRules.pattern) {
+        if (this.matchesPattern(from, rule.from)) {
+          applicableRules.push(rule)
+        }
+      }
 
       if (applicableRules.length === 0) {
         continue
       }
 
       const denyRules = applicableRules.filter((r) => r.allow === false)
-      const allowRules = applicableRules.filter((r) => r.allow !== false)
+      const allowRules = applicableRules.filter((r) => r.allow === true)
 
       for (const rule of denyRules) {
         if (this.matchesPattern(to, rule.to)) {
@@ -142,35 +237,92 @@ export class PathSchemaMatcher {
   /**
    * Compile path patterns into matcher structures
    */
-  private compilePaths(
-    patterns: string[],
-    segments: Record<string, SegmentDefinition>,
-  ): CompiledPattern[] {
-    return patterns.map((p) => this.parsePattern(p, segments))
+  private compilePaths(patterns: string[]): {
+    patterns: CompiledPattern[]
+    parts: CompiledPattern[]
+  } {
+    const compiledPatterns = patterns.map((p) => this.parsePattern(p))
+    const compiledParts = compiledPatterns.map((pattern) => this.extractPatternParts(pattern))
+    return { patterns: compiledPatterns, parts: compiledParts }
+  }
+
+  /**
+   * Extract pattern parts that consume segments (segments + wildcards)
+   * But include literals that are NOT just path separators (single dots)
+   */
+  private extractPatternParts(pattern: CompiledPattern): CompiledPattern {
+    return pattern.filter((p) => {
+      if (p.type === 'segment' || p.type === 'wildcard') {
+        return true
+      }
+      if (p.type === 'literal') {
+        return p.value !== '.' && !/^\.+$/.test(p.value)
+      }
+      return false
+    })
   }
 
   /**
    * Parse a path pattern string into compiled form
    * - `{name}` is a segment placeholder
+   * - `{name}?` is an optional segment placeholder (the ? comes AFTER the closing brace)
+   * - `{a|b|c}` is an OR segment matching any of the values
+   * - `{a|b|c}?` is an optional OR segment
    * - `*` is a wildcard that matches any single segment
    * - `.` is the path separator (implicit between segments)
    */
-  private parsePattern(
-    pattern: string,
-    _segments: Record<string, SegmentDefinition>,
-  ): CompiledPattern {
+  private parsePattern(pattern: string): CompiledPattern {
     const parts: CompiledPattern = []
-    const regex = /\{(\w+)\}|(\*)|([^{}*]+)/g
-    let match
+    let remaining = pattern
 
-    while ((match = regex.exec(pattern)) !== null) {
-      if (match[1]) {
-        parts.push({ type: 'segment', name: match[1] })
-      } else if (match[2]) {
-        parts.push({ type: 'wildcard' })
-      } else if (match[3]) {
-        parts.push({ type: 'literal', value: match[3] })
+    while (remaining.length > 0) {
+      const orOptionalMatch = remaining.match(REGEX_OR_OPTIONAL)
+      if (orOptionalMatch) {
+        const values = orOptionalMatch[1]!.split('|')
+        this.validateOrSegmentNames(values, orOptionalMatch[0]!)
+        parts.push({ type: 'segment', name: orOptionalMatch[1]!, orValues: values, optional: true })
+        remaining = remaining.slice(orOptionalMatch[0].length)
+        continue
       }
+
+      const optionalMatch = remaining.match(REGEX_OPTIONAL)
+      if (optionalMatch) {
+        parts.push({ type: 'segment', name: optionalMatch[1]!, optional: true })
+        remaining = remaining.slice(optionalMatch[0].length)
+        continue
+      }
+
+      const orMatch = remaining.match(REGEX_OR)
+      if (orMatch) {
+        const values = orMatch[1]!.split('|')
+        this.validateOrSegmentNames(values, orMatch[0]!)
+        parts.push({ type: 'segment', name: orMatch[1]!, orValues: values })
+        remaining = remaining.slice(orMatch[0].length)
+        continue
+      }
+
+      const segmentMatch = remaining.match(REGEX_SEGMENT)
+      if (segmentMatch) {
+        parts.push({ type: 'segment', name: segmentMatch[1]! })
+        remaining = remaining.slice(segmentMatch[0].length)
+        continue
+      }
+
+      const wildcardMatch = remaining.match(REGEX_WILDCARD)
+      if (wildcardMatch) {
+        parts.push({ type: 'wildcard' })
+        remaining = remaining.slice(1)
+        continue
+      }
+
+      const literalMatch = remaining.match(REGEX_LITERAL)
+      if (literalMatch) {
+        parts.push({ type: 'literal', value: literalMatch[0] })
+        remaining = remaining.slice(literalMatch[0].length)
+        continue
+      }
+
+      break
     }
 
     return parts
@@ -182,20 +334,7 @@ export class PathSchemaMatcher {
    *
    * DP[i][j] = can we match path[0..i) with pattern[0..j)?
    */
-  private matchPattern(pattern: CompiledPattern, pathSegments: string[]): boolean {
-    // Extract pattern parts that consume segments (segments + wildcards)
-    // But include literals that are NOT just path separators (single dots)
-    const patternParts = pattern.filter((p) => {
-      if (p.type === 'segment' || p.type === 'wildcard') {
-        return true
-      }
-      if (p.type === 'literal') {
-        // Keep literals that are more than just separators (e.g., '.palette.')
-        // Single '.' or sequences of '.' are path separators, not meaningful literals
-        return p.value !== '.' && !/^\.+$/.test(p.value)
-      }
-      return false
-    })
+  private matchPattern(patternParts: CompiledPattern, pathSegments: string[]): boolean {
     const pathLen = pathSegments.length
     const patternLen = patternParts.length
 
@@ -231,9 +370,6 @@ export class PathSchemaMatcher {
 
         // If we've consumed all pattern parts, we can only continue if path is also exhausted
         if (j === patternLen) {
-          if (i === pathLen) {
-            dp[i]![j] = true
-          }
           continue
         }
 
@@ -257,38 +393,46 @@ export class PathSchemaMatcher {
   }
 
   /**
-   * Check if a pattern part is optional based on its segment definition
+   * Check if a pattern part is optional based on the pattern syntax
    */
-  private isPartOptional(part: { type: string; name?: string }): boolean {
-    if (part.type !== 'segment' || !part.name) {
-      return false // Wildcards and literals are not optional
+  private isPartOptional(part: CompiledPattern[number]): boolean {
+    if (part.type !== 'segment') {
+      return false
     }
-    const segmentDef = this.segments[part.name]
-    return segmentDef?.optional ?? false
+    return 'optional' in part && part.optional === true
   }
 
   /**
    * Match a single pattern part against a path segment value
    */
-  private matchPatternPart(
-    part: { type: string; name?: string; value?: string },
-    value: string,
-  ): boolean {
+  private matchPatternPart(part: CompiledPatternPart, value: string): boolean {
     if (part.type === 'wildcard') {
       return true
     }
 
     if (part.type === 'literal' && part.value !== undefined) {
-      // Strip leading/trailing dots from literal for comparison
-      // e.g., '.palette.' should match 'palette'
       const literalValue = part.value.replace(/^\.+|\.+$/g, '')
       return literalValue === value
     }
 
     if (part.type === 'segment' && part.name) {
+      if ('orValues' in part && part.orValues) {
+        const matched = part.orValues.some((segmentName: string) => {
+          const segment = this.segments[segmentName]
+          if (!segment) {
+            return false
+          }
+          return this.matchesSegmentDefinition(value, segment)
+        })
+        if (!matched) {
+          return false
+        }
+        return true
+      }
+
       const segment = this.segments[part.name]
       if (!segment) {
-        return true
+        return false
       }
       return this.matchesSegmentDefinition(value, segment)
     }
@@ -308,13 +452,34 @@ export class PathSchemaMatcher {
   }
 
   /**
-   * Compile transition rules
+   * Compile transition rules into optimized structure
    */
-  private compileTransitions(transitions: TransitionRule[]): CompiledTransition[] {
-    return transitions.map((t) => ({
-      from: t.from,
-      to: t.to,
-      allow: t.allow ?? true,
-    }))
+  private compileTransitions(transitions: TransitionRule[]): TransitionRulesByFrom {
+    const stringMap = new Map<string, CompiledTransition[]>()
+    const patternRules: CompiledTransition[] = []
+
+    for (const t of transitions) {
+      this.validateTransitionPattern(t.from, "'from'")
+      this.validateTransitionPattern(t.to, "'to'")
+
+      const compiled: CompiledTransition = {
+        from: t.from,
+        to: t.to,
+        allow: t.allow ?? true,
+      }
+
+      if (typeof t.from === 'string') {
+        const existing = stringMap.get(t.from)
+        if (existing) {
+          existing.push(compiled)
+        } else {
+          stringMap.set(t.from, [compiled])
+        }
+      } else {
+        patternRules.push(compiled)
+      }
+    }
+
+    return { string: stringMap, pattern: patternRules }
   }
 }
