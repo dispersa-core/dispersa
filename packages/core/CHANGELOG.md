@@ -1,5 +1,13 @@
 # dispersa
 
+## 1.4.0
+
+### Minor Changes
+
+- [`59f2d12`](https://github.com/dispersa-core/dispersa/commit/59f2d1249cd5c8fb78083c1fb5e7620f55db3d44) Thanks [@timges](https://github.com/timges)! - Improved the path based lint rule. Optional segments are now flagged via `{segment}?`. Further, support for logical OR was added for segments like `{segmentA|segmentB}`
+
+- [`baccbbd`](https://github.com/dispersa-core/dispersa/commit/baccbbd4240bee14cab4eb55c00560657202a205) Thanks [@timges](https://github.com/timges)! - rename naming-conventions lint rule to case-check
+
 ## 1.3.0
 
 ### Minor Changes
