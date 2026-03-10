@@ -66,6 +66,12 @@ const pathSchemaSegments = {
   component: {
     values: ['button'],
   },
+  variant: {
+    values: ['primary', 'secondary', 'ghost', 'danger'],
+  },
+  slot: {
+    values: [/.*/],
+  },
   property: {
     values: ['background', 'text', 'border', 'padding', 'shadow', 'radius', 'gap'],
   },
@@ -91,9 +97,13 @@ const pathSchemaPatterns = [
   '{category}.{concept}.{prominence}.{state}',
   '{category}.{concept}.{sentiment}.{prominence}.{state}',
   '{category}.{concept}.{scale}',
-  // Component tier: color.button.primary.background, spacing.button.padding
+  // Component tier: color.button.primary.background, color.button.primary.icon.background
   '{category}.{component}.{property}',
   '{category}.{component}.{property}.{state}',
+  '{category}.{component}.{variant}.{property}',
+  '{category}.{component}.{variant}.{property}.{state}',
+  '{category}.{component}.{variant}.{slot}.{property}',
+  '{category}.{component}.{variant}.{slot}.{property}.{state}',
 ]
 
 const lintRules = {

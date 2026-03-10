@@ -173,38 +173,40 @@ Dispersa flattens this structure during parsing, so `color.text.muted` and `colo
 
 ## Component Token Naming
 
-Component tokens sit above the semantic layer. They map semantic tokens to specific UI components, creating a stable contract between design and implementation. Like the other tiers, they start with the token category. Each component token path is a subsequence of five ordered layers:
+Component tokens sit above the semantic layer. They map semantic tokens to specific UI components, creating a stable contract between design and implementation. Like the other tiers, they start with the token category. Each component token path is a subsequence of six ordered layers:
 
 ```
-category.component.variant.property.state
+category.component.variant.slot.property.state
 ```
 
-| Layer         | Purpose                    | Example values                                                       |
-| ------------- | -------------------------- | -------------------------------------------------------------------- |
-| **category**  | Token type or domain       | `color`, `spacing`, `typography`, `shadow`                           |
-| **component** | UI component name          | `button`, `card`, `input`, `badge`, `tooltip`                        |
-| **variant**   | Optional variant or role   | `primary`, `secondary`, `ghost`, `success`, `danger`                 |
-| **property**  | CSS-ish concern            | `background`, `text`, `border`, `padding`, `shadow`, `radius`, `gap` |
-| **state**     | Optional interaction state | `hover`, `active`, `focus`, `disabled`, `selected`                   |
+| Layer         | Purpose                    | Example values                                                            |
+| ------------- | -------------------------- | ------------------------------------------------------------------------- |
+| **category**  | Token type or domain       | `color`, `spacing`, `typography`, `shadow`                                |
+| **component** | UI component name          | `button`, `card`, `input`, `badge`, `tooltip`                             |
+| **variant**   | Optional variant or role   | `primary`, `secondary`, `ghost`, `success`, `danger`                      |
+| **slot**      | Optional component part    | `icon`, `avatar`, `badge`, `label`, `indicator` (or any custom slot name) |
+| **property**  | CSS-ish concern            | `background`, `text`, `border`, `padding`, `shadow`, `radius`, `gap`      |
+| **state**     | Optional interaction state | `hover`, `active`, `focus`, `disabled`, `selected`                        |
 
-The same ordering rule applies: layers can be skipped but never reordered. Variant and state are optional; category, component, and property are required.
+The same ordering rule applies: layers can be skipped but never reordered. Variant, slot, and state are optional; category, component, and property are required.
 
 Semantic concepts (`text`, `background`, `action`, `border`...) and component names (`button`, `card`, `input`, `badge`...) are naturally distinct vocabularies, so there is no ambiguity when both live under the same category namespace like `color.*`.
 
 ### Component Token Examples
 
-| Token path                              | Category | Component | Variant   | Property   | State |
-| --------------------------------------- | -------- | --------- | --------- | ---------- | ----- |
-| `color.button.primary.background`       | color    | button    | primary   | background | --    |
-| `color.button.primary.background.hover` | color    | button    | primary   | background | hover |
-| `color.button.secondary.border`         | color    | button    | secondary | border     | --    |
-| `color.button.danger.background`        | color    | button    | danger    | background | --    |
-| `color.card.background`                 | color    | card      | --        | background | --    |
-| `spacing.card.padding`                  | spacing  | card      | --        | padding    | --    |
-| `color.input.border`                    | color    | input     | --        | border     | --    |
-| `color.input.border.focus`              | color    | input     | --        | border     | focus |
-| `color.input.danger.border`             | color    | input     | danger    | border     | --    |
-| `color.badge.success.background`        | color    | badge     | success   | background | --    |
+| Token path                              | Category | Component | Variant   | Slot   | Property   | State |
+| --------------------------------------- | -------- | --------- | --------- | ------ | ---------- | ----- |
+| `color.button.primary.background`       | color    | button    | primary   | --     | background | --    |
+| `color.button.primary.background.hover` | color    | button    | primary   | --     | background | hover |
+| `color.button.primary.icon.background`  | color    | button    | primary   | icon   | background | --    |
+| `color.button.secondary.border`         | color    | button    | secondary | --     | border     | --    |
+| `color.button.danger.background`        | color    | button    | danger    | --     | background | --    |
+| `color.card.background`                 | color    | card      | --        | --     | background | --    |
+| `spacing.card.avatar.padding`           | spacing  | card      | --        | avatar | padding    | --    |
+| `color.input.border`                    | color    | input     | --        | --     | border     | --    |
+| `color.input.border.focus`              | color    | input     | --        | --     | border     | focus |
+| `color.input.danger.border`             | color    | input     | danger    | --     | border     | --    |
+| `color.badge.success.background`        | color    | badge     | success   | --     | background | --    |
 
 ### Mapping to DTCG JSON
 
