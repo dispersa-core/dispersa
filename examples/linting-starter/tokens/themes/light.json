@@ -11,7 +11,8 @@
     },
     "text": {
       "$type": "color",
-      "$value": "{color.palette.gray-900}"
+      "$value": "{color.palette.gray-900}",
+      "$description": "Primary text color for light theme"
     }
   }
 }

@@ -108,7 +108,7 @@ const pathSchemaPatterns = [
 
 const lintRules = {
   'dispersa/require-description': [
-    'warn' as const,
+    'error' as const,
     { ignore: ['color.background', 'color.surface'] },
   ] as const,
   'dispersa/no-deprecated-usage': 'warn' as const,
@@ -162,11 +162,14 @@ const result = await build({
   buildPath: path.join(__dirname, 'output'),
   lint: {
     enabled: true,
-    failOnError: false,
+    failOnError: true,
     plugins: lintPlugins,
     rules: {
       ...lintRules,
-      'dispersa/path-schema': ['warn', { segments: pathSchemaSegments, paths: pathSchemaPatterns }],
+      'dispersa/path-schema': [
+        'error',
+        { segments: pathSchemaSegments, paths: pathSchemaPatterns },
+      ],
     },
   },
   outputs: [
