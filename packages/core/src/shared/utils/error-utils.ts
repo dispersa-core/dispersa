@@ -8,6 +8,7 @@ import {
   CircularReferenceError,
   ConfigurationError,
   FileOperationError,
+  LintError,
   ModifierError,
   TokenReferenceError,
   ValidationError,
@@ -65,6 +66,14 @@ export function toBuildError(error: unknown, outputName?: string): BuildError {
   }
   if (error instanceof ModifierError) {
     return { message, code: 'MODIFIER', severity: 'error' }
+  }
+  if (error instanceof LintError) {
+    return {
+      message,
+      code: 'LINT',
+      severity: 'error',
+      lintIssues: error.issues,
+    }
   }
 
   return { message, code: 'UNKNOWN', severity: 'error' }

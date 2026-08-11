@@ -297,6 +297,7 @@ export type ErrorCode =
   | 'CONFIGURATION'
   | 'BASE_PERMUTATION'
   | 'MODIFIER'
+  | 'LINT'
   | 'UNKNOWN'
 
 /**
@@ -323,6 +324,15 @@ export type BuildError = {
 
   /** Suggested alternatives (e.g. similar token names for TOKEN_REFERENCE errors) */
   suggestions?: string[]
+
+  /** Detailed lint issues for LINT errors */
+  lintIssues?: Array<{
+    ruleId: string
+    severity: 'error' | 'warn'
+    message: string
+    tokenName: string
+    tokenPath: string[]
+  }>
 }
 
 export type BuildResult = {
