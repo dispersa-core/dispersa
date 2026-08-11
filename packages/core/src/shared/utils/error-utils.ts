@@ -2,6 +2,7 @@
  * @fileoverview Error handling utilities
  */
 
+import type { LintResult } from '@lint/types'
 import type { BuildError } from '@outputs/types'
 import {
   BasePermutationError,
@@ -77,4 +78,25 @@ export function toBuildError(error: unknown, outputName?: string): BuildError {
   }
 
   return { message, code: 'UNKNOWN', severity: 'error' }
+}
+
+/**
+ * Extract the LintResult carried by a LintError, if the given error is one.
+ *
+ * Used to surface `lintResult` on `BuildResult` even when lint failed the
+ * build (the pipeline throws rather than returning a result in that case).
+ *
+ * @param error - The caught error value
+ * @returns The lint result, or undefined if the error isn't a LintError
+ */
+export function toLintResult(error: unknown): LintResult | undefined {
+  if (!(error instanceof LintError)) {
+    return undefined
+  }
+
+  return {
+    issues: error.issues,
+    errorCount: error.errorCount,
+    warningCount: error.warningCount,
+  }
 }

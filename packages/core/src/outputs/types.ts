@@ -6,6 +6,7 @@
  * they're all related to the output phase of token processing.
  */
 
+import type { LintResult } from '@lint/types'
 import type { Filter } from '@processing/filters/types'
 import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import type { ResolvedTokens } from '@shared/token-types'
@@ -344,6 +345,9 @@ export type BuildResult = {
 
   /** Array of errors encountered during build (only present if success is false) */
   errors?: BuildError[]
+
+  /** Lint results, present whenever `config.lint.enabled` is true */
+  lintResult?: LintResult
 }
 
 // ============================================================================

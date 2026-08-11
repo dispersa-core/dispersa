@@ -157,6 +157,9 @@ export class ModifierError extends DispersaError {
  * @param issues - Array of lint issues that caused the error
  */
 export class LintError extends DispersaError {
+  public errorCount: number
+  public warningCount: number
+
   constructor(
     public issues: Array<{
       ruleId: string
@@ -170,5 +173,7 @@ export class LintError extends DispersaError {
     const warningCount = issues.filter((i) => i.severity === 'warn').length
     super(`Lint failed with ${errorCount} error(s) and ${warningCount} warning(s).`)
     this.name = 'LintError'
+    this.errorCount = errorCount
+    this.warningCount = warningCount
   }
 }
