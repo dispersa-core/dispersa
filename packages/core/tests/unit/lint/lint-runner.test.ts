@@ -329,6 +329,73 @@ describe('LintRunner', () => {
     })
   })
 
+  describe('runMultiple', () => {
+    const createCheckTypePlugin = () =>
+      createTestPlugin({
+        'check-type': {
+          meta: {
+            name: 'check-type',
+            description: 'Check token type',
+            messages: { NO_TYPE: "Token '{{name}}' has no type" },
+          },
+          create: (context) => {
+            for (const token of Object.values(context.tokens) as InternalResolvedToken[]) {
+              if (!token.$type) {
+                context.report({ token, messageId: 'NO_TYPE', data: { name: token.name } })
+              }
+            }
+          },
+        },
+      })
+
+    beforeEach(() => {
+      runner = new LintRunner({
+        plugins: { test: createCheckTypePlugin() },
+        rules: { 'test/check-type': 'error' },
+      })
+    })
+
+    it('should deduplicate identical issues across permutations', async () => {
+      // Light/dark permutations share the same untyped token, so the same
+      // rule/token/message combination is reported once per permutation.
+      const light = createMockTokens({
+        'color.primary': { type: 'color' },
+        'spacing.base': {}, // no type - shared across permutations
+      })
+      const dark = createMockTokens({
+        'color.primary': { type: 'color' },
+        'spacing.base': {}, // no type - same issue as light
+      })
+
+      const result = await runner.runMultiple([light, dark])
+
+      expect(result.issues).toHaveLength(1)
+      expect(result.issues[0]?.tokenName).toBe('spacing.base')
+      expect(result.errorCount).toBe(1)
+      expect(result.warningCount).toBe(0)
+    })
+
+    it('should keep issues that are unique to a single permutation', async () => {
+      const light = createMockTokens({
+        'spacing.base': {}, // no type - shared issue
+      })
+      const dark = createMockTokens({
+        'spacing.base': {}, // no type - shared issue
+        'spacing.large': {}, // no type - unique to dark
+      })
+
+      const result = await runner.runMultiple([light, dark])
+
+      expect(result.issues).toHaveLength(2)
+      expect(result.issues.map((issue) => issue.tokenName).sort()).toEqual([
+        'spacing.base',
+        'spacing.large',
+      ])
+      expect(result.errorCount).toBe(2)
+      expect(result.warningCount).toBe(0)
+    })
+  })
+
   describe('clearCache', () => {
     it('should clear plugin cache', () => {
       runner = new LintRunner({})
