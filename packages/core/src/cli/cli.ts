@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { dirname, isAbsolute, resolve } from 'node:path'
 import process from 'node:process'
 
-import type { LintOutputFormat } from '@lint/types'
+import type { LintOutputFormat, LintResult } from '@lint/types'
 import { build, lint, type BuildConfig } from 'dispersa'
 import { createJiti } from 'jiti'
 
@@ -114,7 +114,10 @@ function reportBuildResult(
 ): number {
   if (!result.success) {
     io.stderr('Build failed.')
-    for (const error of result.errors ?? []) {
+    const errors = result.errors ?? []
+    const hasLintFailure = errors.some((error) => error.code === 'LINT')
+
+    for (const error of errors) {
       io.stderr(`- [${error.code}] ${error.message}`)
       if (verbose && error.tokenPath) {
         io.stderr(`  Token: ${error.tokenPath}`)
@@ -125,14 +128,18 @@ function reportBuildResult(
       if (verbose && error.suggestions && error.suggestions.length > 0) {
         io.stderr(`  Suggestions: ${error.suggestions.join(', ')}`)
       }
-      if (verbose && error.code === 'LINT' && error.lintIssues) {
-        for (const issue of error.lintIssues) {
-          const tokenDisplay =
-            issue.tokenPath.length > 0 ? issue.tokenPath.join('.') : issue.tokenName
-          io.stderr(`  - [${issue.ruleId}] ${tokenDisplay}: ${issue.message}`)
-        }
+      if (verbose && error.code === 'LINT' && result.lintResult) {
+        io.stderr(formatLintStylish(result.lintResult))
       }
     }
+
+    // Non-lint failures can still carry lint warnings (e.g. an output-write
+    // failure alongside `lint.enabled` warnings); the lint-failure branch
+    // above already prints the full detail, so this only fires otherwise.
+    if (!hasLintFailure) {
+      printLintSummary(io.stderr, result.lintResult, verbose)
+    }
+
     if (verbose) {
       io.stderr(`Duration: ${elapsed}ms`)
     }
@@ -145,11 +152,39 @@ function reportBuildResult(
     io.stdout(`- ${output.name}: ${location}`)
   }
 
+  printLintSummary(io.stdout, result.lintResult, verbose)
+
   if (verbose) {
     io.stdout(`Duration: ${elapsed}ms`)
   }
 
   return 0
+}
+
+function printLintSummary(
+  print: (message: string) => void,
+  lintResult: LintResult | undefined,
+  verbose: boolean,
+): void {
+  if (!lintResult || lintResult.issues.length === 0) {
+    return
+  }
+
+  print(lintSummaryLine(lintResult))
+  if (verbose) {
+    print(formatLintStylish(lintResult))
+  }
+}
+
+function lintSummaryLine(lintResult: LintResult): string {
+  const parts: string[] = []
+  if (lintResult.errorCount > 0) {
+    parts.push(`${lintResult.errorCount} lint error${lintResult.errorCount === 1 ? '' : 's'}`)
+  }
+  if (lintResult.warningCount > 0) {
+    parts.push(`${lintResult.warningCount} lint warning${lintResult.warningCount === 1 ? '' : 's'}`)
+  }
+  return parts.join(', ')
 }
 
 async function runLintCommand(args: string[], cwd: string, io: CliIO): Promise<number> {
