@@ -186,7 +186,11 @@ async function runLintCommand(args: string[], cwd: string, io: CliIO): Promise<n
   const startTime = Date.now()
 
   try {
-    const result = await lint({ resolver, ...lintConfig, validation })
+    // The `lint` command always prints the full report and derives its exit code
+    // from errorCount, independent of the config's failOnError (which is scoped to
+    // "should a build fail"). Forcing it false here prevents lint() from throwing
+    // and short-circuiting the print below.
+    const result = await lint({ resolver, ...lintConfig, validation, failOnError: false })
     const elapsed = Date.now() - startTime
 
     const formatter =
