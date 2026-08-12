@@ -395,11 +395,6 @@ export class TokenPipeline {
 
     const result = await runner.runMultiple(permutationTokens)
 
-    // Log warnings
-    for (const issue of result.issues.filter((i) => i.severity === 'warn')) {
-      this.validationHandler.warn(`[${issue.ruleId}] ${issue.message} (token: ${issue.tokenName})`)
-    }
-
     // Handle errors
     if (result.errorCount > 0 && lintConfig.failOnError !== false) {
       throw new LintError(result.issues)

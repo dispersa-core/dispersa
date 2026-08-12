@@ -18,7 +18,7 @@ Dispersa exposes a main entry point and several subpath exports. Use subpaths to
 | `dispersa/filters`       | byType, byPath, isAlias, isBase + Filter type                                                                                              | Token filtering                 |
 | `dispersa/outputs`       | Renderer functions, builders (css, json, js, tailwind, ios, android), defineRenderer, outputTree, isOutputTree + all types                 | Custom renderers, outputs       |
 | `dispersa/preprocessors` | Preprocessor type                                                                                                                          | Custom preprocessors            |
-| `dispersa/errors`        | All 8 error classes                                                                                                                        | Error handling                  |
+| `dispersa/errors`        | All 9 error classes                                                                                                                        | Error handling                  |
 | `dispersa/config`        | defineConfig, CliConfig                                                                                                                    | CLI config files                |
 | `dispersa/cli`           | CLI entry point                                                                                                                            | Internal CLI runner             |
 
@@ -99,7 +99,7 @@ Use when implementing custom preprocessors.
 
 ## dispersa/errors
 
-**Exports:** `DispersaError`, `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`
+**Exports:** `DispersaError`, `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`, `LintError`
 
 ```typescript
 import { TokenReferenceError, ValidationError } from 'dispersa/errors'

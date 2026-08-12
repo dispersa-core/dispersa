@@ -8,7 +8,7 @@
 
 import { rm } from 'node:fs/promises'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { build, BuildConfig, json, lint } from '../../../src/index'
 import { recommendedConfig } from '../../../src/lint'
@@ -99,10 +99,19 @@ describe('Lint Integration', () => {
         },
       }
 
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const result = await build(config)
 
       expect(result.success).toBe(true)
       expect(result.errors).toBeUndefined()
+      expect(result.lintResult).toBeDefined()
+      expect(result.lintResult!.warningCount).toBeGreaterThan(0)
+      expect(result.lintResult!.errorCount).toBe(0)
+      expect(result.lintResult!.issues.length).toBe(result.lintResult!.warningCount)
+      expect(warnSpy).not.toHaveBeenCalled()
+
+      warnSpy.mockRestore()
     })
 
     it('fails build when lint errors exist and failOnError is true (default)', async () => {
@@ -131,6 +140,15 @@ describe('Lint Integration', () => {
       expect(result.success).toBe(false)
       expect(result.errors).toBeDefined()
       expect(result.errors!.length).toBeGreaterThan(0)
+      expect(result.errors![0]!.code).toBe('LINT')
+      expect(result.errors![0]!.lintIssues).toBeDefined()
+      expect(result.errors![0]!.lintIssues!.length).toBeGreaterThan(0)
+      expect(
+        result.errors![0]!.lintIssues!.every((issue) => issue.ruleId === 'dispersa/require-description'),
+      ).toBe(true)
+      expect(result.lintResult).toBeDefined()
+      expect(result.lintResult!.errorCount).toBeGreaterThan(0)
+      expect(result.lintResult!.issues).toEqual(result.errors![0]!.lintIssues)
     })
 
     it('succeeds when lint errors exist and failOnError is false', async () => {
@@ -159,6 +177,8 @@ describe('Lint Integration', () => {
 
       expect(result.success).toBe(true)
       expect(result.errors).toBeUndefined()
+      expect(result.lintResult).toBeDefined()
+      expect(result.lintResult!.errorCount).toBeGreaterThan(0)
     })
 
     it('succeeds when linting is disabled', async () => {

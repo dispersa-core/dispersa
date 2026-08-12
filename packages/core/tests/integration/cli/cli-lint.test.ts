@@ -23,7 +23,80 @@ describe('Dispersa CLI Lint', () => {
     })
 
     expect(code).toBe(1)
-    expect(stderr.join('\n')).toContain('Lint failed')
+    expect(stderr.join('\n')).not.toContain('Lint failed')
+    expect(stdout.join('\n')).toContain('dispersa/require-description')
+    expect(stdout.join('\n')).toContain('error')
+
+    await rm(join(resolverDir, 'dist'), { recursive: true, force: true })
+  })
+
+  it('prints the full structured report and exits 1 for real errors under default failOnError', async () => {
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const code = await runCli(
+      ['lint', '--config', getFixturePath('lint-error.config.ts'), '--format', 'json'],
+      {
+        cwd: resolverDir,
+        io: {
+          stdout: (message) => stdout.push(message),
+          stderr: (message) => stderr.push(message),
+        },
+      },
+    )
+
+    expect(code).toBe(1)
+    expect(stderr.join('\n')).not.toContain('Lint failed')
+
+    const output = stdout.join('\n')
+    expect(() => JSON.parse(output)).not.toThrow()
+    const parsed = JSON.parse(output)
+    expect(parsed.errorCount).toBeGreaterThan(0)
+    expect(Array.isArray(parsed.issues)).toBe(true)
+    expect(parsed.issues.length).toBeGreaterThan(0)
+    expect(parsed.issues[0]).toMatchObject({ ruleId: 'dispersa/require-description' })
+
+    await rm(join(resolverDir, 'dist'), { recursive: true, force: true })
+  })
+
+  it('still prints the full report and exits 1 when config sets failOnError: true', async () => {
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const code = await runCli(
+      ['lint', '--config', getFixturePath('lint-error-fail-on-error-true.config.ts')],
+      {
+        cwd: resolverDir,
+        io: {
+          stdout: (message) => stdout.push(message),
+          stderr: (message) => stderr.push(message),
+        },
+      },
+    )
+
+    expect(code).toBe(1)
+    expect(stderr.join('\n')).not.toContain('Lint failed')
+    expect(stdout.join('\n')).toContain('dispersa/require-description')
+
+    await rm(join(resolverDir, 'dist'), { recursive: true, force: true })
+  })
+
+  it('runs lint with compact format and reports real errors', async () => {
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const code = await runCli(
+      ['lint', '--config', getFixturePath('lint-error.config.ts'), '--format', 'compact'],
+      {
+        cwd: resolverDir,
+        io: {
+          stdout: (message) => stdout.push(message),
+          stderr: (message) => stderr.push(message),
+        },
+      },
+    )
+
+    expect(code).toBe(1)
+    expect(stderr.join('\n')).not.toContain('Lint failed')
+    expect(stdout.join('\n')).toContain('ERROR: dispersa/require-description')
+    expect(stdout.join('\n')).toMatch(/SUMMARY: \d+ errors, \d+ warnings/)
 
     await rm(join(resolverDir, 'dist'), { recursive: true, force: true })
   })
