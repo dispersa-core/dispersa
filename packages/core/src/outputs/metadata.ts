@@ -87,11 +87,11 @@ export function buildTokenDeprecationComment(
   }
 }
 
-export function buildSetComment(setName: string, description?: string): string {
+export function buildBlockComment(key: string, description?: string): string {
   if (description) {
-    return `/* Set: ${setName} */\n/* ${sanitizeText(description, 'css')} */`
+    return `/* ${key} */\n/* ${sanitizeText(description, 'css')} */`
   }
-  return `/* Set: ${setName} */`
+  return `/* ${key} */`
 }
 
 export function buildModifierComment(modifier: string, context: string): string {

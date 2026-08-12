@@ -475,6 +475,73 @@ describe('CSS Renderer', () => {
       expect(baseFile).toContain('/* Spacing scale */')
     })
 
+    it('should escape */ in set descriptions so the comment cannot be closed early', async () => {
+      const setTokens: ResolvedTokens = {
+        'color.base.red': {
+          $value: { colorSpace: 'srgb', components: [1, 0, 0] },
+          $type: 'color',
+          name: 'color-base-red',
+          path: ['color', 'base', 'red'],
+          originalValue: '#ff0000',
+          _sourceSet: 'colors',
+        } as ResolvedToken,
+      }
+
+      const maliciousResolver: ResolverDocument = {
+        name: 'Test',
+        version: '2025.10',
+        sets: {
+          colors: {
+            description: 'Glob: src/**/*.tokens.json',
+            sources: [],
+          },
+        },
+        modifiers: {
+          theme: {
+            description: 'Theme variations',
+            default: 'light',
+            contexts: { light: [], dark: [] },
+          },
+        },
+        resolutionOrder: [{ $ref: '#/sets/colors' }, { $ref: '#/modifiers/theme' }],
+      }
+
+      const output: OutputConfig = {
+        name: 'css-themes',
+        renderer,
+        file: '{theme}/tokens.css',
+        options: { preset: 'modifier' },
+      }
+
+      const context: RenderContext = {
+        permutations: [
+          { tokens: setTokens, modifierInputs: { theme: 'light' } },
+          { tokens: setTokens, modifierInputs: { theme: 'dark' } },
+        ],
+        output,
+        resolver: maliciousResolver,
+        meta: {
+          dimensions: ['theme'],
+          defaults: { theme: 'light' },
+          basePermutation: { theme: 'light' },
+        },
+      }
+
+      const result = await renderer.format(context, context.output.options)
+
+      expect(isOutputTree(result)).toBe(true)
+      if (!isOutputTree(result)) return
+
+      const baseFile = result.files['base/tokens.css']!
+
+      // The description must be escaped as a single, unbroken comment.
+      expect(baseFile).toContain('/* Glob: src/**\\/*.tokens.json */')
+
+      // The raw, unescaped form must not appear (it would close the comment
+      // early and leak "*.tokens.json */" as garbage CSS).
+      expect(baseFile).not.toContain('/* Glob: src/**/*.tokens.json */')
+    })
+
     it('should not emit base file when there are no set tokens', async () => {
       const lightModTokens: ResolvedTokens = {
         'color.semantic.bg': {
