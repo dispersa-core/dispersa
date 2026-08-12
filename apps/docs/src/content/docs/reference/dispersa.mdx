@@ -202,12 +202,12 @@ Configuration passed to `build`, `buildOrThrow`, and `buildPermutation`:
 
 Returned by `build`, `buildOrThrow`, and `buildPermutation`:
 
-| Property   | Type                                                 | Description                                |
-| ---------- | ---------------------------------------------------- | ------------------------------------------ |
-| success    | `boolean`                                            | Whether the build completed without errors |
-| outputs    | `{ name: string; path?: string; content: string }[]` | Per-output results                         |
-| errors     | `BuildError[]`                                       | Present when `success` is false            |
-| lintResult | `LintResult`                                         | Lint results when linting is enabled       |
+| Property   | Type                                                 | Description                                                                 |
+| ---------- | ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| success    | `boolean`                                            | Whether the build completed without errors                                  |
+| outputs    | `{ name: string; path?: string; content: string }[]` | Per-output results                                                          |
+| errors     | `BuildError[]`                                       | Present when `success` is false                                             |
+| lintResult | `LintResult`                                         | Present when `lint.enabled` is `true`, on both successful and failed builds |
 
 ## BuildError
 
