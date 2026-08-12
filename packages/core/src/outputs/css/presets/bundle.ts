@@ -26,6 +26,7 @@ import {
   parseModifierSource,
   normalizeModifierInputs,
 } from '../../utils'
+import { buildBlockComment } from '../../metadata'
 
 const REF_PREFIX_SETS = '#/sets/'
 const REF_PREFIX_MODIFIERS = '#/modifiers/'
@@ -119,9 +120,7 @@ async function formatBasePermutation(
       minify: options?.minify,
       referenceTokens,
     })
-    const header = block.description
-      ? `/* ${block.key} */\n/* ${block.description} */`
-      : `/* ${block.key} */`
+    const header = buildBlockComment(block.key, block.description)
     cssBlocks.push(`${header}\n${css}`)
   }
 

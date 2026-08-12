@@ -37,7 +37,11 @@ import {
   resolveSelector,
   stripInternalMetadata,
 } from '../utils'
-import { buildTokenDeprecationComment, buildTokenDescriptionComment } from '../metadata'
+import {
+  buildBlockComment,
+  buildTokenDeprecationComment,
+  buildTokenDescriptionComment,
+} from '../metadata'
 import type { CssRendererOptions, RenderContext, RenderOutput, Renderer } from '../types'
 
 type ResolvedCssOptions = Omit<CssRendererOptions, 'selector' | 'mediaQuery'> & {
@@ -881,9 +885,7 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
         preserveReferences: options.preserveReferences ?? false,
         referenceTokens,
       })
-      const header = block.description
-        ? `/* ${block.key} */\n/* ${block.description} */`
-        : `/* ${block.key} */`
+      const header = buildBlockComment(block.key, block.description)
       cssBlocks.push(`${header}\n${css}`)
     }
     return cssBlocks.join('\n')

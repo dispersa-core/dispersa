@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import type { ResolvedToken } from '../../../src/tokens/types'
 import {
+  buildBlockComment,
   buildKotlinDeprecationAnnotation,
   buildModifierComment,
-  buildSetComment,
   buildSwiftDeprecationAttribute,
   buildTokenDeprecationComment,
   buildTokenDescriptionComment,
@@ -127,14 +127,20 @@ describe('metadata utilities', () => {
     })
   })
 
-  describe('buildSetComment', () => {
-    it('returns set name only when no description', () => {
-      expect(buildSetComment('colors')).toBe('/* Set: colors */')
+  describe('buildBlockComment', () => {
+    it('returns key only when no description', () => {
+      expect(buildBlockComment('Set: colors')).toBe('/* Set: colors */')
     })
 
     it('includes description when provided', () => {
-      expect(buildSetComment('colors', 'Color palette')).toBe(
+      expect(buildBlockComment('Set: colors', 'Color palette')).toBe(
         '/* Set: colors */\n/* Color palette */',
+      )
+    })
+
+    it('escapes */ in the description so the comment cannot be closed early', () => {
+      expect(buildBlockComment('Set: colors', 'Glob: src/**/*.tokens.json')).toBe(
+        '/* Set: colors */\n/* Glob: src/**\\/*.tokens.json */',
       )
     })
   })
