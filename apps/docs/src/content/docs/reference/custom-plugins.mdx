@@ -231,10 +231,13 @@ import { PluginLoader } from 'dispersa/lint'
 
 const loader = new PluginLoader()
 
-const config = await loader.loadConfig({
-  plugins: {
-    a11y: '@dispersa/lint-plugin-a11y',
-  },
+// Load a single plugin
+const a11yPlugin = await loader.load('@dispersa/lint-plugin-a11y')
+
+// Load several plugins at once
+const plugins = await loader.loadAll({
+  a11y: '@dispersa/lint-plugin-a11y',
+  myPlugin: './lint-plugins/my-design-system.ts',
 })
 ```
 
@@ -243,6 +246,8 @@ The loader can resolve:
 - Package names (e.g., `@dispersa/lint-plugin-a11y`)
 - File paths
 - Already-loaded plugin objects
+
+Loaded plugins are cached by source. Call `loader.clearCache()` to force a reload.
 
 ---
 

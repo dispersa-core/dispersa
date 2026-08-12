@@ -62,6 +62,7 @@ type BuildError = {
 | CONFIGURATION      | Invalid config                                                                                        |
 | BASE_PERMUTATION   | Missing base permutation for bundle mode                                                              |
 | MODIFIER           | Invalid [modifier](https://www.designtokens.org/TR/2025.10/resolver/#modifiers) input or context      |
+| LINT               | Lint errors found and `failOnError` is `true`                                                         |
 | UNKNOWN            | Unexpected error                                                                                      |
 
 ## Suggestions
@@ -113,7 +114,9 @@ try {
 }
 ```
 
-Available error classes: `DispersaError` (base), `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`.
+Available error classes: `DispersaError` (base), `TokenReferenceError`, `CircularReferenceError`, `ValidationError`, `FileOperationError`, `ConfigurationError`, `BasePermutationError`, `ModifierError`, `LintError`.
+
+`LintError` is thrown by `lint()` and `build()` when lint errors are found and `failOnError` is `true` (the default). It carries `issues`, `errorCount`, and `warningCount`.
 
 <LinkCard
   title="Subpath Exports"

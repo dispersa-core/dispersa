@@ -29,6 +29,8 @@ import { dispersaPlugin, recommendedConfig } from 'dispersa/lint'
 const result = await lint({
   resolver: './tokens.resolver.json',
   ...recommendedConfig,
+  // lint() throws a LintError on errors unless failOnError is false
+  failOnError: false,
 })
 console.log(`Found ${result.errorCount} errors, ${result.warningCount} warnings`)
 ```
@@ -661,6 +663,7 @@ type BuildError = {
 | `CONFIGURATION`      | Invalid build or renderer configuration     |
 | `BASE_PERMUTATION`   | Missing base permutation for bundle mode    |
 | `MODIFIER`           | Invalid modifier input or context           |
+| `LINT`               | Lint errors found and `failOnError` is true |
 | `UNKNOWN`            | Catch-all for unexpected errors             |
 
 ## Lifecycle hooks
@@ -749,6 +752,12 @@ export default defineConfig({
     }),
   ],
 })
+```
+
+Run `dispersa lint` to lint tokens independently of the build, using the `lint` block in your config file:
+
+```bash
+dispersa lint
 ```
 
 ## API reference
