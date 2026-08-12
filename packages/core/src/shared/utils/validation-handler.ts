@@ -43,7 +43,7 @@ export class ValidationHandler {
     }
     if (this.mode === 'warn') {
       // eslint-disable-next-line no-console
-      console.warn(error.message)
+      console.warn(`[WARN] ${error.message}`)
     }
   }
 
@@ -55,6 +55,6 @@ export class ValidationHandler {
       return
     }
     // eslint-disable-next-line no-console
-    console.warn(message)
+    console.warn(`[WARN] ${message}`)
   }
 }

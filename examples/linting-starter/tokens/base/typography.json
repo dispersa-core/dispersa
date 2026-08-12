@@ -41,7 +41,8 @@
       "$description": "Type scale",
       "xs": {
         "$type": "dimension",
-        "$value": { "value": 0.75, "unit": "rem" }
+        "$value": { "value": 0.75, "unit": "rem" },
+        "$description": "Extra small text (0.75rem)"
       },
       "sm": {
         "$type": "dimension",

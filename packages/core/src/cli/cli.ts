@@ -125,6 +125,13 @@ function reportBuildResult(
       if (verbose && error.suggestions && error.suggestions.length > 0) {
         io.stderr(`  Suggestions: ${error.suggestions.join(', ')}`)
       }
+      if (verbose && error.code === 'LINT' && error.lintIssues) {
+        for (const issue of error.lintIssues) {
+          const tokenDisplay =
+            issue.tokenPath.length > 0 ? issue.tokenPath.join('.') : issue.tokenName
+          io.stderr(`  - [${issue.ruleId}] ${tokenDisplay}: ${issue.message}`)
+        }
+      }
     }
     if (verbose) {
       io.stderr(`Duration: ${elapsed}ms`)

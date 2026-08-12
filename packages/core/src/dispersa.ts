@@ -19,7 +19,7 @@ import type { BuildResult } from '@outputs/types'
 import type { ModifierInputs, ResolverDocument } from '@resolution/types'
 import { ConfigurationError, LintError } from '@shared/errors/index'
 import type { ValidationOptions } from '@shared/types/validation'
-import { toBuildError } from '@shared/utils/error-utils'
+import { toBuildError, toLintResult } from '@shared/utils/error-utils'
 import { stripInternalTokenMetadata } from '@shared/utils/token-utils'
 import type { ResolvedTokens, InternalResolvedTokens } from '@shared/token-types'
 import { SchemaValidator } from '@validation/validator'
@@ -182,6 +182,7 @@ export async function build(config: BuildConfig): Promise<BuildResult> {
       success: false,
       outputs: [],
       errors: [toBuildError(error)],
+      lintResult: toLintResult(error),
     }
   }
 }

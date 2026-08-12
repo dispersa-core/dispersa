@@ -5,6 +5,7 @@
 
 import type { OutputProcessor } from '@engine/output-processor'
 import type { BuildConfig } from '@engine/types'
+import type { LintResult } from '@lint/types'
 import { buildMetadata, resolveResolverDocument } from '@outputs/utils'
 import type { BuildResult, PermutationData, RenderContext } from '@outputs/types'
 import type { ResolverDocument } from '@resolution/types'
@@ -93,12 +94,9 @@ export class BuildOrchestrator {
       )
 
       // Run lint on all permutations with deduplication
-      if (config.lint?.enabled) {
-        const tokenSets = permutations.map((p) => p.tokens)
-        await this.pipeline.runLintOnPermutations(tokenSets, config.lint)
-      }
+      const lintResult = await this.runLint(config, permutations)
 
-      return this.executeBuild(buildPath, config, permutations, resolver)
+      return this.executeBuild(buildPath, config, permutations, resolver, lintResult)
     }
 
     const permutations = await Promise.all(
@@ -114,12 +112,25 @@ export class BuildOrchestrator {
       }),
     )
 
-    if (config.lint?.enabled) {
-      const tokenSets = permutations.map((p) => p.tokens)
-      await this.pipeline.runLintOnPermutations(tokenSets, config.lint)
+    const lintResult = await this.runLint(config, permutations)
+
+    return this.executeBuild(buildPath, config, permutations, resolver, lintResult)
+  }
+
+  /**
+   * Run lint on resolved permutations if lint is enabled, deduplicating issues
+   * across permutations. Returns undefined when lint is disabled.
+   */
+  private async runLint(
+    config: BuildConfig,
+    permutations: PermutationData[],
+  ): Promise<LintResult | undefined> {
+    if (!config.lint?.enabled) {
+      return undefined
     }
 
-    return this.executeBuild(buildPath, config, permutations, resolver)
+    const tokenSets = permutations.map((p) => p.tokens)
+    return this.pipeline.runLintOnPermutations(tokenSets, config.lint)
   }
 
   /**
@@ -145,6 +156,7 @@ export class BuildOrchestrator {
     config: BuildConfig,
     permutations: PermutationData[],
     resolver: string | ResolverDocument,
+    lintResult?: LintResult,
   ): Promise<BuildResult> {
     try {
       const resolverDoc = await resolveResolverDocument(resolver)
@@ -164,7 +176,7 @@ export class BuildOrchestrator {
         ),
       )
 
-      const result = this.collectSettledResults(settled, config)
+      const result = this.collectSettledResults(settled, config, lintResult)
 
       if (config.hooks?.onBuildEnd) {
         await config.hooks.onBuildEnd(result)
@@ -176,6 +188,7 @@ export class BuildOrchestrator {
         success: false,
         outputs: [],
         errors: [toBuildError(error)],
+        lintResult,
       }
 
       if (config.hooks?.onBuildEnd) {
@@ -230,6 +243,7 @@ export class BuildOrchestrator {
   private collectSettledResults(
     settled: PromiseSettledResult<BuildResult['outputs']>[],
     config: BuildConfig,
+    lintResult?: LintResult,
   ): BuildResult {
     const outputs: BuildResult['outputs'] = []
     const errors: BuildResult['errors'] = []
@@ -247,6 +261,7 @@ export class BuildOrchestrator {
       success: errors.length === 0,
       outputs,
       errors: errors.length > 0 ? errors : undefined,
+      lintResult,
     }
   }
 

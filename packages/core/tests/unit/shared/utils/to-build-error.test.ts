@@ -12,6 +12,7 @@ import {
   CircularReferenceError,
   ConfigurationError,
   FileOperationError,
+  LintError,
   ModifierError,
   TokenReferenceError,
   ValidationError,
@@ -148,5 +149,49 @@ describe('toBuildError', () => {
     const result = toBuildError(error)
 
     expect(result.message).toBe('Bad config')
+  })
+
+  it('should convert LintError with lint issues', () => {
+    const issues = [
+      {
+        ruleId: 'no-alias',
+        severity: 'error' as const,
+        message: 'Token should not reference another token',
+        tokenName: 'color.primary',
+        tokenPath: ['color', 'primary'],
+      },
+      {
+        ruleId: 'no-short-hex',
+        severity: 'error' as const,
+        message: 'Use 6-digit hex codes',
+        tokenName: 'color.accent',
+        tokenPath: ['color', 'accent'],
+      },
+    ]
+    const error = new LintError(issues)
+    const result = toBuildError(error)
+
+    expect(result.code).toBe('LINT')
+    expect(result.severity).toBe('error')
+    expect(result.lintIssues).toEqual(issues)
+    expect(result.message).toContain('2 error(s)')
+  })
+
+  it('should include lint warnings in LintError', () => {
+    const issues = [
+      {
+        ruleId: 'naming-convention',
+        severity: 'warn' as const,
+        message: 'Token name should be lowercase',
+        tokenName: 'color.Primary',
+        tokenPath: ['color', 'Primary'],
+      },
+    ]
+    const error = new LintError(issues)
+    const result = toBuildError(error)
+
+    expect(result.code).toBe('LINT')
+    expect(result.lintIssues).toHaveLength(1)
+    expect(result.lintIssues?.[0]?.severity).toBe('warn')
   })
 })

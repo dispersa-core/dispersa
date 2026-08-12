@@ -11,7 +11,8 @@
     },
     "text": {
       "$type": "color",
-      "$value": "{color.palette.gray-100}"
+      "$value": "{color.palette.gray-100}",
+      "$description": "Primary text color for dark theme"
     }
   }
 }

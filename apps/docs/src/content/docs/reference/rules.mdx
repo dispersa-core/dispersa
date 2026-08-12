@@ -183,7 +183,7 @@ rules: {
 }
 ```
 
-Use `{segment}` for named segments, `*` for wildcard segments, `{name?}` for optional segments, and `{a|b}` for OR syntax (matches segment definitions `a` OR `b`).
+Use `{segment}` for named segments, `*` for wildcard segments, `{name}?` for optional segments, and `{a|b}` for OR syntax (matches segment definitions `a` OR `b`).
 
 ### Transition Rules
 
@@ -225,9 +225,9 @@ const lintRules = {
       },
       paths: [
         '{category}.{component}.{property}',
-        '{category}.{component}.{property}.{state?}',
-        '{category}.{component}.{variant?}.{property}',
-        '{category}.{component}.{variant?}.{property}.{state?}',
+        '{category}.{component}.{property}.{state}?',
+        '{category}.{component}.{variant}?.{property}',
+        '{category}.{component}.{variant}?.{property}.{state}?',
       ],
     },
   ],
