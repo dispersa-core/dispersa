@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PROTOTYPE — outputReferences shapes for JS/JSON (throwaway, wayfinder #29)</title>
+<style>
+  :root {
+    --accent: #6d28d9;
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2e37;
+    --text: #e6e6e6;
+    --muted: #8a8f9c;
+    --bad: #ef4444;
+    --good: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px;
+    line-height: 1.5;
+  }
+  .banner {
+    background: #3b2f0e;
+    border: 1px solid #7a5c0a;
+    color: #ffd76a;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .question {
+    color: var(--muted);
+    max-width: 800px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .controls label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .controls label:first-child { margin-top: 0; }
+  select, .seg {
+    width: 100%;
+  }
+  select {
+    background: #0f1115;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .seg {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .seg button {
+    flex: 1;
+    background: #0f1115;
+    color: var(--muted);
+    border: none;
+    padding: 6px 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .seg button.active {
+    background: var(--accent);
+    color: white;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .checkbox-row input { width: 16px; height: 16px; }
+  .checkbox-row label { margin: 0; color: var(--text); font-size: 13px; }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tabs button {
+    background: #0f1115;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .tabs button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .scenario-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    background: #0f1115;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .steps button {
+    background: #1c2030;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .steps button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  pre {
+    background: #0a0b0e;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    overflow-x: auto;
+    min-height: 220px;
+    white-space: pre-wrap;
+  }
+  .error-callout {
+    background: #3b0f0f;
+    border: 1px solid var(--bad);
+    color: #ffb4b4;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .ok-callout {
+    background: #0f3b1a;
+    border: 1px solid var(--good);
+    color: #b4ffcb;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  PROTOTYPE — throwaway. Answers wayfinder ticket
+  "Decide cross-renderer reference output (outputReferences) support and API" (dispersa#29).
+  Does not touch real renderer source. To be captured to a throwaway branch and discarded from main.
+</div>
+
+<h1>outputReferences shapes for JS and JSON</h1>
+<p class="question">
+  <strong>Question:</strong> CSS's renderer already has <code>preserveReferences</code> — an aliased
+  token emits <code>var(--referenced-name)</code> instead of its resolved value. JS/JSON have no
+  equivalent; they always emit fully-resolved values. Should they gain a reference-output option, and
+  what should the emitted shape actually look like? Toggle the controls below (or click through a
+  guided scenario) to see exact generated output for each candidate shape, over the same small fixed
+  token set.
+</p>
+
+<div class="layout">
+  <div class="panel controls">
+    <div class="section-title">Free play</div>
+
+    <label>Format</label>
+    <div class="seg" id="seg-format">
+      <button data-format="json" class="active">JSON</button>
+      <button data-format="js">JS</button>
+    </div>
+
+    <label>Structure</label>
+    <div class="seg" id="seg-structure">
+      <button data-structure="nested" class="active">nested</button>
+      <button data-structure="flat">flat</button>
+    </div>
+
+    <div class="checkbox-row" id="row-metadata">
+      <input type="checkbox" id="chk-metadata" />
+      <label for="chk-metadata">includeMetadata (JSON only)</label>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="chk-refs" />
+      <label for="chk-refs">outputReferences</label>
+    </div>
+
+    <label id="label-js-shape">JS reference shape (only matters if outputReferences is on)</label>
+    <select id="sel-js-shape">
+      <option value="perTokenConst">per-token const (works)</option>
+      <option value="singleObject">single object literal (naive — breaks)</option>
+    </select>
+
+    <label>Token scenario</label>
+    <select id="sel-scenario">
+      <option value="normal">normal set (base + aliases + composite alias)</option>
+      <option value="collision">collision set (two paths → same JS identifier)</option>
+    </select>
+  </div>
+
+  <div>
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="section-title">Guided walkthroughs</div>
+      <div class="tabs" id="tabs"></div>
+      <div class="scenario-desc" id="scenario-desc"></div>
+      <div class="steps" id="steps"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">Generated output</div>
+      <div id="callout"></div>
+      <pre id="output"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// PURE LOGIC — liftable. No DOM references below this block.
+// Mirrors packages/core/src/outputs/{json,js}/renderer.ts shapes closely
+// enough to judge the real API, using a minimal stand-in for ResolvedTokens.
+// ============================================================================
+
+const NORMAL_TOKENS = {
+  'color.red.500': {
+    name: 'color.red.500',
+    $type: 'color',
+    $value: '#ff0000',
+    originalValue: '#ff0000',
+  },
+  'color.brand.primary': {
+    name: 'color.brand.primary',
+    $type: 'color',
+    $value: '#ff0000', // resolved
+    originalValue: '{color.red.500}', // alias
+  },
+  'spacing.2': {
+    name: 'spacing.2',
+    $type: 'dimension',
+    $value: '2px',
+    originalValue: '2px',
+  },
+  'shadow.card': {
+    name: 'shadow.card',
+    $type: 'shadow',
+    $value: { offsetX: '0px', offsetY: '2px', blur: '4px', color: '#ff0000' },
+    // color leaf is an alias; rest are literal
+    originalValue: { offsetX: '0px', offsetY: '2px', blur: '4px', color: '{color.brand.primary}' },
+  },
+}
+
+// Two different token paths that both normalize to the same camelCase
+// identifier ("colorBrandPrimary") — demonstrates the collision risk of the
+// per-token-const shape.
+const COLLISION_TOKENS = {
+  ...NORMAL_TOKENS,
+  'color.brand-primary': {
+    name: 'color.brand-primary',
+    $type: 'color',
+    $value: '#ff0000',
+    originalValue: '{color.red.500}',
+  },
+}
+
+function getScenarioTokens(scenario) {
+  return scenario === 'collision' ? COLLISION_TOKENS : NORMAL_TOKENS
+}
+
+function getPureAliasReferenceName(value) {
+  if (typeof value !== 'string') return undefined
+  const match = /^\{([^}]+)\}$/.exec(value)
+  return match?.[1]?.trim()
+}
+
+function isPlainObject(v) {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+// Sorted for deterministic output, mirroring getSortedTokenEntries().
+function sortedEntries(tokens) {
+  return Object.entries(tokens).sort(([a], [b]) => a.localeCompare(b))
+}
+
+function setPath(obj, path, value) {
+  let cur = obj
+  for (let i = 0; i < path.length - 1; i++) {
+    cur[path[i]] ??= {}
+    cur = cur[path[i]]
+  }
+  cur[path[path.length - 1]] = value
+}
+
+function buildNestedTokenObject(tokens, valueFn) {
+  const result = {}
+  for (const [name, token] of sortedEntries(tokens)) {
+    setPath(result, name.split('.'), valueFn(token))
+  }
+  return result
+}
+
+// ---------------------------------------------------------------------------
+// JSON shape
+// ---------------------------------------------------------------------------
+
+// Recursively substitutes alias leaves (inside composite $values too) with
+// the raw alias string when outputReferences is on. This is the candidate
+// API: JSON regains the DTCG alias notation it already understands, rather
+// than inventing a new $ref convention.
+function jsonLeafValue(token, outputReferences) {
+  if (!outputReferences) return token.$value
+
+  const topRefName = getPureAliasReferenceName(token.originalValue)
+  if (topRefName !== undefined) {
+    return `{${topRefName}}`
+  }
+
+  if (isPlainObject(token.originalValue) && isPlainObject(token.$value)) {
+    const merged = { ...token.$value }
+    for (const [key, orig] of Object.entries(token.originalValue)) {
+      const refName = getPureAliasReferenceName(orig)
+      if (refName !== undefined) {
+        merged[key] = `{${refName}}`
+      }
+    }
+    return merged
+  }
+
+  return token.$value
+}
+
+function serializeJsonToken(token, outputReferences) {
+  return {
+    $value: jsonLeafValue(token, outputReferences),
+    ...(typeof token.$type === 'string' && { $type: token.$type }),
+  }
+}
+
+function renderJson(tokens, { structure, includeMetadata, outputReferences }) {
+  const valueFn = includeMetadata
+    ? (t) => serializeJsonToken(t, outputReferences)
+    : (t) => jsonLeafValue(t, outputReferences)
+
+  const output =
+    structure === 'flat'
+      ? Object.fromEntries(sortedEntries(tokens).map(([name, t]) => [name, valueFn(t)]))
+      : buildNestedTokenObject(tokens, valueFn)
+
+  return JSON.stringify(output, null, 2)
+}
+
+// ---------------------------------------------------------------------------
+// JS shape — today's fully-resolved baseline
+// ---------------------------------------------------------------------------
+
+function renderJsResolved(tokens, { structure }) {
+  const obj =
+    structure === 'flat'
+      ? Object.fromEntries(sortedEntries(tokens).map(([name, t]) => [name, t.$value]))
+      : buildNestedTokenObject(tokens, (t) => t.$value)
+
+  return `const tokens = ${JSON.stringify(obj, null, 2)}\n\nexport default tokens`
+}
+
+// ---------------------------------------------------------------------------
+// JS shape — naive single object literal referencing itself (broken)
+// ---------------------------------------------------------------------------
+
+function toCamelIdentifier(path) {
+  const parts = path.split(/[.\-]/).filter(Boolean)
+  return parts
+    .map((p, i) => (i === 0 ? p.toLowerCase() : p[0].toUpperCase() + p.slice(1).toLowerCase()))
+    .join('')
+}
+
+function renderJsSingleObjectRefs(tokens, { structure }) {
+  const obj =
+    structure === 'flat'
+      ? Object.fromEntries(
+          sortedEntries(tokens).map(([name, t]) => [name, jsRefPlaceholder(t)]),
+        )
+      : buildNestedTokenObject(tokens, (t) => jsRefPlaceholder(t))
+
+  // Render as if the placeholders were real identifier expressions, to make
+  // the TDZ problem visible in the generated *text*, not just describe it.
+  let text = JSON.stringify(obj, null, 2)
+  text = text.replace(/"__REF__(.*?)__"/g, (_, ref) => `tokens.${ref.split('.').join('.')}`)
+
+  return {
+    code: `const tokens = ${text}\n\nexport default tokens`,
+    broken: /tokens\./.test(text),
+  }
+}
+
+function jsRefPlaceholder(token) {
+  const refName = getPureAliasReferenceName(token.originalValue)
+  if (refName !== undefined) return `__REF__${refName}__`
+  return token.$value
+}
+
+// ---------------------------------------------------------------------------
+// JS shape — per-token consts, topologically sorted, then composed object
+// ---------------------------------------------------------------------------
+
+function renderJsPerTokenConsts(tokens, { structure }) {
+  const names = Object.keys(tokens)
+  const idFor = new Map(names.map((n) => [n, toCamelIdentifier(n)]))
+
+  // collision check
+  const seen = new Map()
+  for (const [name, id] of idFor) {
+    if (seen.has(id)) {
+      return {
+        error: `Identifier collision: "${name}" and "${seen.get(id)}" both normalize to ` +
+          `"${id}". Cannot emit per-token consts without a disambiguation rule ` +
+          `(e.g. keep dots/dashes distinct, or error out and require a rename).`,
+      }
+    }
+    seen.set(id, name)
+  }
+
+  // topo sort: base tokens before aliases that reference them
+  const order = []
+  const visited = new Set()
+  function visit(name) {
+    if (visited.has(name)) return
+    visited.add(name)
+    const token = tokens[name]
+    const refName = getPureAliasReferenceName(token.originalValue)
+    if (refName && tokens[refName]) visit(refName)
+    if (isPlainObject(token.originalValue)) {
+      for (const v of Object.values(token.originalValue)) {
+        const r = getPureAliasReferenceName(v)
+        if (r && tokens[r]) visit(r)
+      }
+    }
+    order.push(name)
+  }
+  names.forEach(visit)
+
+  const lines = []
+  for (const name of order) {
+    const token = tokens[name]
+    const id = idFor.get(name)
+    const refName = getPureAliasReferenceName(token.originalValue)
+
+    if (refName !== undefined) {
+      lines.push(`const ${id} = ${idFor.get(refName)}`)
+      continue
+    }
+
+    if (isPlainObject(token.originalValue) && isPlainObject(token.$value)) {
+      const parts = Object.entries(token.$value).map(([k, v]) => {
+        const r = getPureAliasReferenceName(token.originalValue[k])
+        return `${k}: ${r ? idFor.get(r) : JSON.stringify(v)}`
+      })
+      lines.push(`const ${id} = { ${parts.join(', ')} }`)
+      continue
+    }
+
+    lines.push(`const ${id} = ${JSON.stringify(token.$value)}`)
+  }
+
+  // build exported object referencing the consts by identifier (not string)
+  const objLines = []
+  function buildObj(entries, indent) {
+    const pad = '  '.repeat(indent)
+    objLines.push('{')
+    for (const [name] of entries) {
+      // (flat only in this prototype for the composed object; nested shown structurally below)
+    }
+  }
+
+  let exported
+  if (structure === 'flat') {
+    exported = `{\n${names
+      .map((n) => `  ${JSON.stringify(n)}: ${idFor.get(n)}`)
+      .join(',\n')}\n}`
+  } else {
+    const tree = {}
+    for (const name of names) {
+      setPath(tree, name.split('.'), { __id: idFor.get(name) })
+    }
+    exported = stringifyTreeWithIds(tree, 0)
+  }
+
+  const code =
+    lines.join('\n') +
+    '\n\n' +
+    `const tokens = ${exported}\n\n` +
+    'export default tokens'
+
+  return { code }
+}
+
+function stringifyTreeWithIds(node, indent) {
+  if (node && typeof node === 'object' && '__id' in node) {
+    return node.__id
+  }
+  const pad = '  '.repeat(indent + 1)
+  const closePad = '  '.repeat(indent)
+  const entries = Object.entries(node).map(
+    ([k, v]) => `${pad}${/^[a-zA-Z_$][\w$]*$/.test(k) ? k : JSON.stringify(k)}: ${stringifyTreeWithIds(v, indent + 1)}`,
+  )
+  return `{\n${entries.join(',\n')}\n${closePad}}`
+}
+
+// ============================================================================
+// DOM WIRING — throwaway, calls into the pure functions above only.
+// ============================================================================
+
+const state = {
+  format: 'json',
+  structure: 'nested',
+  includeMetadata: false,
+  outputReferences: false,
+  jsShape: 'perTokenConst',
+  scenario: 'normal',
+  activeTab: null,
+  stepIndex: 0,
+}
+
+function render() {
+  const tokens = getScenarioTokens(state.scenario)
+  const calloutEl = document.getElementById('callout')
+  const outputEl = document.getElementById('output')
+  calloutEl.innerHTML = ''
+
+  document.getElementById('row-metadata').style.opacity = state.format === 'json' ? '1' : '0.35'
+  document.getElementById('label-js-shape').style.opacity =
+    state.format === 'js' && state.outputReferences ? '1' : '0.35'
+  document.getElementById('sel-js-shape').disabled = !(state.format === 'js' && state.outputReferences)
+
+  if (state.format === 'json') {
+    outputEl.textContent = renderJson(tokens, {
+      structure: state.structure,
+      includeMetadata: state.includeMetadata,
+      outputReferences: state.outputReferences,
+    })
+    return
+  }
+
+  // JS
+  if (!state.outputReferences) {
+    outputEl.textContent = renderJsResolved(tokens, { structure: state.structure })
+    return
+  }
+
+  if (state.jsShape === 'singleObject') {
+    const { code, broken } = renderJsSingleObjectRefs(tokens, { structure: state.structure })
+    if (broken) {
+      calloutEl.innerHTML =
+        '<div class="error-callout">ReferenceError at module evaluation time: ' +
+        '<code>tokens</code> is referenced inside its own initializer before the binding exists ' +
+        '(temporal dead zone). This shape cannot work for a single nested object literal.</div>'
+    }
+    outputEl.textContent = code
+    return
+  }
+
+  const result = renderJsPerTokenConsts(tokens, { structure: state.structure })
+  if (result.error) {
+    calloutEl.innerHTML = `<div class="error-callout">${result.error}</div>`
+    outputEl.textContent = ''
+    return
+  }
+  calloutEl.innerHTML =
+    '<div class="ok-callout">Works: intermediate consts declared in dependency order, ' +
+    'exported object references them by identifier (not string).</div>'
+  outputEl.textContent = result.code
+}
+
+// --- controls wiring ---
+
+document.querySelectorAll('#seg-format button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#seg-format button').forEach((b) => b.classList.remove('active'))
+    btn.classList.add('active')
+    state.format = btn.dataset.format
+    render()
+  })
+})
+
+document.querySelectorAll('#seg-structure button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#seg-structure button').forEach((b) => b.classList.remove('active'))
+    btn.classList.add('active')
+    state.structure = btn.dataset.structure
+    render()
+  })
+})
+
+document.getElementById('chk-metadata').addEventListener('change', (e) => {
+  state.includeMetadata = e.target.checked
+  render()
+})
+
+document.getElementById('chk-refs').addEventListener('change', (e) => {
+  state.outputReferences = e.target.checked
+  render()
+})
+
+document.getElementById('sel-js-shape').addEventListener('change', (e) => {
+  state.jsShape = e.target.value
+  render()
+})
+
+document.getElementById('sel-scenario').addEventListener('change', (e) => {
+  state.scenario = e.target.value
+  render()
+})
+
+// --- guided walkthroughs ---
+
+const SCENARIOS = [
+  {
+    id: 'json-alias-strings',
+    label: 'JSON: alias strings',
+    desc:
+      'JSON regains the DTCG alias notation it already speaks: an aliased token\'s $value ' +
+      'becomes the literal "{color.red.500}" string instead of the resolved "#ff0000" — ' +
+      'including the alias buried inside the shadow.card composite\'s color leaf.',
+    steps: [
+      { label: 'Reset', apply: () => Object.assign(state, { format: 'json', structure: 'nested', includeMetadata: false, outputReferences: false, scenario: 'normal' }) },
+      { label: 'Turn on outputReferences', apply: () => (state.outputReferences = true) },
+      { label: 'Switch to flat structure', apply: () => (state.structure = 'flat') },
+      { label: 'Turn on includeMetadata', apply: () => (state.includeMetadata = true) },
+    ],
+  },
+  {
+    id: 'js-resolved-baseline',
+    label: "JS: today's baseline",
+    desc: 'What JS output looks like today — always fully resolved, no reference option exists.',
+    steps: [
+      { label: 'Reset', apply: () => Object.assign(state, { format: 'js', structure: 'nested', outputReferences: false, scenario: 'normal' }) },
+      { label: 'Switch to flat', apply: () => (state.structure = 'flat') },
+    ],
+  },
+  {
+    id: 'js-single-object-broken',
+    label: 'JS: naive shape (broken)',
+    desc:
+      'The obvious-looking shape — reference the same object you\'re building, ' +
+      '"semantic: { bg: { primary: tokens.color.red[500] } }" — cannot work: tokens is in the ' +
+      'temporal dead zone while its own initializer is still being evaluated.',
+    steps: [
+      { label: 'Reset', apply: () => Object.assign(state, { format: 'js', structure: 'nested', outputReferences: true, jsShape: 'singleObject', scenario: 'normal' }) },
+      { label: 'See the ReferenceError callout', apply: () => {} },
+    ],
+  },
+  {
+    id: 'js-per-token-const',
+    label: 'JS: per-token const (works)',
+    desc:
+      'Style Dictionary\'s es6 format trick, adapted to a single default export: declare ' +
+      'topologically-sorted intermediate consts first, then compose the exported object by ' +
+      'referencing those bindings — real identifier references, not strings.',
+    steps: [
+      { label: 'Reset', apply: () => Object.assign(state, { format: 'js', structure: 'nested', outputReferences: true, jsShape: 'perTokenConst', scenario: 'normal' }) },
+      { label: 'Switch to flat export shape', apply: () => (state.structure = 'flat') },
+    ],
+  },
+  {
+    id: 'js-identifier-collision',
+    label: 'JS: identifier collision risk',
+    desc:
+      'Two different token paths — "color.brand.primary" and "color.brand-primary" — both ' +
+      'normalize to the same camelCase identifier "colorBrandPrimary". The per-token-const ' +
+      'shape has nothing else to key off of and must refuse to generate rather than silently ' +
+      'dropping one token.',
+    steps: [
+      { label: 'Reset + switch to collision set', apply: () => Object.assign(state, { format: 'js', structure: 'nested', outputReferences: true, jsShape: 'perTokenConst', scenario: 'collision' }) },
+      { label: 'See the collision error', apply: () => {} },
+    ],
+  },
+]
+
+function syncControlsFromState() {
+  document.querySelectorAll('#seg-format button').forEach((b) => b.classList.toggle('active', b.dataset.format === state.format))
+  document.querySelectorAll('#seg-structure button').forEach((b) => b.classList.toggle('active', b.dataset.structure === state.structure))
+  document.getElementById('chk-metadata').checked = state.includeMetadata
+  document.getElementById('chk-refs').checked = state.outputReferences
+  document.getElementById('sel-js-shape').value = state.jsShape
+  document.getElementById('sel-scenario').value = state.scenario
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs')
+  tabsEl.innerHTML = ''
+  SCENARIOS.forEach((s) => {
+    const btn = document.createElement('button')
+    btn.textContent = s.label
+    btn.className = state.activeTab === s.id ? 'active' : ''
+    btn.addEventListener('click', () => {
+      state.activeTab = s.id
+      state.stepIndex = 0
+      s.steps[0].apply()
+      syncControlsFromState()
+      renderTabs()
+      renderSteps()
+      render()
+    })
+    tabsEl.appendChild(btn)
+  })
+}
+
+function renderSteps() {
+  const scenario = SCENARIOS.find((s) => s.id === state.activeTab)
+  const descEl = document.getElementById('scenario-desc')
+  const stepsEl = document.getElementById('steps')
+  stepsEl.innerHTML = ''
+
+  if (!scenario) {
+    descEl.textContent = 'Pick a walkthrough above, or use free play on the left.'
+    return
+  }
+
+  descEl.textContent = scenario.desc
+
+  scenario.steps.forEach((step, i) => {
+    const btn = document.createElement('button')
+    btn.textContent = `${i + 1}. ${step.label}`
+    btn.disabled = i > state.stepIndex
+    if (i < state.stepIndex) btn.style.opacity = '0.5'
+    btn.addEventListener('click', () => {
+      step.apply()
+      state.stepIndex = Math.max(state.stepIndex, i + 1)
+      syncControlsFromState()
+      renderSteps()
+      render()
+    })
+    stepsEl.appendChild(btn)
+  })
+}
+
+renderTabs()
+renderSteps()
+render()
+</script>
+
+</body>
+</html>
