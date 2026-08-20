@@ -24,7 +24,7 @@ import { getSortedTokenEntries } from '@shared/utils/token-utils'
 import type { DimensionValue, ResolvedToken, ResolvedTokens } from '@shared/token-types'
 import prettier from 'prettier'
 
-import { getShadowLayers } from '../composite-value'
+import { formatGradientValue, getShadowLayers } from '../composite-value'
 import { bundleAsTailwind } from './presets/bundle'
 import {
   assertFileRequired,
@@ -266,6 +266,10 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
 
     if (token.$type === 'shadow') {
       return this.formatShadowValue(value)
+    }
+
+    if (token.$type === 'gradient') {
+      return formatGradientValue(value)
     }
 
     if (token.$type === 'cubicBezier' && Array.isArray(value) && value.length === 4) {

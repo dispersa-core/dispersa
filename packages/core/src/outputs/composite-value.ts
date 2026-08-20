@@ -21,7 +21,7 @@ import {
   durationObjectToString,
   isDurationObject,
 } from '@processing/transforms/built-in/duration-converter'
-import type { ResolvedToken, ShadowValueObject } from '@shared/token-types'
+import type { GradientStop, ResolvedToken, ShadowValueObject } from '@shared/token-types'
 
 export type CompositeLeaf = {
   path: string[]
@@ -77,6 +77,12 @@ export function buildCompositeWholeValue(
   }
   if (token.$type === 'transition') {
     return preserveReferences ? buildTransitionWholeValue(token) : formatResolvedValue(token)
+  }
+  if (token.$type === 'gradient') {
+    if (!isNonEmptyArray(token.$value)) {
+      return undefined
+    }
+    return preserveReferences ? buildGradientWholeValue(token) : formatResolvedValue(token)
   }
   return undefined
 }
@@ -167,6 +173,60 @@ export function buildTransitionWholeValue(token: ResolvedToken): string | undefi
     `cubic-bezier(${buildCompositeVar(token.name, ['timingFunction', '0'])}, ${buildCompositeVar(token.name, ['timingFunction', '1'])}, ${buildCompositeVar(token.name, ['timingFunction', '2'])}, ${buildCompositeVar(token.name, ['timingFunction', '3'])})`,
     buildCompositeVar(token.name, ['delay']),
   ].join(' ')
+}
+
+/**
+ * Builds the var()-reference whole value for a gradient token.
+ */
+export function buildGradientWholeValue(token: ResolvedToken): string | undefined {
+  const value = token.$value
+  if (!Array.isArray(value) || value.length === 0) {
+    return undefined
+  }
+  return `linear-gradient(${value
+    .map((_, index) => {
+      const prefix = [String(index)]
+      return `${buildCompositeVar(token.name, [...prefix, 'color'])} ${buildCompositeVar(
+        token.name,
+        [...prefix, 'position'],
+      )}`
+    })
+    .join(', ')})`
+}
+
+/**
+ * Formats a gradient stop position (DTCG 0-1 number) as a clamped CSS percentage.
+ *
+ * Clamps to [0, 1] per DTCG Format Appendix §9.7, then rounds to two decimal
+ * places to avoid float noise (e.g. `33.333333333333336%`).
+ */
+export function formatGradientPosition(value: number): string {
+  const clamped = Math.min(1, Math.max(0, value))
+  return `${Math.round(clamped * 10000) / 100}%`
+}
+
+/**
+ * Formats a gradient value as a CSS `linear-gradient()` string.
+ */
+export function formatGradientValue(value: unknown): string {
+  if (!Array.isArray(value) || value.length === 0) {
+    return String(value)
+  }
+  const stops = value as GradientStop[]
+  return `linear-gradient(${stops
+    .map((stop) => {
+      const color = isColorObject(stop.color) ? colorObjectToHex(stop.color) : String(stop.color)
+      const position =
+        typeof stop.position === 'number'
+          ? formatGradientPosition(stop.position)
+          : String(stop.position)
+      return `${color} ${position}`
+    })
+    .join(', ')})`
+}
+
+function isNonEmptyArray(value: unknown): value is unknown[] {
+  return Array.isArray(value) && value.length > 0
 }
 
 /**

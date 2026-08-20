@@ -11,7 +11,10 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   buildCompositeName,
   buildCompositeWholeValue,
+  buildGradientWholeValue,
   collectCompositeLeaves,
+  formatGradientPosition,
+  formatGradientValue,
   formatLeafValue,
   getShadowLayers,
   isCompositeToken,
@@ -347,7 +350,7 @@ describe('buildCompositeWholeValue', () => {
   })
 
   it('should return undefined for composite types without a whole-value form', () => {
-    for (const tokenType of ['typography', 'gradient', 'strokeStyle']) {
+    for (const tokenType of ['typography', 'strokeStyle']) {
       const token = makeToken(`tokens.${tokenType}`, { value: 1 }, tokenType)
 
       const preservedFormat = vi.fn()
@@ -358,5 +361,88 @@ describe('buildCompositeWholeValue', () => {
       expect(buildCompositeWholeValue(token, false, resolvedFormat)).toBeUndefined()
       expect(resolvedFormat).not.toHaveBeenCalled()
     }
+  })
+})
+
+describe('gradient compositing', () => {
+  const gradientToken = makeToken(
+    'gradient.brand',
+    [
+      { color: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 }, position: 0 },
+      { color: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 }, position: 1 / 3 },
+    ],
+    'gradient',
+  )
+
+  describe('buildGradientWholeValue', () => {
+    it('should build var()-reference whole value for each stop', () => {
+      expect(buildGradientWholeValue(gradientToken)).toBe(
+        'linear-gradient(var(--gradient.brand-0-color) var(--gradient.brand-0-position), ' +
+          'var(--gradient.brand-1-color) var(--gradient.brand-1-position))',
+      )
+    })
+
+    it('should return undefined for non-array or empty-array values', () => {
+      expect(
+        buildGradientWholeValue(makeToken('gradient.obj', { a: 1 }, 'gradient')),
+      ).toBeUndefined()
+      expect(buildGradientWholeValue(makeToken('gradient.empty', [], 'gradient'))).toBeUndefined()
+    })
+  })
+
+  describe('buildCompositeWholeValue', () => {
+    it('should use buildGradientWholeValue when preserving references', () => {
+      const format = vi.fn()
+      expect(buildCompositeWholeValue(gradientToken, true, format)).toBe(
+        'linear-gradient(var(--gradient.brand-0-color) var(--gradient.brand-0-position), ' +
+          'var(--gradient.brand-1-color) var(--gradient.brand-1-position))',
+      )
+      expect(format).not.toHaveBeenCalled()
+    })
+
+    it('should use formatResolvedValue when references are not preserved', () => {
+      const format = vi.fn().mockReturnValue('linear-gradient(#0000ff 0%, #ff0000 33.33%)')
+      expect(buildCompositeWholeValue(gradientToken, false, format)).toBe(
+        'linear-gradient(#0000ff 0%, #ff0000 33.33%)',
+      )
+      expect(format).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return undefined for non-array gradient values', () => {
+      const token = makeToken('tokens.gradient', { value: 1 }, 'gradient')
+      expect(buildCompositeWholeValue(token, true, vi.fn())).toBeUndefined()
+      expect(buildCompositeWholeValue(token, false, vi.fn())).toBeUndefined()
+    })
+  })
+
+  describe('formatGradientPosition', () => {
+    it('should convert DTCG 0-1 fractions to percentages', () => {
+      expect(formatGradientPosition(0)).toBe('0%')
+      expect(formatGradientPosition(0.5)).toBe('50%')
+      expect(formatGradientPosition(1)).toBe('100%')
+    })
+
+    it('should round to two decimal places', () => {
+      expect(formatGradientPosition(1 / 3)).toBe('33.33%')
+      expect(formatGradientPosition(2 / 3)).toBe('66.67%')
+    })
+
+    it('should clamp out-of-range values to [0, 1]', () => {
+      expect(formatGradientPosition(-0.5)).toBe('0%')
+      expect(formatGradientPosition(1.5)).toBe('100%')
+    })
+  })
+
+  describe('formatGradientValue', () => {
+    it('should format stops as hex + percentage positions', () => {
+      expect(formatGradientValue(gradientToken.$value)).toBe(
+        'linear-gradient(#0000ff 0%, #ff0000 33.33%)',
+      )
+    })
+
+    it('should fall back to String for non-array or empty-array values', () => {
+      expect(formatGradientValue({ a: 1 })).toBe('[object Object]')
+      expect(formatGradientValue([])).toBe('')
+    })
   })
 })

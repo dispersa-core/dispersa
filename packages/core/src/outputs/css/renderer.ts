@@ -46,6 +46,8 @@ import {
   buildCompositeName,
   buildCompositeWholeValue,
   collectCompositeLeaves,
+  formatGradientPosition,
+  formatGradientValue,
   formatLeafValue,
   getShadowLayers,
   isCompositeToken,
@@ -235,7 +237,9 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
 
     const leafEntries = leaves.map((leaf) => ({
       name: buildCompositeName(token.name, leaf.path),
-      value: formatLeafValue(
+      value: this.formatCompositeLeafValue(
+        token,
+        leaf,
         this.resolveCompositeLeafValue(
           leaf,
           token.originalValue,
@@ -274,6 +278,21 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     }
 
     return this.buildCssVarReference(refName, referenceTokens, tokens)
+  }
+
+  private formatCompositeLeafValue(
+    token: ResolvedToken,
+    leaf: CompositeLeaf,
+    value: unknown,
+  ): string {
+    if (
+      token.$type === 'gradient' &&
+      leaf.path[leaf.path.length - 1] === 'position' &&
+      typeof value === 'number'
+    ) {
+      return formatGradientPosition(value)
+    }
+    return formatLeafValue(value)
   }
 
   private buildCssVarReference(
@@ -384,6 +403,9 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       return layers
         .map((shadowObj) => this.formatShadow(shadowObj as unknown as ShadowValueObject))
         .join(', ')
+    }
+    if (tokenType === 'gradient' && value.length > 0 && typeof value[0] === 'object') {
+      return formatGradientValue(value)
     }
     // For arrays like font families
     return value.map((v) => (typeof v === 'string' && v.includes(' ') ? `"${v}"` : v)).join(', ')
