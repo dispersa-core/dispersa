@@ -403,6 +403,9 @@ export type BorderToken = ResolvedToken & { $type: 'border' }
 /** Type-narrowed token whose `$value` is a `DurationValue` */
 export type DurationToken = ResolvedToken & { $type: 'duration' }
 
+/** Type-narrowed token whose `$value` is a `StrokeStyleValue` */
+export type StrokeStyleToken = ResolvedToken & { $type: 'strokeStyle' }
+
 /** Type-narrowed token whose `$value` is a `TransitionValue` */
 export type TransitionToken = ResolvedToken & { $type: 'transition' }
 
@@ -437,6 +440,11 @@ export function isBorderToken(token: ResolvedToken): token is BorderToken {
 /** Check if a resolved token is a duration token */
 export function isDurationToken(token: ResolvedToken): token is DurationToken {
   return token.$type === 'duration'
+}
+
+/** Check if a resolved token is a strokeStyle token */
+export function isStrokeStyleToken(token: ResolvedToken): token is StrokeStyleToken {
+  return token.$type === 'strokeStyle'
 }
 
 /** Check if a resolved token is a transition token */

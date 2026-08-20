@@ -49,6 +49,7 @@ export type {
   ShadowToken,
   ShadowValue,
   ShadowValueObject,
+  StrokeStyleToken,
   StrokeStyleValue,
   StrokeStyleValueObject,
   Token,
@@ -76,6 +77,7 @@ export {
   isDurationToken,
   isGradientToken,
   isShadowToken,
+  isStrokeStyleToken,
   isTransitionToken,
   isTypographyToken,
 } from './types'

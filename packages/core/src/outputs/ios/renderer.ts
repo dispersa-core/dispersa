@@ -22,7 +22,13 @@ import type {
   ResolvedToken,
   ResolvedTokens,
 } from '@shared/token-types'
-import { isBorderToken, isShadowToken, isTypographyToken } from '@shared/token-types'
+import {
+  isBorderToken,
+  isShadowToken,
+  isStrokeStyleToken,
+  isTransitionToken,
+  isTypographyToken,
+} from '@shared/token-types'
 import { converter } from 'culori'
 
 import {
@@ -273,8 +279,11 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     imports.add('SwiftUI')
 
     for (const [, token] of Object.entries(tokens)) {
-      if (token.$type === 'duration') {
+      if (token.$type === 'duration' || token.$type === 'transition') {
         imports.add('Foundation')
+      }
+      if (token.$type === 'border' || token.$type === 'strokeStyle') {
+        imports.add('CoreGraphics')
       }
     }
 
@@ -324,10 +333,11 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       case 'number':
         return String(value)
       case 'cubicBezier':
-        if (Array.isArray(value) && value.length === 4) {
-          return `UnitCurve.bezier(startControlPoint: UnitPoint(x: ${value[0]}, y: ${value[1]}), endControlPoint: UnitPoint(x: ${value[2]}, y: ${value[3]}))`
-        }
-        break
+        return this.formatUnitCurve(value)
+      case 'transition':
+        return this.formatTransitionValue(value)
+      case 'strokeStyle':
+        return this.formatStrokeStyleValue(value)
     }
 
     return this.formatSwiftPrimitive(value)
@@ -462,14 +472,90 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return typeof value === 'number' ? String(value) : '0'
   }
 
+  private formatUnitCurve(value: unknown): string {
+    if (Array.isArray(value) && value.length === 4) {
+      return `UnitCurve.bezier(startControlPoint: UnitPoint(x: ${value[0]}, y: ${value[1]}), endControlPoint: UnitPoint(x: ${value[2]}, y: ${value[3]}))`
+    }
+    return 'UnitCurve.linear'
+  }
+
+  private formatTransitionValue(value: unknown): string {
+    if (typeof value !== 'object' || value === null) {
+      return 'TransitionStyle(duration: 0, delay: 0, curve: UnitCurve.linear)'
+    }
+
+    const transition = value as Record<string, unknown>
+
+    const duration = this.formatDurationValue(transition.duration)
+    const delay = this.formatDurationValue(transition.delay)
+
+    return `TransitionStyle(duration: ${duration}, delay: ${delay}, curve: ${this.formatUnitCurve(transition.timingFunction)})`
+  }
+
+  private formatStrokeStyleValue(value: unknown): string {
+    if (typeof value === 'string') {
+      return this.keywordStrokeStyle(value)
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      const style = value as Record<string, unknown>
+      const dash = Array.isArray(style.dashArray)
+        ? style.dashArray
+            .map((d) =>
+              isDimensionObject(d) ? this.dimensionToCGFloat(d as DimensionValue) : '0.0',
+            )
+            .join(', ')
+        : ''
+
+      return `StrokeStyleToken(dash: [${dash}], lineCap: ${this.formatLineCap(style.lineCap)})`
+    }
+
+    return 'StrokeStyleToken(dash: [], lineCap: .butt)'
+  }
+
+  /**
+   * Maps a DTCG stroke-style keyword to a CoreGraphics dash pattern.
+   *
+   * `double`/`groove`/`ridge`/`outset`/`inset` have no native stroke-path
+   * equivalent and fall back to a solid (empty-dash) render — a documented
+   * limitation, not a bug.
+   */
+  private keywordStrokeStyle(keyword: string): string {
+    const normalized = keyword.toLowerCase()
+    const dash: Record<string, string> = {
+      dashed: '[6.0, 4.0]',
+      dotted: '[1.0, 4.0]',
+    }
+    const lineCap: Record<string, string> = {
+      dotted: '.round',
+    }
+    return `StrokeStyleToken(dash: ${dash[normalized] ?? '[]'}, lineCap: ${lineCap[normalized] ?? '.butt'})`
+  }
+
+  private formatLineCap(lineCap: unknown): string {
+    if (lineCap === 'round') {
+      return '.round'
+    }
+    if (lineCap === 'square') {
+      return '.square'
+    }
+    return '.butt'
+  }
+
   private formatShadowValue(value: unknown, options: Required<IosRendererOptions>): string {
     const layers = getShadowLayers(value)
-    if (layers.length > 0) {
-      // Use the first shadow layer for SwiftUI
+    if (layers.length === 0) {
+      return 'ShadowStyle(color: .clear, radius: 0, x: 0, y: 0, spread: 0)'
+    }
+
+    if (layers.length === 1) {
       return this.formatSingleShadow(layers[0] as Record<string, unknown>, options)
     }
 
-    return 'ShadowStyle(color: .clear, radius: 0, x: 0, y: 0, spread: 0)'
+    const styles = layers
+      .map((layer) => this.formatSingleShadow(layer as Record<string, unknown>, options))
+      .join(', ')
+    return `[${styles}]`
   }
 
   private formatSingleShadow(
@@ -614,20 +700,31 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     options: Required<IosRendererOptions>,
   ): string[] {
     const lines: string[] = []
+    const tokenValues = Object.values(tokens)
 
-    if (Object.values(tokens).some(isShadowToken)) {
+    if (tokenValues.some(isShadowToken)) {
       lines.push('')
       lines.push(...this.buildShadowStyleStruct(access, options))
     }
 
-    if (Object.values(tokens).some(isTypographyToken)) {
+    if (tokenValues.some(isTypographyToken)) {
       lines.push('')
       lines.push(...this.buildTypographyStyleStruct(access, options))
     }
 
-    if (Object.values(tokens).some(isBorderToken)) {
+    if (tokenValues.some(isBorderToken)) {
       lines.push('')
       lines.push(...this.buildBorderStyleStruct(access, options))
+    }
+
+    if (tokenValues.some((token) => isBorderToken(token) || isStrokeStyleToken(token))) {
+      lines.push('')
+      lines.push(...this.buildStrokeStyleTokenStruct(access, options))
+    }
+
+    if (tokenValues.some(isTransitionToken)) {
+      lines.push('')
+      lines.push(...this.buildTransitionStyleStruct(access, options))
     }
 
     return lines
@@ -672,6 +769,38 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       `${frozen}${access} struct BorderStyle${conformances} {`,
       `${i1}${access} let color: Color`,
       `${i1}${access} let width: CGFloat`,
+      `${i1}${access} let style: StrokeStyleToken`,
+      '}',
+    ]
+  }
+
+  private buildStrokeStyleTokenStruct(
+    access: string,
+    options: Required<IosRendererOptions>,
+  ): string[] {
+    const i1 = indentStr(options.indent, 1)
+    const conformances = this.structConformances(options)
+    const frozen = this.frozenPrefix(options)
+    return [
+      `${frozen}${access} struct StrokeStyleToken${conformances} {`,
+      `${i1}${access} let dash: [CGFloat]`,
+      `${i1}${access} let lineCap: CGLineCap`,
+      '}',
+    ]
+  }
+
+  private buildTransitionStyleStruct(
+    access: string,
+    options: Required<IosRendererOptions>,
+  ): string[] {
+    const i1 = indentStr(options.indent, 1)
+    const conformances = this.structConformances(options)
+    const frozen = this.frozenPrefix(options)
+    return [
+      `${frozen}${access} struct TransitionStyle${conformances} {`,
+      `${i1}${access} let duration: TimeInterval`,
+      `${i1}${access} let delay: TimeInterval`,
+      `${i1}${access} let curve: UnitCurve`,
       '}',
     ]
   }
@@ -685,6 +814,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     const lines: string[] = []
     const i1 = indentStr(options.indent, 1)
     const i2 = indentStr(options.indent, 2)
+    const i3 = indentStr(options.indent, 3)
 
     if (Object.values(tokens).some(isShadowToken)) {
       lines.push('')
@@ -693,6 +823,13 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       lines.push(
         `${i2}self.shadow(color: style.color, radius: style.radius, x: style.x, y: style.y)`,
       )
+      lines.push(`${i1}}`)
+      lines.push(`${i1}func shadowStyle(_ styles: [ShadowStyle]) -> some View {`)
+      lines.push(`${i2}styles.reduce(AnyView(self)) { view, style in`)
+      lines.push(
+        `${i3}AnyView(view.shadow(color: style.color, radius: style.radius, x: style.x, y: style.y))`,
+      )
+      lines.push(`${i2}}`)
       lines.push(`${i1}}`)
       lines.push('}')
     }
@@ -713,7 +850,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
 
   private formatBorderValue(value: unknown, options: Required<IosRendererOptions>): string {
     if (typeof value !== 'object' || value === null) {
-      return 'BorderStyle(color: .clear, width: 0)'
+      return 'BorderStyle(color: .clear, width: 0, style: StrokeStyleToken(dash: [], lineCap: .butt))'
     }
 
     const border = value as Record<string, unknown>
@@ -726,7 +863,9 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       ? this.dimensionToCGFloat(border.width as DimensionValue)
       : '1.0'
 
-    return `BorderStyle(color: ${color}, width: ${width})`
+    const style = this.formatStrokeStyleValue(border.style)
+
+    return `BorderStyle(color: ${color}, width: ${width}, style: ${style})`
   }
 
   private formatGradientValue(value: unknown, options: Required<IosRendererOptions>): string {

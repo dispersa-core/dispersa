@@ -380,6 +380,91 @@ describe('iOS/SwiftUI Renderer', () => {
 
       expect(content).not.toContain('ShadowStyle')
     })
+
+    it('should render a single-layer shadow array as a bare ShadowStyle', async () => {
+      const layer = {
+        color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.5 },
+        offsetX: { value: 0, unit: 'px' },
+        offsetY: { value: 4, unit: 'px' },
+        blur: { value: 8, unit: 'px' },
+        spread: { value: 0, unit: 'px' },
+      }
+      const tokens: ResolvedTokens = {
+        'shadow.single': makeToken('shadow.single', [layer], 'shadow'),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('ShadowStyle(color:')
+      expect(content).toContain('radius: 8.0')
+      expect(content).toContain('y: 4.0')
+      expect(content).not.toContain('[ShadowStyle(')
+    })
+
+    it('should render multi-layer shadow arrays with every layer preserved', async () => {
+      const tokens: ResolvedTokens = {
+        'shadow.multi': makeToken(
+          'shadow.multi',
+          [
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.5 },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+              spread: { value: 0, unit: 'px' },
+            },
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0] },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 8, unit: 'px' },
+              blur: { value: 16, unit: 'px' },
+              spread: { value: 2, unit: 'px' },
+            },
+          ],
+          'shadow',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain(
+        '[ShadowStyle(color: Color(red: 0, green: 0, blue: 0, opacity: 0.5), radius: 8.0, x: 0.0, y: 4.0, spread: 0.0), ShadowStyle(color: Color(red: 1, green: 0, blue: 0), radius: 16.0, x: 0.0, y: 8.0, spread: 2.0)]',
+      )
+      expect(content).toContain('radius: 16.0')
+    })
+
+    it('should emit shadowStyle array overload for multi-layer shadows', async () => {
+      const tokens: ResolvedTokens = {
+        'shadow.multi': makeToken(
+          'shadow.multi',
+          [
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.5 },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+              spread: { value: 0, unit: 'px' },
+            },
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 0] },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 8, unit: 'px' },
+              blur: { value: 16, unit: 'px' },
+              spread: { value: 0, unit: 'px' },
+            },
+          ],
+          'shadow',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('func shadowStyle(_ styles: [ShadowStyle]) -> some View')
+      expect(content).toContain('styles.reduce(AnyView(self))')
+      expect(content).toContain(
+        'AnyView(view.shadow(color: style.color, radius: style.radius, x: style.x, y: style.y))',
+      )
+    })
   })
 
   describe('typography tokens', () => {
@@ -757,6 +842,33 @@ describe('iOS/SwiftUI Renderer', () => {
       expect(content).toContain('BorderStyle(color:')
       expect(content).toContain('Color(red: 0.8')
       expect(content).toContain('width: 1.0')
+      expect(content).toContain('style: StrokeStyleToken(dash: [], lineCap: .butt)')
+    })
+
+    it('should preserve an object-form border style as dash and lineCap', async () => {
+      const tokens: ResolvedTokens = {
+        'border.dashed': makeToken(
+          'border.dashed',
+          {
+            color: { colorSpace: 'srgb', components: [0, 0, 0] },
+            width: { value: 2, unit: 'px' },
+            style: {
+              dashArray: [
+                { value: 3, unit: 'px' },
+                { value: 2, unit: 'px' },
+              ],
+              lineCap: 'square',
+            },
+          },
+          'border',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain(
+        'BorderStyle(color: Color(red: 0, green: 0, blue: 0), width: 2.0, style: StrokeStyleToken(dash: [3.0, 2.0], lineCap: .square))',
+      )
     })
 
     it('should emit BorderStyle struct definition when border tokens exist', async () => {
@@ -777,6 +889,7 @@ describe('iOS/SwiftUI Renderer', () => {
       expect(content).toContain('public struct BorderStyle')
       expect(content).toContain('public let color: Color')
       expect(content).toContain('public let width: CGFloat')
+      expect(content).toContain('public let style: StrokeStyleToken')
     })
 
     it('should not emit BorderStyle struct when no border tokens exist', async () => {
@@ -791,6 +904,162 @@ describe('iOS/SwiftUI Renderer', () => {
       const content = await getContent(renderer, tokens, { structure: 'enum' })
 
       expect(content).not.toContain('BorderStyle')
+    })
+  })
+
+  describe('transition tokens', () => {
+    it('should generate TransitionStyle values with unit conversion and bezier curve', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.standard': makeToken(
+          'transition.standard',
+          {
+            duration: { value: 250, unit: 'ms' },
+            delay: { value: 100, unit: 'ms' },
+            timingFunction: [0.42, 0, 0.58, 1],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain(
+        'TransitionStyle(duration: 0.25, delay: 0.1, curve: UnitCurve.bezier(startControlPoint: UnitPoint(x: 0.42, y: 0), endControlPoint: UnitPoint(x: 0.58, y: 1)))',
+      )
+    })
+
+    it('should emit TransitionStyle struct and Foundation import when transition tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.standard': makeToken(
+          'transition.standard',
+          {
+            duration: { value: 250, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: [0, 0, 1, 1],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('import Foundation')
+      expect(content).toContain('public struct TransitionStyle')
+      expect(content).toContain('public let duration: TimeInterval')
+      expect(content).toContain('public let delay: TimeInterval')
+      expect(content).toContain('public let curve: UnitCurve')
+    })
+
+    it('should fall back to UnitCurve.linear when timingFunction is malformed', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.broken': makeToken(
+          'transition.broken',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: [0, 0],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('curve: UnitCurve.linear')
+    })
+
+    it('should not emit TransitionStyle struct when no transition tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'color.primary': makeToken(
+          'color.primary',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).not.toContain('TransitionStyle')
+      expect(content).not.toContain('import Foundation')
+    })
+  })
+
+  describe('strokeStyle tokens', () => {
+    it('should map string keywords to dash patterns', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.dashed': makeToken('strokeStyle.dashed', 'dashed', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('StrokeStyleToken(dash: [6.0, 4.0], lineCap: .butt)')
+    })
+
+    it('should convert dashArray and lineCap object values', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.custom': makeToken(
+          'strokeStyle.custom',
+          {
+            dashArray: [
+              { value: 2, unit: 'px' },
+              { value: 4, unit: 'px' },
+            ],
+            lineCap: 'round',
+          },
+          'strokeStyle',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('StrokeStyleToken(dash: [2.0, 4.0], lineCap: .round)')
+    })
+
+    it('should emit StrokeStyleToken struct and CoreGraphics import when strokeStyle tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.dashed': makeToken('strokeStyle.dashed', 'dashed', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('import CoreGraphics')
+      expect(content).toContain('public struct StrokeStyleToken')
+      expect(content).toContain('public let dash: [CGFloat]')
+      expect(content).toContain('public let lineCap: CGLineCap')
+    })
+
+    it('should emit StrokeStyleToken struct when a border token exists', async () => {
+      const tokens: ResolvedTokens = {
+        'border.default': makeToken(
+          'border.default',
+          {
+            color: { colorSpace: 'srgb', components: [0.8, 0.8, 0.8] },
+            width: { value: 1, unit: 'px' },
+            style: 'solid',
+          },
+          'border',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('import CoreGraphics')
+      expect(content).toContain('public struct StrokeStyleToken')
+    })
+
+    it('should not emit StrokeStyleToken struct when no border or strokeStyle tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'color.primary': makeToken(
+          'color.primary',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).not.toContain('StrokeStyleToken')
+      expect(content).not.toContain('import CoreGraphics')
     })
   })
 
