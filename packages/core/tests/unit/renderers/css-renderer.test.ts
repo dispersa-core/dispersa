@@ -324,6 +324,117 @@ describe('CSS Renderer', () => {
     expect(output).toContain('--shadow.elevation.sm-color: var(--color.base.background);')
   })
 
+  describe('gradient tokens', () => {
+    const makeGradientToken = (
+      stops: Array<{ color: Record<string, unknown>; position: number }>,
+      originalValue: unknown,
+    ): ResolvedToken => ({
+      $value: stops,
+      $type: 'gradient',
+      name: 'gradient.brand',
+      path: ['gradient', 'brand'],
+      originalValue,
+    })
+
+    const blueStop = { color: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 }, position: 0 }
+    const redStop = {
+      color: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 },
+      position: 1 / 3,
+    }
+
+    it('should emit linear-gradient whole value with percentage leaf vars', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeGradientToken([blueStop, redStop], [blueStop, redStop]),
+      }
+
+      const output = await renderCss(tokens, {
+        preset: 'standalone',
+        selector: ':root',
+        minify: false,
+      })
+
+      expect(output).toContain('--gradient.brand: linear-gradient(#0000ff 0%, #ff0000 33.33%);')
+      expect(output).toContain('--gradient.brand-0-color: #0000ff;')
+      expect(output).toContain('--gradient.brand-0-position: 0%;')
+      expect(output).toContain('--gradient.brand-1-color: #ff0000;')
+      expect(output).toContain('--gradient.brand-1-position: 33.33%;')
+    })
+
+    it('should chain var() references when preserving references', async () => {
+      const referencedColor: ResolvedToken = {
+        $value: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 },
+        $type: 'color',
+        name: 'color.base.blue',
+        path: ['color', 'base', 'blue'],
+        originalValue: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 },
+      }
+      const gradientToken = makeGradientToken(
+        [blueStop, redStop],
+        [
+          { color: '{color.base.blue}', position: 0 },
+          { color: '{color.base.blue}', position: 1 / 3 },
+        ],
+      )
+      const tokens: ResolvedTokens = {
+        'color.base.blue': referencedColor,
+        'gradient.brand': gradientToken,
+      }
+
+      const output = await renderCss(tokens, {
+        preset: 'standalone',
+        selector: ':root',
+        minify: true,
+        preserveReferences: true,
+      })
+
+      expect(output).toContain(
+        '--gradient.brand:linear-gradient(var(--gradient.brand-0-color) ' +
+          'var(--gradient.brand-0-position), var(--gradient.brand-1-color) ' +
+          'var(--gradient.brand-1-position));',
+      )
+      expect(output).toContain('--gradient.brand-0-color:var(--color.base.blue);')
+      expect(output).toContain('--gradient.brand-0-position:0%;')
+      expect(output).toContain('--gradient.brand-1-position:33.33%;')
+    })
+
+    it('should clamp out-of-range positions to [0, 1]', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeGradientToken(
+          [
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 },
+              position: -0.5,
+            },
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 },
+              position: 1.5,
+            },
+          ],
+          [
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 1], alpha: 1 },
+              position: -0.5,
+            },
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 },
+              position: 1.5,
+            },
+          ],
+        ),
+      }
+
+      const output = await renderCss(tokens, {
+        preset: 'standalone',
+        selector: ':root',
+        minify: false,
+      })
+
+      expect(output).toContain('--gradient.brand: linear-gradient(#0000ff 0%, #ff0000 100%);')
+      expect(output).toContain('--gradient.brand-0-position: 0%;')
+      expect(output).toContain('--gradient.brand-1-position: 100%;')
+    })
+  })
+
   describe('modifier preset base file', () => {
     const createModifierContext = (
       setTokens: ResolvedTokens,

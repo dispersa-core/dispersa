@@ -48,6 +48,7 @@ import {
 import type { TokenGroup } from '../utils'
 import { buildKotlinDeprecationAnnotation, buildTokenDescriptionComment } from '../metadata'
 import { outputTree } from '../output-tree'
+import { getShadowLayers } from '../composite-value'
 import type { RenderContext, RenderOutput, Renderer } from '../types'
 
 /**
@@ -763,12 +764,9 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   private formatShadowValue(value: unknown, options: ResolvedOptions, depth: number): string {
-    if (Array.isArray(value) && value.length > 0) {
-      return this.formatSingleShadow(value[0] as Record<string, unknown>, options, depth)
-    }
-
-    if (typeof value === 'object' && value !== null) {
-      return this.formatSingleShadow(value as Record<string, unknown>, options, depth)
+    const layers = getShadowLayers(value)
+    if (layers.length > 0) {
+      return this.formatSingleShadow(layers[0] as Record<string, unknown>, options, depth)
     }
 
     return 'ShadowToken(color = Color.Unspecified, elevation = 0.dp, offsetX = 0.dp, offsetY = 0.dp)'

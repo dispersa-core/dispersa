@@ -37,6 +37,7 @@ import {
 } from '../utils'
 import { buildSwiftDeprecationAttribute, buildTokenDescriptionComment } from '../metadata'
 import { outputTree } from '../output-tree'
+import { getShadowLayers } from '../composite-value'
 import type { RenderContext, RenderOutput, Renderer } from '../types'
 
 /**
@@ -462,13 +463,10 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   }
 
   private formatShadowValue(value: unknown, options: Required<IosRendererOptions>): string {
-    if (Array.isArray(value) && value.length > 0) {
+    const layers = getShadowLayers(value)
+    if (layers.length > 0) {
       // Use the first shadow layer for SwiftUI
-      return this.formatSingleShadow(value[0] as Record<string, unknown>, options)
-    }
-
-    if (typeof value === 'object' && value !== null) {
-      return this.formatSingleShadow(value as Record<string, unknown>, options)
+      return this.formatSingleShadow(layers[0] as Record<string, unknown>, options)
     }
 
     return 'ShadowStyle(color: .clear, radius: 0, x: 0, y: 0, spread: 0)'

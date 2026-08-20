@@ -163,6 +163,51 @@ describe('Tailwind CSS v4 Renderer', () => {
     })
   })
 
+  describe('gradient tokens', () => {
+    it('should generate full linear-gradient variables', async () => {
+      const tokens: ResolvedTokens = {
+        brand: makeToken(
+          'brand',
+          [
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 0 },
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 1 / 3 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--brand')
+      expect(result).toContain('linear-gradient(#0000ff 0%, #ff0000 33.33%)')
+    })
+
+    it('should clamp out-of-range positions to [0, 1]', async () => {
+      const tokens: ResolvedTokens = {
+        brand: makeToken(
+          'brand',
+          [
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: -0.5 },
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 1.5 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('linear-gradient(#0000ff 0%, #ff0000 100%)')
+    })
+  })
+
   describe('duration tokens', () => {
     it('should generate duration variables', async () => {
       const tokens: ResolvedTokens = {
