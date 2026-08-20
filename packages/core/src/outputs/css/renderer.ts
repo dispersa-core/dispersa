@@ -42,6 +42,15 @@ import {
   buildTokenDeprecationComment,
   buildTokenDescriptionComment,
 } from '../metadata'
+import {
+  buildCompositeName,
+  buildCompositeWholeValue,
+  collectCompositeLeaves,
+  formatLeafValue,
+  getShadowLayers,
+  isCompositeToken,
+} from '../composite-value'
+import type { CompositeLeaf } from '../composite-value'
 import type { CssRendererOptions, RenderContext, RenderOutput, Renderer } from '../types'
 
 type ResolvedCssOptions = Omit<CssRendererOptions, 'selector' | 'mediaQuery'> & {
@@ -53,11 +62,6 @@ type ResolvedCssOptions = Omit<CssRendererOptions, 'selector' | 'mediaQuery'> & 
 type CssEntry = {
   name: string
   value: string
-}
-
-type CompositeLeaf = {
-  path: string[]
-  value: unknown
 }
 
 export class CssRenderer implements Renderer<CssRendererOptions> {
@@ -220,18 +224,18 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       }
     }
 
-    if (!this.isCompositeToken(token)) {
+    if (!isCompositeToken(token)) {
       return [{ name: token.name, value: this.formatValue(token) }]
     }
 
-    const leaves = this.collectCompositeLeaves(token.$value)
+    const leaves = collectCompositeLeaves(token.$value)
     if (leaves.length === 0) {
-      return [{ name: token.name, value: this.formatLeafValue(token.$value) }]
+      return [{ name: token.name, value: formatLeafValue(token.$value) }]
     }
 
     const leafEntries = leaves.map((leaf) => ({
-      name: this.buildCompositeName(token.name, leaf.path),
-      value: this.formatLeafValue(
+      name: buildCompositeName(token.name, leaf.path),
+      value: formatLeafValue(
         this.resolveCompositeLeafValue(
           leaf,
           token.originalValue,
@@ -242,213 +246,14 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
       ),
     }))
 
-    const wholeValue = this.buildCompositeWholeValue(token, preserveReferences)
+    const wholeValue = buildCompositeWholeValue(token, preserveReferences, (t) =>
+      this.formatValue(t),
+    )
     if (!wholeValue) {
       return leafEntries
     }
 
     return [{ name: token.name, value: wholeValue }, ...leafEntries]
-  }
-
-  private isCompositeToken(token: ResolvedToken): boolean {
-    const isCompositeType = [
-      'shadow',
-      'typography',
-      'border',
-      'strokeStyle',
-      'transition',
-      'gradient',
-    ].includes(token.$type ?? '')
-    if (!isCompositeType) {
-      return false
-    }
-
-    const value = token.$value
-    return (typeof value === 'object' && value !== null) || Array.isArray(value)
-  }
-
-  private buildCompositeWholeValue(
-    token: ResolvedToken,
-    preserveReferences: boolean,
-  ): string | undefined {
-    if (token.$type === 'shadow') {
-      // Shadow always supports a whole-value (single or multi-layer)
-      return preserveReferences ? this.buildShadowWholeValue(token) : this.formatValue(token)
-    }
-    if (token.$type === 'border') {
-      // Border shorthand only works when style is a simple string (e.g. "solid").
-      // Complex strokeStyle objects can't be represented as a CSS shorthand.
-      if (!this.hasBorderShorthandStyle(token)) {
-        return undefined
-      }
-      return preserveReferences ? this.buildBorderWholeValue(token) : this.formatValue(token)
-    }
-    if (token.$type === 'transition') {
-      return preserveReferences ? this.buildTransitionWholeValue(token) : this.formatValue(token)
-    }
-    return undefined
-  }
-
-  private hasBorderShorthandStyle(token: ResolvedToken): boolean {
-    const value = token.$value
-    if (typeof value !== 'object' || value === null) {
-      return false
-    }
-    return typeof (value as { style?: unknown }).style === 'string'
-  }
-
-  private buildShadowWholeValue(token: ResolvedToken): string | undefined {
-    const value = token.$value
-    if (Array.isArray(value)) {
-      return value
-        .map((shadow, index) => this.buildShadowLayerValue(token.name, shadow, [String(index)]))
-        .join(', ')
-    }
-    if (typeof value === 'object' && value !== null) {
-      return this.buildShadowLayerValue(token.name, value, [])
-    }
-    return undefined
-  }
-
-  private buildShadowLayerValue(baseName: string, shadow: unknown, prefix: string[]): string {
-    if (typeof shadow !== 'object' || shadow === null) {
-      return String(shadow)
-    }
-    const shadowObj = shadow as ShadowValueObject
-    const parts: string[] = []
-
-    if (shadowObj.inset === true) {
-      parts.push('inset')
-    }
-
-    parts.push(this.buildCompositeVar(baseName, [...prefix, 'offsetX']))
-    parts.push(this.buildCompositeVar(baseName, [...prefix, 'offsetY']))
-    parts.push(this.buildCompositeVar(baseName, [...prefix, 'blur']))
-
-    if (shadowObj.spread != null) {
-      parts.push(this.buildCompositeVar(baseName, [...prefix, 'spread']))
-    }
-
-    parts.push(this.buildCompositeVar(baseName, [...prefix, 'color']))
-    return parts.join(' ')
-  }
-
-  private buildBorderWholeValue(token: ResolvedToken): string | undefined {
-    const value = token.$value
-    if (typeof value !== 'object' || value === null) {
-      return undefined
-    }
-    const border = value as { style?: unknown }
-    if (typeof border.style !== 'string') {
-      return undefined
-    }
-    return [
-      this.buildCompositeVar(token.name, ['width']),
-      this.buildCompositeVar(token.name, ['style']),
-      this.buildCompositeVar(token.name, ['color']),
-    ].join(' ')
-  }
-
-  private buildTransitionWholeValue(token: ResolvedToken): string | undefined {
-    const value = token.$value
-    if (typeof value !== 'object' || value === null) {
-      return undefined
-    }
-    return [
-      this.buildCompositeVar(token.name, ['duration']),
-      `cubic-bezier(${this.buildCompositeVar(token.name, ['timingFunction', '0'])}, ${this.buildCompositeVar(token.name, ['timingFunction', '1'])}, ${this.buildCompositeVar(token.name, ['timingFunction', '2'])}, ${this.buildCompositeVar(token.name, ['timingFunction', '3'])})`,
-      this.buildCompositeVar(token.name, ['delay']),
-    ].join(' ')
-  }
-
-  private buildCompositeVar(baseName: string, path: string[]): string {
-    return `var(--${this.buildCompositeName(baseName, path)})`
-  }
-
-  private collectCompositeLeaves(value: unknown): CompositeLeaf[] {
-    const leaves: CompositeLeaf[] = []
-    this.collectLeafEntries(value, [], leaves)
-    return leaves
-  }
-
-  private collectLeafEntries(value: unknown, path: string[], leaves: CompositeLeaf[]): void {
-    if (this.isPrimitiveValue(value)) {
-      leaves.push({ path, value })
-      return
-    }
-
-    if (isColorObject(value) || isDimensionObject(value) || isDurationObject(value)) {
-      leaves.push({ path, value })
-      return
-    }
-
-    if (Array.isArray(value)) {
-      if (value.length === 0) {
-        leaves.push({ path, value })
-        return
-      }
-      value.forEach((item, index) => {
-        this.collectLeafEntries(item, [...path, String(index)], leaves)
-      })
-      return
-    }
-
-    if (typeof value === 'object' && value !== null) {
-      const entries = Object.entries(value)
-      if (entries.length === 0) {
-        leaves.push({ path, value })
-        return
-      }
-      for (const [key, child] of entries) {
-        this.collectLeafEntries(child, [...path, this.normalizePathSegment(key)], leaves)
-      }
-      return
-    }
-
-    leaves.push({ path, value })
-  }
-
-  private normalizePathSegment(segment: string): string {
-    return segment.trim().replace(/\s+/g, '-')
-  }
-
-  private buildCompositeName(base: string, path: string[]): string {
-    if (path.length === 0) {
-      return base
-    }
-    return `${base}-${path.join('-')}`
-  }
-
-  private formatLeafValue(value: unknown): string {
-    if (isColorObject(value)) {
-      return colorObjectToHex(value)
-    }
-
-    if (isDimensionObject(value)) {
-      return dimensionObjectToString(value)
-    }
-
-    if (isDurationObject(value)) {
-      return durationObjectToString(value)
-    }
-
-    if (typeof value === 'string') {
-      return value
-    }
-
-    if (typeof value === 'number' || typeof value === 'boolean') {
-      return String(value)
-    }
-
-    if (Array.isArray(value)) {
-      return JSON.stringify(value)
-    }
-
-    if (typeof value === 'object' && value != null) {
-      return JSON.stringify(value)
-    }
-
-    return String(value)
   }
 
   private resolveCompositeLeafValue(
@@ -516,8 +321,8 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
     return current
   }
 
-  private isPrimitiveValue(value: unknown): boolean {
-    return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+  private normalizePathSegment(segment: string): string {
+    return segment.trim().replace(/\s+/g, '-')
   }
 
   /**
@@ -574,8 +379,9 @@ export class CssRenderer implements Renderer<CssRendererOptions> {
   }
 
   private formatArrayValue(value: unknown[], tokenType?: string): string {
-    if (tokenType === 'shadow' && value.length > 0 && typeof value[0] === 'object') {
-      return value
+    const layers = getShadowLayers(value)
+    if (tokenType === 'shadow' && layers.length > 0 && typeof layers[0] === 'object') {
+      return layers
         .map((shadowObj) => this.formatShadow(shadowObj as unknown as ShadowValueObject))
         .join(', ')
     }

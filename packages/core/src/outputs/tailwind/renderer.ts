@@ -24,6 +24,7 @@ import { getSortedTokenEntries } from '@shared/utils/token-utils'
 import type { DimensionValue, ResolvedToken, ResolvedTokens } from '@shared/token-types'
 import prettier from 'prettier'
 
+import { getShadowLayers } from '../composite-value'
 import { bundleAsTailwind } from './presets/bundle'
 import {
   assertFileRequired,
@@ -283,12 +284,9 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
   }
 
   private formatShadowValue(value: unknown): string {
-    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
-      return value.map((s) => this.formatSingleShadow(s as Record<string, unknown>)).join(', ')
-    }
-
-    if (typeof value === 'object' && value !== null) {
-      return this.formatSingleShadow(value as Record<string, unknown>)
+    const layers = getShadowLayers(value)
+    if (layers.length > 0 && typeof layers[0] === 'object') {
+      return layers.map((s) => this.formatSingleShadow(s as Record<string, unknown>)).join(', ')
     }
 
     return String(value)
