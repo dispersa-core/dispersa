@@ -21,10 +21,23 @@ import {
   isDurationObject,
 } from '@processing/transforms/built-in/duration-converter'
 import { getSortedTokenEntries } from '@shared/utils/token-utils'
-import type { DimensionValue, ResolvedToken, ResolvedTokens } from '@shared/token-types'
+import type {
+  DimensionValue,
+  DurationValue,
+  ResolvedToken,
+  ResolvedTokens,
+} from '@shared/token-types'
 import prettier from 'prettier'
 
-import { formatGradientValue, getShadowLayers } from '../composite-value'
+import {
+  buildCompositeName,
+  buildCompositeWholeValue,
+  collectCompositeLeaves,
+  formatGradientValue,
+  formatLeafValue,
+  getShadowLayers,
+  isCompositeToken,
+} from '../composite-value'
 import { bundleAsTailwind } from './presets/bundle'
 import {
   assertFileRequired,
@@ -85,6 +98,14 @@ const TAILWIND_NAMESPACE_MAP: Record<string, string> = {
 }
 
 /**
+ * Composite token types that expand into per-leaf CSS custom properties inside
+ * the @theme block, reusing the shared leaf-collection engine from composite-value.
+ * Shadow and gradient keep their whole-value-only dispatch and are intentionally
+ * absent (gradient is covered by its own linear-gradient() output).
+ */
+const LEAF_EXPANDABLE_TYPES = new Set(['typography', 'border', 'transition', 'strokeStyle'])
+
+/**
  * Resolved Tailwind options with required base fields.
  * selector and mediaQuery remain optional (only used in bundle mode).
  * variantDeclarations is populated by the bundler from non-base permutations.
@@ -97,6 +118,11 @@ type ResolvedTailwindOptions = {
   selector?: string | SelectorFunction
   mediaQuery?: string | MediaQueryFunction
   variantDeclarations: string[]
+}
+
+type TailwindEntry = {
+  name: string
+  value: string
 }
 
 export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
@@ -150,8 +176,7 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     lines.push(`${themeDirective}${space}{${newline}`)
 
     for (const [, token] of getSortedTokenEntries(tokens)) {
-      const varName = this.buildVariableName(token)
-      const varValue = this.formatValue(token)
+      const entries = this.buildTailwindEntries(token)
 
       const deprecationComment = buildTokenDeprecationComment(token, 'tailwind')
       if (deprecationComment) {
@@ -163,7 +188,9 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
         lines.push(`${indent}${descriptionComment}${newline}`)
       }
 
-      lines.push(`${indent}--${varName}:${space}${varValue};${newline}`)
+      for (const entry of entries) {
+        lines.push(`${indent}--${entry.name}:${space}${entry.value};${newline}`)
+      }
     }
 
     lines.push(`}${newline}`)
@@ -198,8 +225,7 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     }
 
     for (const [, token] of getSortedTokenEntries(tokens)) {
-      const varName = this.buildVariableName(token)
-      const varValue = this.formatValue(token)
+      const entries = this.buildTailwindEntries(token)
 
       const deprecationComment = buildTokenDeprecationComment(token, 'tailwind')
       if (deprecationComment) {
@@ -211,7 +237,9 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
         lines.push(`${tokenIndent}${descriptionComment}${newline}`)
       }
 
-      lines.push(`${tokenIndent}--${varName}:${space}${varValue};${newline}`)
+      for (const entry of entries) {
+        lines.push(`${tokenIndent}--${entry.name}:${space}${entry.value};${newline}`)
+      }
     }
 
     if (hasMediaQuery) {
@@ -238,6 +266,96 @@ export class TailwindRenderer implements Renderer<TailwindRendererOptions> {
     }
 
     return `${prefix}-${token.name}`
+  }
+
+  /**
+   * Builds the custom-property lines for a token: a single whole-value line for
+   * non-expandable tokens, or whole-value + per-leaf lines for composite tokens
+   * of the expandable types (typography, border, transition, strokeStyle).
+   */
+  private buildTailwindEntries(token: ResolvedToken): TailwindEntry[] {
+    const varName = this.buildVariableName(token)
+
+    if (!LEAF_EXPANDABLE_TYPES.has(token.$type ?? '') || !isCompositeToken(token)) {
+      return [{ name: varName, value: this.formatValue(token) }]
+    }
+
+    const leaves = collectCompositeLeaves(token.$value)
+    if (leaves.length === 0) {
+      return [{ name: varName, value: formatLeafValue(token.$value) }]
+    }
+
+    const leafEntries = leaves.map((leaf) => ({
+      name: buildCompositeName(varName, leaf.path),
+      value: formatLeafValue(leaf.value),
+    }))
+
+    const wholeValue = buildCompositeWholeValue(token, false, (t) =>
+      this.formatResolvedComposite(t),
+    )
+    return wholeValue ? [{ name: varName, value: wholeValue }, ...leafEntries] : leafEntries
+  }
+
+  /**
+   * Formats the resolved whole-value shorthand for a composite token. Only called
+   * for border (string-style) and transition tokens; typography and strokeStyle
+   * never reach the callback in buildCompositeWholeValue.
+   */
+  private formatResolvedComposite(token: ResolvedToken): string {
+    const value = token.$value as Record<string, unknown>
+    return token.$type === 'border'
+      ? this.formatBorderValue(value)
+      : this.formatTransitionValue(value)
+  }
+
+  /**
+   * Formats a border value as a CSS border shorthand.
+   */
+  private formatBorderValue(value: Record<string, unknown>): string {
+    const parts: string[] = []
+
+    if (isDimensionObject(value.width)) {
+      parts.push(dimensionObjectToString(value.width as DimensionValue))
+    } else if (value.width != null) {
+      parts.push(String(value.width))
+    }
+
+    if (typeof value.style === 'string') {
+      parts.push(value.style)
+    }
+
+    if (isColorObject(value.color)) {
+      parts.push(colorObjectToHex(value.color))
+    } else if (value.color != null) {
+      parts.push(String(value.color))
+    }
+
+    return parts.join(' ')
+  }
+
+  /**
+   * Formats a transition value as a CSS transition shorthand.
+   */
+  private formatTransitionValue(value: Record<string, unknown>): string {
+    const parts: string[] = []
+
+    if (isDurationObject(value.duration)) {
+      parts.push(durationObjectToString(value.duration as DurationValue))
+    } else if (value.duration != null) {
+      parts.push(String(value.duration))
+    }
+
+    if (Array.isArray(value.timingFunction) && value.timingFunction.length === 4) {
+      parts.push(`cubic-bezier(${value.timingFunction.join(', ')})`)
+    }
+
+    if (isDurationObject(value.delay)) {
+      parts.push(durationObjectToString(value.delay as DurationValue))
+    } else if (value.delay != null) {
+      parts.push(String(value.delay))
+    }
+
+    return parts.join(' ')
   }
 
   private formatValue(token: ResolvedToken): string {
