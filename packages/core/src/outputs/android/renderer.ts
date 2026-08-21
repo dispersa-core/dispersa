@@ -30,6 +30,7 @@ import { getSortedTokenEntries } from '@shared/utils/token-utils'
 import type {
   ColorValueObject,
   DimensionValue,
+  GradientStop,
   ResolvedToken,
   ResolvedTokens,
 } from '@shared/token-types'
@@ -156,6 +157,7 @@ const KOTLIN_TYPE_GROUP_MAP: Record<string, string> = {
   number: 'Numbers',
   cubicBezier: 'Animations',
   border: 'Borders',
+  gradient: 'Gradients',
 }
 
 // ---------------------------------------------------------------------------
@@ -175,6 +177,10 @@ function escapeKotlinString(str: string): string {
 
 function formatKotlinNumber(value: number): string {
   return Number.isInteger(value) ? `${value}.0` : String(value)
+}
+
+function formatKotlinFloat(value: number): string {
+  return `${value}f`
 }
 
 function roundComponent(value: number): number {
@@ -299,7 +305,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   /**
-   * Shared file preamble: header, package, imports, optional ShadowToken class.
+   * Shared file preamble: header, package, imports, optional data class definitions.
    * The `renderBody` callback appends the main object(s) to `lines`.
    */
   private buildFile(
@@ -324,6 +330,21 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
 
     if (tokenTypes.has('shadow')) {
       lines.push(...this.buildShadowTokenClass(options))
+      lines.push('')
+    }
+
+    if (tokenTypes.has('transition')) {
+      lines.push(...this.buildTransitionStyleClass(options))
+      lines.push('')
+    }
+
+    if (tokenTypes.has('strokeStyle') || tokenTypes.has('border')) {
+      lines.push(...this.buildStrokeStyleTokenClass(options))
+      lines.push('')
+    }
+
+    if (tokenTypes.has('border')) {
+      lines.push(...this.buildBorderTokenClass(options))
       lines.push('')
     }
 
@@ -439,6 +460,41 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     ]
   }
 
+  private buildTransitionStyleClass(options: ResolvedOptions): string[] {
+    const i1 = indentStr(options.indent, 1)
+    return [
+      '@Immutable',
+      `${options.visPrefix}data class TransitionStyle(`,
+      `${i1}val duration: Duration,`,
+      `${i1}val delay: Duration,`,
+      `${i1}val easing: Easing,`,
+      ')',
+    ]
+  }
+
+  private buildStrokeStyleTokenClass(options: ResolvedOptions): string[] {
+    const i1 = indentStr(options.indent, 1)
+    return [
+      '@Immutable',
+      `${options.visPrefix}data class StrokeStyleToken(`,
+      `${i1}val dash: List<Dp>,`,
+      `${i1}val cap: StrokeCap,`,
+      ')',
+    ]
+  }
+
+  private buildBorderTokenClass(options: ResolvedOptions): string[] {
+    const i1 = indentStr(options.indent, 1)
+    return [
+      '@Immutable',
+      `${options.visPrefix}data class BorderToken(`,
+      `${i1}val width: Dp,`,
+      `${i1}val color: Color,`,
+      `${i1}val style: StrokeStyleToken,`,
+      ')',
+    ]
+  }
+
   // -----------------------------------------------------------------------
   // Imports (tree-shaken)
   // -----------------------------------------------------------------------
@@ -447,12 +503,20 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     const imports = new Set<string>()
     const ns = 'androidx.compose'
     const hasColors =
-      tokenTypes.has('color') || tokenTypes.has('shadow') || tokenTypes.has('border')
+      tokenTypes.has('color') ||
+      tokenTypes.has('shadow') ||
+      tokenTypes.has('border') ||
+      tokenTypes.has('gradient')
 
     if (hasColors) {
       imports.add(`${ns}.ui.graphics.Color`)
     }
-    if (tokenTypes.has('dimension') || tokenTypes.has('shadow') || tokenTypes.has('border')) {
+    if (
+      tokenTypes.has('dimension') ||
+      tokenTypes.has('shadow') ||
+      tokenTypes.has('border') ||
+      tokenTypes.has('strokeStyle')
+    ) {
       imports.add(`${ns}.ui.unit.Dp`)
       imports.add(`${ns}.ui.unit.dp`)
     }
@@ -466,19 +530,31 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     if (tokenTypes.has('fontFamily')) {
       imports.add(`${ns}.ui.text.font.FontFamily`)
     }
-    if (tokenTypes.has('duration')) {
+    if (tokenTypes.has('duration') || tokenTypes.has('transition')) {
       imports.add('kotlin.time.Duration')
       imports.add('kotlin.time.Duration.Companion.milliseconds')
       imports.add('kotlin.time.Duration.Companion.seconds')
     }
-    if (tokenTypes.has('cubicBezier')) {
+    if (tokenTypes.has('cubicBezier') || tokenTypes.has('transition')) {
       imports.add(`${ns}.animation.core.CubicBezierEasing`)
     }
-    if (tokenTypes.has('shadow')) {
+    if (tokenTypes.has('transition')) {
+      imports.add(`${ns}.animation.core.Easing`)
+      imports.add(`${ns}.animation.core.LinearEasing`)
+    }
+    if (
+      tokenTypes.has('shadow') ||
+      tokenTypes.has('transition') ||
+      tokenTypes.has('strokeStyle') ||
+      tokenTypes.has('border')
+    ) {
       imports.add(`${ns}.runtime.Immutable`)
     }
-    if (tokenTypes.has('border')) {
-      imports.add(`${ns}.foundation.BorderStroke`)
+    if (tokenTypes.has('strokeStyle') || tokenTypes.has('border')) {
+      imports.add(`${ns}.ui.graphics.StrokeCap`)
+    }
+    if (tokenTypes.has('gradient')) {
+      imports.add(`${ns}.ui.graphics.Brush`)
     }
     if (options.colorSpace === 'displayP3' && hasColors) {
       imports.add(`${ns}.ui.graphics.colorspace.ColorSpaces`)
@@ -514,15 +590,23 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       case 'duration':
         return 'Duration'
       case 'shadow':
-        return 'ShadowToken'
+        return Array.isArray(token.$value) && token.$value.length > 1
+          ? 'List<ShadowToken>'
+          : 'ShadowToken'
       case 'cubicBezier':
         return 'CubicBezierEasing'
+      case 'transition':
+        return 'TransitionStyle'
+      case 'strokeStyle':
+        return 'StrokeStyleToken'
+      case 'gradient':
+        return 'Brush'
       case 'number':
         return 'Double'
       case 'typography':
         return 'TextStyle'
       case 'border':
-        return 'BorderStroke'
+        return 'BorderToken'
       default: {
         const value = token.$value
         if (typeof value === 'string') {
@@ -574,6 +658,15 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     }
     if (token.$type === 'border') {
       return this.formatBorderValue(value, options)
+    }
+    if (token.$type === 'transition') {
+      return this.formatTransitionValue(value)
+    }
+    if (token.$type === 'strokeStyle') {
+      return this.formatStrokeStyleValue(value)
+    }
+    if (token.$type === 'gradient') {
+      return this.formatGradientValue(value, options)
     }
 
     if (token.$type === 'number') {
@@ -765,11 +858,22 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
 
   private formatShadowValue(value: unknown, options: ResolvedOptions, depth: number): string {
     const layers = getShadowLayers(value)
-    if (layers.length > 0) {
+    if (layers.length === 0) {
+      return 'ShadowToken(color = Color.Unspecified, elevation = 0.dp, offsetX = 0.dp, offsetY = 0.dp)'
+    }
+
+    if (layers.length === 1) {
       return this.formatSingleShadow(layers[0] as Record<string, unknown>, options, depth)
     }
 
-    return 'ShadowToken(color = Color.Unspecified, elevation = 0.dp, offsetX = 0.dp, offsetY = 0.dp)'
+    const itemIndent = indentStr(options.indent, depth + 1)
+    const shadows = layers
+      .map((layer) => {
+        const block = this.formatSingleShadow(layer as Record<string, unknown>, options, depth + 1)
+        return block.replace(/^ShadowToken/, `${itemIndent}ShadowToken`)
+      })
+      .join(',\n')
+    return `listOf(\n${shadows},\n${indentStr(options.indent, depth)})`
   }
 
   private formatSingleShadow(
@@ -807,7 +911,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
 
   private formatBorderValue(value: unknown, options: ResolvedOptions): string {
     if (typeof value !== 'object' || value === null) {
-      return 'BorderStroke(0.dp, Color.Unspecified)'
+      return 'BorderToken(width = 0.dp, color = Color.Unspecified, style = StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt))'
     }
 
     const border = value as Record<string, unknown>
@@ -817,7 +921,100 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       ? this.formatColorValue(border.color, options)
       : 'Color.Unspecified'
 
-    return `BorderStroke(${width}, ${color})`
+    const style = this.formatStrokeStyleValue(border.style)
+
+    return `BorderToken(width = ${width}, color = ${color}, style = ${style})`
+  }
+
+  private formatTransitionValue(value: unknown): string {
+    if (typeof value !== 'object' || value === null) {
+      return 'TransitionStyle(duration = 0.milliseconds, delay = 0.milliseconds, easing = LinearEasing)'
+    }
+
+    const transition = value as Record<string, unknown>
+    const duration = this.formatDurationValue(transition.duration)
+    const delay = this.formatDurationValue(transition.delay)
+
+    return `TransitionStyle(duration = ${duration}, delay = ${delay}, easing = ${this.formatEasingValue(
+      transition.timingFunction,
+    )})`
+  }
+
+  private formatEasingValue(value: unknown): string {
+    if (
+      Array.isArray(value) &&
+      value.length === 4 &&
+      value.every((v) => typeof v === 'number' && Number.isFinite(v))
+    ) {
+      return `CubicBezierEasing(${value[0]}f, ${value[1]}f, ${value[2]}f, ${value[3]}f)`
+    }
+    return 'LinearEasing'
+  }
+
+  /**
+   * Maps a DTCG stroke-style keyword to a Kotlin dash pattern.
+   *
+   * `solid`/`double`/`groove`/`ridge`/`outset`/`inset` have no Compose stroke-path
+   * equivalent and fall back to a solid (empty-dash) render — a documented
+   * limitation mirroring the iOS renderer's identical carve-out.
+   */
+  private keywordStrokeStyle(keyword: string): string {
+    const normalized = keyword.toLowerCase()
+    const dash: Record<string, string> = {
+      dashed: 'listOf(4.dp, 4.dp)',
+      dotted: 'listOf(1.dp, 2.dp)',
+    }
+    const lineCap: Record<string, string> = {
+      dotted: 'StrokeCap.Round',
+    }
+    return `StrokeStyleToken(dash = ${dash[normalized] ?? 'emptyList()'}, cap = ${lineCap[normalized] ?? 'StrokeCap.Butt'})`
+  }
+
+  private formatStrokeStyleValue(value: unknown): string {
+    if (typeof value === 'string') {
+      return this.keywordStrokeStyle(value)
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      const style = value as Record<string, unknown>
+      const dash = Array.isArray(style.dashArray)
+        ? style.dashArray
+            .map((d) => (isDimensionObject(d) ? this.formatDimensionValue(d) : '0.dp'))
+            .join(', ')
+        : ''
+
+      return `StrokeStyleToken(dash = ${
+        dash ? `listOf(${dash})` : 'emptyList()'
+      }, cap = ${this.formatLineCap(style.lineCap)})`
+    }
+
+    return 'StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt)'
+  }
+
+  private formatLineCap(lineCap: unknown): string {
+    if (lineCap === 'round') {
+      return 'StrokeCap.Round'
+    }
+    if (lineCap === 'square') {
+      return 'StrokeCap.Square'
+    }
+    return 'StrokeCap.Butt'
+  }
+
+  private formatGradientValue(value: unknown, options: ResolvedOptions): string {
+    if (!Array.isArray(value) || value.length === 0) {
+      return 'Brush.linearGradient(colorStops = arrayOf())'
+    }
+
+    const stops = (value as GradientStop[]).map((stop) => {
+      const color = isColorObject(stop.color)
+        ? this.formatColorValue(stop.color, options)
+        : 'Color.Unspecified'
+      const position = typeof stop.position === 'number' ? formatKotlinFloat(stop.position) : '0f'
+      return `${position} to ${color}`
+    })
+
+    return `Brush.linearGradient(colorStops = arrayOf(${stops.join(', ')}))`
   }
 
   private formatTypographyValue(value: unknown, options: ResolvedOptions, depth: number): string {
