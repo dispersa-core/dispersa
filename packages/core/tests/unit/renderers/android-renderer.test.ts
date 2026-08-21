@@ -328,7 +328,7 @@ describe('Android/Compose Renderer', () => {
       expect(content).toMatch(/val md: ShadowToken = ShadowToken\(/)
     })
 
-    it('should annotate border tokens with BorderStroke type', async () => {
+    it('should annotate border tokens with BorderToken type', async () => {
       const tokens: ResolvedTokens = {
         'border.thin': makeToken(
           'border.thin',
@@ -343,7 +343,7 @@ describe('Android/Compose Renderer', () => {
 
       const content = await getContent(renderer, tokens)
 
-      expect(content).toMatch(/val thin: BorderStroke = BorderStroke\(/)
+      expect(content).toMatch(/val thin: BorderToken = BorderToken\(/)
     })
 
     it('should annotate duration tokens with Duration type', async () => {
@@ -719,6 +719,55 @@ describe('Android/Compose Renderer', () => {
       expect(content).not.toContain('ShadowToken')
       expect(content).not.toContain('@Immutable')
     })
+
+    it('should render a single-element shadow array as a bare ShadowToken', async () => {
+      const layer = {
+        color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.5 },
+        offsetX: { value: 0, unit: 'px' },
+        offsetY: { value: 4, unit: 'px' },
+        blur: { value: 8, unit: 'px' },
+      }
+      const tokens: ResolvedTokens = {
+        'shadow.single': makeToken('shadow.single', [layer], 'shadow'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toMatch(/val single: ShadowToken = ShadowToken\(/)
+      expect(content).not.toContain('listOf(')
+    })
+
+    it('should render multi-layer shadow arrays with every layer preserved', async () => {
+      const tokens: ResolvedTokens = {
+        'shadow.multi': makeToken(
+          'shadow.multi',
+          [
+            {
+              color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.5 },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+            },
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0] },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 8, unit: 'px' },
+              blur: { value: 16, unit: 'px' },
+            },
+          ],
+          'shadow',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toMatch(/val multi: List<ShadowToken> = listOf\(/)
+      expect(content).toContain('offsetY = 4.dp')
+      expect(content).toContain('offsetY = 8.dp')
+      const listIdx = content.indexOf('listOf(')
+      const listSnippet = content.slice(listIdx, listIdx + 200)
+      expect(listSnippet).toMatch(/^\s+ShadowToken\(/m)
+    })
   })
 
   // =========================================================================
@@ -726,7 +775,7 @@ describe('Android/Compose Renderer', () => {
   // =========================================================================
 
   describe('border tokens', () => {
-    it('should generate BorderStroke values', async () => {
+    it('should generate BorderToken values', async () => {
       const tokens: ResolvedTokens = {
         'border.thin': makeToken(
           'border.thin',
@@ -741,8 +790,58 @@ describe('Android/Compose Renderer', () => {
 
       const content = await getContent(renderer, tokens)
 
-      expect(content).toContain('import androidx.compose.foundation.BorderStroke')
-      expect(content).toMatch(/val thin: BorderStroke = BorderStroke\(1\.dp, Color\(/)
+      expect(content).not.toContain('import androidx.compose.foundation.BorderStroke')
+      expect(content).toMatch(/val thin: BorderToken = BorderToken\(width = 1\.dp, color = Color\(/)
+      expect(content).toContain(
+        'style = StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt)',
+      )
+    })
+
+    it('should emit BorderToken class definition when border tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'border.thin': makeToken(
+          'border.thin',
+          {
+            width: { value: 1, unit: 'px' },
+            color: { colorSpace: 'srgb', components: [0.8, 0.8, 0.8] },
+            style: 'solid',
+          },
+          'border',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('data class BorderToken(')
+      expect(content).toContain('val width: Dp,')
+      expect(content).toContain('val color: Color,')
+      expect(content).toContain('val style: StrokeStyleToken,')
+    })
+
+    it('should preserve an object-form border style as dash and cap', async () => {
+      const tokens: ResolvedTokens = {
+        'border.dashed': makeToken(
+          'border.dashed',
+          {
+            color: { colorSpace: 'srgb', components: [0, 0, 0] },
+            width: { value: 2, unit: 'px' },
+            style: {
+              dashArray: [
+                { value: 3, unit: 'px' },
+                { value: 2, unit: 'px' },
+              ],
+              lineCap: 'square',
+            },
+          },
+          'border',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain(
+        'BorderToken(width = 2.dp, color = Color(0xFF000000), style = StrokeStyleToken(dash = listOf(3.dp, 2.dp), cap = StrokeCap.Square))',
+      )
     })
 
     it('should handle border with no valid width/color', async () => {
@@ -752,7 +851,302 @@ describe('Android/Compose Renderer', () => {
 
       const content = await getContent(renderer, tokens)
 
-      expect(content).toContain('BorderStroke(0.dp, Color.Unspecified)')
+      expect(content).toContain(
+        'BorderToken(width = 0.dp, color = Color.Unspecified, style = StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt))',
+      )
+    })
+  })
+
+  // =========================================================================
+  // Transition tokens
+  // =========================================================================
+
+  describe('transition tokens', () => {
+    it('should generate TransitionStyle values with Duration literals and easing', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.standard': makeToken(
+          'transition.standard',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 50, unit: 'ms' },
+            timingFunction: [0.4, 0, 0.2, 1],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain(
+        'TransitionStyle(duration = 200.milliseconds, delay = 50.milliseconds, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f))',
+      )
+    })
+
+    it('should emit TransitionStyle class and Easing/LinearEasing/Duration imports when transition tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.standard': makeToken(
+          'transition.standard',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: [0, 0, 1, 1],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('data class TransitionStyle(')
+      expect(content).toContain('val duration: Duration,')
+      expect(content).toContain('val delay: Duration,')
+      expect(content).toContain('val easing: Easing,')
+      expect(content).toContain('import androidx.compose.animation.core.Easing')
+      expect(content).toContain('import androidx.compose.animation.core.LinearEasing')
+      expect(content).toContain('import androidx.compose.animation.core.CubicBezierEasing')
+      expect(content).toContain('import kotlin.time.Duration')
+    })
+
+    it('should fall back to LinearEasing when timingFunction is malformed', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.broken': makeToken(
+          'transition.broken',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: [0, 0],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('easing = LinearEasing')
+    })
+
+    it('should emit default TransitionStyle when value is not an object', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.primitive': makeToken('transition.primitive', 'not-an-object', 'transition'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain(
+        'TransitionStyle(duration = 0.milliseconds, delay = 0.milliseconds, easing = LinearEasing)',
+      )
+    })
+
+    it('should fall back to LinearEasing when timingFunction has non-numeric members', async () => {
+      const tokens: ResolvedTokens = {
+        'transition.invalid': makeToken(
+          'transition.invalid',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: ['a', 'b', 'c', 'd'],
+          },
+          'transition',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('easing = LinearEasing')
+      expect(content).not.toContain('CubicBezierEasing(af')
+    })
+
+    it('should not emit TransitionStyle class when no transition tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'color.primary': makeToken(
+          'color.primary',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).not.toContain('TransitionStyle')
+      expect(content).not.toContain('import androidx.compose.animation.core.Easing')
+      expect(content).not.toContain('import androidx.compose.animation.core.LinearEasing')
+    })
+  })
+
+  // =========================================================================
+  // StrokeStyle tokens
+  // =========================================================================
+
+  describe('strokeStyle tokens', () => {
+    it('should map string keywords to dash patterns', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.dashed': makeToken('strokeStyle.dashed', 'dashed', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('StrokeStyleToken(dash = listOf(4.dp, 4.dp), cap = StrokeCap.Butt)')
+    })
+
+    it('should map dotted keyword to round cap pattern', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.dotted': makeToken('strokeStyle.dotted', 'dotted', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain(
+        'StrokeStyleToken(dash = listOf(1.dp, 2.dp), cap = StrokeCap.Round)',
+      )
+    })
+
+    it('should convert dashArray and lineCap object values', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.custom': makeToken(
+          'strokeStyle.custom',
+          {
+            dashArray: [
+              { value: 2, unit: 'px' },
+              { value: 4, unit: 'px' },
+            ],
+            lineCap: 'round',
+          },
+          'strokeStyle',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain(
+        'StrokeStyleToken(dash = listOf(2.dp, 4.dp), cap = StrokeCap.Round)',
+      )
+    })
+
+    it('should fall back to solid style for unsupported keywords', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.groove': makeToken('strokeStyle.groove', 'groove', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt)')
+    })
+
+    it('should emit StrokeStyleToken class and StrokeCap import when strokeStyle tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'strokeStyle.dashed': makeToken('strokeStyle.dashed', 'dashed', 'strokeStyle'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('data class StrokeStyleToken(')
+      expect(content).toContain('val dash: List<Dp>,')
+      expect(content).toContain('val cap: StrokeCap,')
+      expect(content).toContain('import androidx.compose.ui.graphics.StrokeCap')
+    })
+
+    it('should emit StrokeStyleToken class when a border token exists', async () => {
+      const tokens: ResolvedTokens = {
+        'border.default': makeToken(
+          'border.default',
+          {
+            color: { colorSpace: 'srgb', components: [0.8, 0.8, 0.8] },
+            width: { value: 1, unit: 'px' },
+            style: 'solid',
+          },
+          'border',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('data class StrokeStyleToken(')
+      expect(content).toContain('import androidx.compose.ui.graphics.StrokeCap')
+    })
+
+    it('should not emit StrokeStyleToken class when no border or strokeStyle tokens exist', async () => {
+      const tokens: ResolvedTokens = {
+        'color.primary': makeToken(
+          'color.primary',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).not.toContain('StrokeStyleToken')
+      expect(content).not.toContain('import androidx.compose.ui.graphics.StrokeCap')
+    })
+  })
+
+  // =========================================================================
+  // Gradient tokens
+  // =========================================================================
+
+  describe('gradient tokens', () => {
+    it('should generate Brush.linearGradient values with stops', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeToken(
+          'gradient.brand',
+          [
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 0 },
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 1 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('Brush.linearGradient(colorStops = arrayOf(')
+      expect(content).toContain('0f to Color(')
+      expect(content).toContain('1f to Color(')
+      expect(content).toContain('import androidx.compose.ui.graphics.Brush')
+    })
+
+    it('should group gradient tokens under Gradients object', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeToken(
+          'gradient.brand',
+          [
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 0 },
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 1 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        structure: 'flat',
+      })
+
+      expect(content).toContain('object Gradients')
+    })
+
+    it('should emit empty colorStops for an empty gradient array', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.empty': makeToken('gradient.empty', [], 'gradient'),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('Brush.linearGradient(colorStops = arrayOf())')
+    })
+
+    it('should fall back to Color.Unspecified and 0f for malformed stops', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.malformed': makeToken(
+          'gradient.malformed',
+          [{ color: '#zzz' }, { color: { colorSpace: 'srgb', components: [1, 0, 0] } }],
+          'gradient',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('0f to Color.Unspecified')
     })
   })
 
@@ -1141,7 +1535,7 @@ describe('Android/Compose Renderer', () => {
       expect(content).toContain('import kotlin.time.Duration.Companion.milliseconds')
     })
 
-    it('should import BorderStroke for border tokens', async () => {
+    it('should import StrokeCap for border tokens', async () => {
       const tokens: ResolvedTokens = {
         'border.thin': makeToken(
           'border.thin',
@@ -1152,7 +1546,8 @@ describe('Android/Compose Renderer', () => {
 
       const content = await getContent(renderer, tokens)
 
-      expect(content).toContain('import androidx.compose.foundation.BorderStroke')
+      expect(content).toContain('import androidx.compose.ui.graphics.StrokeCap')
+      expect(content).not.toContain('import androidx.compose.foundation.BorderStroke')
     })
   })
 
