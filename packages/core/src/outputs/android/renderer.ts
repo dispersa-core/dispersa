@@ -26,7 +26,7 @@ import {
 import { isDimensionObject } from '@processing/transforms/built-in/dimension-converter'
 import { isDurationObject } from '@processing/transforms/built-in/duration-converter'
 import { ConfigurationError } from '@shared/errors/index'
-import { getSortedTokenEntries } from '@shared/utils/token-utils'
+import { getPureAliasReferenceName, getSortedTokenEntries } from '@shared/utils/token-utils'
 import type {
   ColorValueObject,
   DimensionValue,
@@ -93,6 +93,12 @@ export type AndroidRendererOptions = {
   visibility?: 'public' | 'internal'
   /** Number of spaces per indentation level (default 4) */
   indent?: number
+  /**
+   * Preserve alias references by emitting Kotlin identifier references to the
+   * aliased token (e.g. `val brandPrimary = DesignTokens.Color.Red._500`) instead of
+   * duplicating its resolved literal value (default false).
+   */
+  preserveReferences?: boolean
 }
 
 /**
@@ -108,12 +114,19 @@ type ResolvedOptions = {
   visibility: 'public' | 'internal' | undefined
   visPrefix: string
   indent: number
+  preserveReferences: boolean
 }
 
 type TokenTreeNode = {
   children: Map<string, TokenTreeNode>
   token?: ResolvedToken
 }
+
+/**
+ * Maps a token name to its fully-qualified Kotlin identifier within the current
+ * output, used for `preserveReferences` alias substitution.
+ */
+type ReferenceMap = Record<string, string>
 
 const toSRGB = converter('rgb')
 const toP3 = converter('p3')
@@ -217,6 +230,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       visibility,
       visPrefix: visibility ? `${visibility} ` : '',
       indent: options?.indent ?? 4,
+      preserveReferences: options?.preserveReferences ?? false,
     }
 
     if (opts.preset === 'bundle') {
@@ -270,36 +284,146 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   }
 
   // -----------------------------------------------------------------------
+  // Reference map (preserveReferences)
+  // -----------------------------------------------------------------------
+
+  /**
+   * Builds a token-name → fully-qualified Kotlin identifier map for a
+   * permutation's token set, used to substitute alias references in place of
+   * resolved literal values. In bundle mode, identifiers are prefixed with the
+   * permutation object name so references resolve within the same file.
+   *
+   * Nested mode walks the same token tree the renderer emits so identifiers
+   * exactly match declarations, including the mixed token+children flattening
+   * (`renderTreeChildren` renders such a node's children one level up).
+   */
+  private buildReferenceMap(
+    tokens: ResolvedTokens,
+    options: ResolvedOptions,
+    permutationPrefix?: string,
+  ): ReferenceMap {
+    const map: ReferenceMap = {}
+    const prefix = [options.objectName]
+    if (permutationPrefix) {
+      prefix.push(permutationPrefix)
+    }
+
+    if (options.structure === 'flat') {
+      for (const [, token] of getSortedTokenEntries(tokens)) {
+        const group = KOTLIN_TYPE_GROUP_MAP[token.$type ?? ''] ?? 'Other'
+        map[token.name] = [...prefix, group, this.buildFlatKotlinName(token)].join('.')
+      }
+      return map
+    }
+
+    this.collectTreeReferences(this.buildTokenTree(tokens), prefix, map)
+    return map
+  }
+
+  /**
+   * Records a fully-qualified identifier for every leaf token in the tree,
+   * mirroring `renderTreeChildren`'s emission structure: leaf-only nodes render
+   * at the current prefix, object-only nodes deepen the prefix with their
+   * PascalCase name, and mixed token+children nodes keep the prefix (children
+   * are flattened one level up).
+   */
+  private collectTreeReferences(node: TokenTreeNode, prefix: string[], map: ReferenceMap): void {
+    for (const [key, child] of node.children) {
+      const leafName = toSafeIdentifier(key, KOTLIN_KEYWORDS, false)
+      if (child.token && child.children.size === 0) {
+        map[child.token.name] = [...prefix, leafName].join('.')
+      } else if (child.children.size > 0 && !child.token) {
+        this.collectTreeReferences(
+          child,
+          [...prefix, toSafeIdentifier(key, KOTLIN_KEYWORDS, true)],
+          map,
+        )
+      } else {
+        map[child.token!.name] = [...prefix, leafName].join('.')
+        this.collectTreeReferences(child, prefix, map)
+      }
+    }
+  }
+
+  /**
+   * Builds a Kotlin identifier reference to a token referenced by a pure alias.
+   * Throws when the referenced token is missing from the current output's token set.
+   */
+  private buildReference(refName: string, refs: ReferenceMap): string {
+    const identifier = refs[refName]
+    if (identifier === undefined) {
+      throw new ConfigurationError(
+        `Kotlin reference "{${refName}}" could not be resolved. The referenced token is not present in the current output's token set. ` +
+          `This usually means a filter (e.g. isAlias()) excluded the referenced token while preserveReferences is true. ` +
+          `Either remove the filter, include the referenced token, or set preserveReferences to false.`,
+      )
+    }
+    return identifier
+  }
+
+  /**
+   * Formats a composite leaf slot, substituting a Kotlin identifier reference
+   * when the leaf's original (pre-resolution) value was a pure alias and
+   * `preserveReferences` is enabled. Falls back to formatting the resolved value.
+   */
+  private formatLeafOrReference(
+    originalLeafValue: unknown,
+    options: ResolvedOptions,
+    refs: ReferenceMap | undefined,
+    formatResolved: () => string,
+  ): string {
+    if (options.preserveReferences && refs) {
+      const refName = getPureAliasReferenceName(originalLeafValue)
+      if (refName !== undefined) {
+        return this.buildReference(refName, refs)
+      }
+    }
+    return formatResolved()
+  }
+
+  // -----------------------------------------------------------------------
   // Rendering
   // -----------------------------------------------------------------------
 
-  private formatTokens(tokens: ResolvedTokens, options: ResolvedOptions): string {
+  private formatTokens(
+    tokens: ResolvedTokens,
+    options: ResolvedOptions,
+    refs?: ReferenceMap,
+  ): string {
     if (options.structure === 'flat') {
-      return this.formatAsFlat(tokens, options)
+      return this.formatAsFlat(tokens, options, refs)
     }
-    return this.formatAsNested(tokens, options)
+    return this.formatAsNested(tokens, options, refs)
   }
 
-  private formatAsNested(tokens: ResolvedTokens, options: ResolvedOptions): string {
+  private formatAsNested(
+    tokens: ResolvedTokens,
+    options: ResolvedOptions,
+    refs?: ReferenceMap,
+  ): string {
     const tokenTypes = this.collectTokenTypesFromEntries(tokens)
     const tree = this.buildTokenTree(tokens)
 
     return this.buildFile(tokenTypes, options, (lines) => {
       lines.push(`@Suppress("unused")`)
       lines.push(`${options.visPrefix}object ${options.objectName} {`)
-      this.renderTreeChildren(lines, tree, 1, options)
+      this.renderTreeChildren(lines, tree, 1, options, refs)
       lines.push('}')
     })
   }
 
-  private formatAsFlat(tokens: ResolvedTokens, options: ResolvedOptions): string {
+  private formatAsFlat(
+    tokens: ResolvedTokens,
+    options: ResolvedOptions,
+    refs?: ReferenceMap,
+  ): string {
     const groups = groupTokensByType(tokens, KOTLIN_TYPE_GROUP_MAP)
     const tokenTypes = this.collectTokenTypesFromEntries(tokens)
 
     return this.buildFile(tokenTypes, options, (lines) => {
       lines.push(`@Suppress("unused")`)
       lines.push(`${options.visPrefix}object ${options.objectName} {`)
-      this.renderFlatGroups(lines, groups, 1, options)
+      this.renderFlatGroups(lines, groups, 1, options, refs)
       lines.push('}')
     })
   }
@@ -359,6 +483,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     groups: TokenGroup[],
     baseDepth: number,
     options: ResolvedOptions,
+    refs?: ReferenceMap,
   ): void {
     const groupIndent = indentStr(options.indent, baseDepth)
     const valIndent = indentStr(options.indent, baseDepth + 1)
@@ -367,7 +492,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       lines.push(`${groupIndent}${options.visPrefix}object ${group.name} {`)
       for (const token of group.tokens) {
         const kotlinName = this.buildFlatKotlinName(token)
-        const kotlinValue = this.formatKotlinValue(token, options, baseDepth + 1)
+        const kotlinValue = this.formatKotlinValue(token, options, baseDepth + 1, refs)
         const annotation = this.typeAnnotationSuffix(token)
 
         const descriptionComment = buildTokenDescriptionComment(token, 'kotlin')
@@ -394,6 +519,7 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     node: TokenTreeNode,
     depth: number,
     options: ResolvedOptions,
+    refs?: ReferenceMap,
   ): void {
     const pad = indentStr(options.indent, depth)
     const entries = Array.from(node.children.entries())
@@ -402,18 +528,18 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       const [key, child] = entries[idx]!
 
       if (child.token && child.children.size === 0) {
-        this.renderLeaf(lines, key, child.token, depth, options)
+        this.renderLeaf(lines, key, child.token, depth, options, refs)
       } else if (child.children.size > 0 && !child.token) {
         const objectName = toSafeIdentifier(key, KOTLIN_KEYWORDS, true)
         lines.push(`${pad}${options.visPrefix}object ${objectName} {`)
-        this.renderTreeChildren(lines, child, depth + 1, options)
+        this.renderTreeChildren(lines, child, depth + 1, options, refs)
         lines.push(`${pad}}`)
         if (idx < entries.length - 1) {
           lines.push('')
         }
       } else {
-        this.renderLeaf(lines, key, child.token!, depth, options)
-        this.renderTreeChildren(lines, child, depth, options)
+        this.renderLeaf(lines, key, child.token!, depth, options, refs)
+        this.renderTreeChildren(lines, child, depth, options, refs)
       }
     }
   }
@@ -424,10 +550,11 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     token: ResolvedToken,
     depth: number,
     options: ResolvedOptions,
+    refs?: ReferenceMap,
   ): void {
     const pad = indentStr(options.indent, depth)
     const kotlinName = toSafeIdentifier(key, KOTLIN_KEYWORDS, false)
-    const kotlinValue = this.formatKotlinValue(token, options, depth)
+    const kotlinValue = this.formatKotlinValue(token, options, depth, refs)
     const annotation = this.typeAnnotationSuffix(token)
 
     const descriptionComment = buildTokenDescriptionComment(token, 'kotlin')
@@ -632,7 +759,19 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
   // Value formatting
   // -----------------------------------------------------------------------
 
-  private formatKotlinValue(token: ResolvedToken, options: ResolvedOptions, depth: number): string {
+  private formatKotlinValue(
+    token: ResolvedToken,
+    options: ResolvedOptions,
+    depth: number,
+    refs?: ReferenceMap,
+  ): string {
+    if (options.preserveReferences && refs) {
+      const refName = getPureAliasReferenceName(token.originalValue)
+      if (refName !== undefined) {
+        return this.buildReference(refName, refs)
+      }
+    }
+
     const value = token.$value
 
     if (token.$type === 'color') {
@@ -651,22 +790,22 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
       return this.formatDurationValue(value)
     }
     if (token.$type === 'shadow') {
-      return this.formatShadowValue(value, options, depth)
+      return this.formatShadowValue(value, options, depth, token.originalValue, refs)
     }
     if (token.$type === 'typography') {
       return this.formatTypographyValue(value, options, depth)
     }
     if (token.$type === 'border') {
-      return this.formatBorderValue(value, options)
+      return this.formatBorderValue(value, options, token.originalValue, refs)
     }
     if (token.$type === 'transition') {
-      return this.formatTransitionValue(value)
+      return this.formatTransitionValue(value, options, token.originalValue, refs)
     }
     if (token.$type === 'strokeStyle') {
       return this.formatStrokeStyleValue(value)
     }
     if (token.$type === 'gradient') {
-      return this.formatGradientValue(value, options)
+      return this.formatGradientValue(value, options, token.originalValue, refs)
     }
 
     if (token.$type === 'number') {
@@ -856,20 +995,40 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     return typeof value === 'number' ? `${value}.milliseconds` : '0.milliseconds'
   }
 
-  private formatShadowValue(value: unknown, options: ResolvedOptions, depth: number): string {
+  private formatShadowValue(
+    value: unknown,
+    options: ResolvedOptions,
+    depth: number,
+    originalValue: unknown,
+    refs?: ReferenceMap,
+  ): string {
     const layers = getShadowLayers(value)
     if (layers.length === 0) {
       return 'ShadowToken(color = Color.Unspecified, elevation = 0.dp, offsetX = 0.dp, offsetY = 0.dp)'
     }
 
+    const originalLayers = getShadowLayers(originalValue)
+
     if (layers.length === 1) {
-      return this.formatSingleShadow(layers[0] as Record<string, unknown>, options, depth)
+      return this.formatSingleShadow(
+        layers[0] as Record<string, unknown>,
+        options,
+        depth,
+        originalLayers[0] as Record<string, unknown> | undefined,
+        refs,
+      )
     }
 
     const itemIndent = indentStr(options.indent, depth + 1)
     const shadows = layers
-      .map((layer) => {
-        const block = this.formatSingleShadow(layer as Record<string, unknown>, options, depth + 1)
+      .map((layer, index) => {
+        const block = this.formatSingleShadow(
+          layer as Record<string, unknown>,
+          options,
+          depth + 1,
+          originalLayers[index] as Record<string, unknown> | undefined,
+          refs,
+        )
         return block.replace(/^ShadowToken/, `${itemIndent}ShadowToken`)
       })
       .join(',\n')
@@ -880,22 +1039,24 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     shadow: Record<string, unknown>,
     options: ResolvedOptions,
     depth: number,
+    original?: Record<string, unknown>,
+    refs?: ReferenceMap,
   ): string {
-    const color = isColorObject(shadow.color)
-      ? this.formatColorValue(shadow.color, options)
-      : 'Color.Black'
+    const color = this.formatLeafOrReference(original?.color, options, refs, () =>
+      isColorObject(shadow.color) ? this.formatColorValue(shadow.color, options) : 'Color.Black',
+    )
 
-    const elevation = isDimensionObject(shadow.blur)
-      ? this.formatDimensionValue(shadow.blur)
-      : '0.dp'
+    const elevation = this.formatLeafOrReference(original?.blur, options, refs, () =>
+      isDimensionObject(shadow.blur) ? this.formatDimensionValue(shadow.blur) : '0.dp',
+    )
 
-    const offsetX = isDimensionObject(shadow.offsetX)
-      ? this.formatDimensionValue(shadow.offsetX)
-      : '0.dp'
+    const offsetX = this.formatLeafOrReference(original?.offsetX, options, refs, () =>
+      isDimensionObject(shadow.offsetX) ? this.formatDimensionValue(shadow.offsetX) : '0.dp',
+    )
 
-    const offsetY = isDimensionObject(shadow.offsetY)
-      ? this.formatDimensionValue(shadow.offsetY)
-      : '0.dp'
+    const offsetY = this.formatLeafOrReference(original?.offsetY, options, refs, () =>
+      isDimensionObject(shadow.offsetY) ? this.formatDimensionValue(shadow.offsetY) : '0.dp',
+    )
 
     const propIndent = indentStr(options.indent, depth + 1)
     const closeIndent = indentStr(options.indent, depth)
@@ -909,31 +1070,61 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     ].join('\n')
   }
 
-  private formatBorderValue(value: unknown, options: ResolvedOptions): string {
+  private formatBorderValue(
+    value: unknown,
+    options: ResolvedOptions,
+    originalValue: unknown,
+    refs?: ReferenceMap,
+  ): string {
     if (typeof value !== 'object' || value === null) {
       return 'BorderToken(width = 0.dp, color = Color.Unspecified, style = StrokeStyleToken(dash = emptyList(), cap = StrokeCap.Butt))'
     }
 
     const border = value as Record<string, unknown>
-    const width = isDimensionObject(border.width) ? this.formatDimensionValue(border.width) : '0.dp'
+    const original =
+      typeof originalValue === 'object' && originalValue !== null
+        ? (originalValue as Record<string, unknown>)
+        : undefined
 
-    const color = isColorObject(border.color)
-      ? this.formatColorValue(border.color, options)
-      : 'Color.Unspecified'
+    const width = this.formatLeafOrReference(original?.width, options, refs, () =>
+      isDimensionObject(border.width) ? this.formatDimensionValue(border.width) : '0.dp',
+    )
 
-    const style = this.formatStrokeStyleValue(border.style)
+    const color = this.formatLeafOrReference(original?.color, options, refs, () =>
+      isColorObject(border.color)
+        ? this.formatColorValue(border.color, options)
+        : 'Color.Unspecified',
+    )
+
+    const style = this.formatLeafOrReference(original?.style, options, refs, () =>
+      this.formatStrokeStyleValue(border.style),
+    )
 
     return `BorderToken(width = ${width}, color = ${color}, style = ${style})`
   }
 
-  private formatTransitionValue(value: unknown): string {
+  private formatTransitionValue(
+    value: unknown,
+    options: ResolvedOptions,
+    originalValue: unknown,
+    refs?: ReferenceMap,
+  ): string {
     if (typeof value !== 'object' || value === null) {
       return 'TransitionStyle(duration = 0.milliseconds, delay = 0.milliseconds, easing = LinearEasing)'
     }
 
     const transition = value as Record<string, unknown>
-    const duration = this.formatDurationValue(transition.duration)
-    const delay = this.formatDurationValue(transition.delay)
+    const original =
+      typeof originalValue === 'object' && originalValue !== null
+        ? (originalValue as Record<string, unknown>)
+        : undefined
+
+    const duration = this.formatLeafOrReference(original?.duration, options, refs, () =>
+      this.formatDurationValue(transition.duration),
+    )
+    const delay = this.formatLeafOrReference(original?.delay, options, refs, () =>
+      this.formatDurationValue(transition.delay),
+    )
 
     return `TransitionStyle(duration = ${duration}, delay = ${delay}, easing = ${this.formatEasingValue(
       transition.timingFunction,
@@ -1001,15 +1192,25 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     return 'StrokeCap.Butt'
   }
 
-  private formatGradientValue(value: unknown, options: ResolvedOptions): string {
+  private formatGradientValue(
+    value: unknown,
+    options: ResolvedOptions,
+    originalValue: unknown,
+    refs?: ReferenceMap,
+  ): string {
     if (!Array.isArray(value) || value.length === 0) {
       return 'Brush.linearGradient(colorStops = arrayOf())'
     }
 
-    const stops = (value as GradientStop[]).map((stop) => {
-      const color = isColorObject(stop.color)
-        ? this.formatColorValue(stop.color, options)
-        : 'Color.Unspecified'
+    const originalStops = Array.isArray(originalValue) ? originalValue : []
+
+    const stops = (value as GradientStop[]).map((stop, index) => {
+      const original = originalStops[index] as Record<string, unknown> | undefined
+      const color = this.formatLeafOrReference(original?.color, options, refs, () =>
+        isColorObject(stop.color)
+          ? this.formatColorValue(stop.color, options)
+          : 'Color.Unspecified',
+      )
       const position = typeof stop.position === 'number' ? formatKotlinFloat(stop.position) : '0f'
       return `${position} to ${color}`
     })
@@ -1077,7 +1278,10 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     const files: Record<string, string> = {}
     for (const { tokens, modifierInputs } of context.permutations) {
       const processedTokens = stripInternalMetadata(tokens)
-      const content = this.formatTokens(processedTokens, options)
+      const refs = options.preserveReferences
+        ? this.buildReferenceMap(processedTokens, options)
+        : undefined
+      const content = this.formatTokens(processedTokens, options, refs)
       const fileName = context.output.file
         ? resolveFileName(context.output.file, modifierInputs)
         : buildInMemoryOutputKey({
@@ -1135,8 +1339,11 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
         const { tokens, modifierInputs } = context.permutations[idx]!
         const processedTokens = stripInternalMetadata(tokens)
         const permName = this.buildPermutationName(modifierInputs)
+        const refs = options.preserveReferences
+          ? this.buildReferenceMap(processedTokens, options, permName)
+          : undefined
         lines.push(`${i1}${options.visPrefix}object ${permName} {`)
-        this.renderBundleTokens(lines, processedTokens, options, 2)
+        this.renderBundleTokens(lines, processedTokens, options, 2, refs)
         lines.push(`${i1}}`)
         if (idx < context.permutations.length - 1) {
           lines.push('')
@@ -1162,15 +1369,16 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
     tokens: ResolvedTokens,
     options: ResolvedOptions,
     baseDepth: number,
+    refs?: ReferenceMap,
   ): void {
     if (options.structure === 'flat') {
       const groups = groupTokensByType(tokens, KOTLIN_TYPE_GROUP_MAP)
-      this.renderFlatGroups(lines, groups, baseDepth, options)
+      this.renderFlatGroups(lines, groups, baseDepth, options, refs)
       return
     }
 
     const tree = this.buildTokenTree(tokens)
-    this.renderTreeChildren(lines, tree, baseDepth, options)
+    this.renderTreeChildren(lines, tree, baseDepth, options, refs)
   }
 
   private buildPermutationName(modifierInputs: Record<string, string>): string {

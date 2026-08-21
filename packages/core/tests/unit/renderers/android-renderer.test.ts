@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
+import { ConfigurationError } from '../../../src/shared/errors'
 import { isOutputTree } from '@outputs'
 import { AndroidRenderer } from '@outputs/android'
 import type { AndroidRendererOptions } from '@outputs/android'
@@ -1691,6 +1692,336 @@ describe('Android/Compose Renderer', () => {
           valsByScope.set(scopeKey, scopeVals)
         }
       }
+    })
+  })
+
+  describe('preserveReferences', () => {
+    it('should emit a Kotlin identifier reference for an aliased primitive token', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('val _500: Color = Color(0xFFFF0000)')
+      expect(content).toContain('val primary: Color = DesignTokens.Color.Red._500')
+      expect(content).not.toContain('val primary: Color = Color(')
+    })
+
+    it('should emit a Kotlin identifier reference for an aliased leaf inside a composite token', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'shadow.card': {
+          ...makeToken(
+            'shadow.card',
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0] },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+            },
+            'shadow',
+          ),
+          originalValue: {
+            color: '{color.red.500}',
+            offsetX: { value: 0, unit: 'px' },
+            offsetY: { value: 4, unit: 'px' },
+            blur: { value: 8, unit: 'px' },
+          },
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('color = DesignTokens.Color.Red._500')
+      expect(content).not.toContain('ShadowToken(color = Color(')
+    })
+
+    it('should reference the flat-mode qualified name for aliased tokens', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        structure: 'flat',
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('val red500: Color = Color(0xFFFF0000)')
+      expect(content).toContain('val brandPrimary: Color = DesignTokens.Colors.red500')
+      expect(content).not.toContain('val brandPrimary: Color = Color(')
+    })
+
+    it('should reference the permutation-prefixed qualified name in bundle mode', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const output: OutputConfig = {
+        name: 'android',
+        renderer,
+        file: 'Tokens.kt',
+        options: { ...defaultOptions, preset: 'bundle', preserveReferences: true },
+      }
+
+      const context: RenderContext = {
+        permutations: [{ tokens, modifierInputs: { theme: 'light' } }],
+        output,
+        resolver: mockResolver,
+        meta: {
+          dimensions: ['theme'],
+          defaults: { theme: 'light' },
+          basePermutation: { theme: 'light' },
+        },
+      }
+
+      const result = await renderer.format(
+        context,
+        context.output.options as AndroidRendererOptions,
+      )
+
+      expect(isOutputTree(result)).toBe(true)
+      if (isOutputTree(result)) {
+        const content = Object.values(result.files)[0]!
+        expect(content).toContain('val primary: Color = DesignTokens.Light.Color.Red._500')
+        expect(content).not.toContain('val primary: Color = Color(')
+      }
+    })
+
+    it('should resolve aliases to literal values when preserveReferences is false (default)', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, defaultOptions)
+
+      expect(content).toContain('val primary: Color = Color(0xFFFF0000)')
+      expect(content).not.toContain('val primary: Color = DesignTokens.Color.Red._500')
+    })
+
+    it('should throw ConfigurationError when the referenced token is not in the output set', async () => {
+      const tokens: ResolvedTokens = {
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      await expect(
+        getContent(renderer, tokens, { ...defaultOptions, preserveReferences: true }),
+      ).rejects.toThrow(ConfigurationError)
+    })
+
+    it('should reference the flattened identifier when a token path prefixes another token', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red': makeToken('color.red', { colorSpace: 'srgb', components: [1, 0, 0] }, 'color'),
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('val _500: Color = Color(0xFFFF0000)')
+      expect(content).toContain('val primary: Color = DesignTokens.Color._500')
+      expect(content).not.toContain('DesignTokens.Color.Red._500')
+    })
+
+    it('should substitute an aliased color leaf inside a multi-layer shadow by layer index', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.blue.500': makeToken(
+          'color.blue.500',
+          { colorSpace: 'srgb', components: [0, 0, 1] },
+          'color',
+        ),
+        'shadow.card': {
+          ...makeToken(
+            'shadow.card',
+            [
+              {
+                color: { colorSpace: 'srgb', components: [1, 0, 0] },
+                offsetX: { value: 0, unit: 'px' },
+                offsetY: { value: 4, unit: 'px' },
+                blur: { value: 8, unit: 'px' },
+              },
+              {
+                color: { colorSpace: 'srgb', components: [0, 0, 1] },
+                offsetX: { value: 0, unit: 'px' },
+                offsetY: { value: 8, unit: 'px' },
+                blur: { value: 16, unit: 'px' },
+              },
+            ],
+            'shadow',
+          ),
+          originalValue: [
+            {
+              color: '{color.red.500}',
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+            },
+            {
+              color: '{color.blue.500}',
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 8, unit: 'px' },
+              blur: { value: 16, unit: 'px' },
+            },
+          ],
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('color = DesignTokens.Color.Red._500')
+      expect(content).toContain('color = DesignTokens.Color.Blue._500')
+      expect(content).not.toContain('ShadowToken(color = Color(')
+    })
+
+    it('should substitute aliased leaves inside border, transition, and gradient composites', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'duration.fast': makeToken('duration.fast', { value: 200, unit: 'ms' }, 'duration'),
+        'border.primary': {
+          ...makeToken(
+            'border.primary',
+            {
+              width: { value: 1, unit: 'px' },
+              color: { colorSpace: 'srgb', components: [1, 0, 0] },
+              style: 'solid',
+            },
+            'border',
+          ),
+          originalValue: {
+            width: { value: 1, unit: 'px' },
+            color: '{color.red.500}',
+            style: 'solid',
+          },
+        },
+        'transition.standard': {
+          ...makeToken(
+            'transition.standard',
+            { duration: { value: 200, unit: 'ms' }, delay: { value: 0, unit: 'ms' } },
+            'transition',
+          ),
+          originalValue: {
+            duration: '{duration.fast}',
+            delay: { value: 0, unit: 'ms' },
+          },
+        },
+        'gradient.fade': {
+          ...makeToken(
+            'gradient.fade',
+            [
+              { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 0 },
+              { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 1 },
+            ],
+            'gradient',
+          ),
+          originalValue: [
+            { color: '{color.red.500}', position: 0 },
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 1 },
+          ],
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        ...defaultOptions,
+        preserveReferences: true,
+      })
+
+      expect(content).toContain(
+        'BorderToken(width = 1.dp, color = DesignTokens.Color.Red._500, style = ',
+      )
+      expect(content).toContain('TransitionStyle(duration = DesignTokens.Duration.fast')
+      expect(content).toContain('0f to DesignTokens.Color.Red._500')
     })
   })
 })
