@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
+import { ConfigurationError } from '../../../src/shared/errors'
 import { isOutputTree } from '@outputs'
 import { IosRenderer } from '@outputs/ios'
 import type { IosRendererOptions } from '@outputs/ios'
@@ -1327,6 +1328,115 @@ describe('iOS/SwiftUI Renderer', () => {
 
       expect(content).toContain('enum AppTokens')
       expect(content).not.toContain('DesignTokens')
+    })
+  })
+
+  describe('preserveReferences', () => {
+    it('should emit a Swift identifier reference for an aliased primitive token', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        structure: 'enum',
+        preserveReferences: true,
+      })
+
+      expect(content).toContain('public static let red500 = Color(red: 1, green: 0, blue: 0)')
+      expect(content).toContain('public static let brandPrimary = red500')
+      expect(content).not.toContain('public static let brandPrimary = Color(red:')
+    })
+
+    it('should emit a Swift identifier reference for an aliased leaf inside a composite token', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'shadow.card': {
+          ...makeToken(
+            'shadow.card',
+            {
+              color: { colorSpace: 'srgb', components: [1, 0, 0] },
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: { value: 4, unit: 'px' },
+              blur: { value: 8, unit: 'px' },
+              spread: { value: 0, unit: 'px' },
+            },
+            'shadow',
+          ),
+          originalValue: {
+            color: '{color.red.500}',
+            offsetX: { value: 0, unit: 'px' },
+            offsetY: { value: 4, unit: 'px' },
+            blur: { value: 8, unit: 'px' },
+            spread: { value: 0, unit: 'px' },
+          },
+        },
+      }
+
+      const content = await getContent(renderer, tokens, {
+        structure: 'enum',
+        preserveReferences: true,
+      })
+
+      expect(content).toContain(
+        'public static let card = ShadowStyle(color: red500, radius: 8.0, x: 0.0, y: 4.0, spread: 0.0)',
+      )
+      expect(content).not.toContain('ShadowStyle(color: Color(')
+    })
+
+    it('should resolve aliases to literal values when preserveReferences is false (default)', async () => {
+      const tokens: ResolvedTokens = {
+        'color.red.500': makeToken(
+          'color.red.500',
+          { colorSpace: 'srgb', components: [1, 0, 0] },
+          'color',
+        ),
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('public static let brandPrimary = Color(red: 1, green: 0, blue: 0)')
+      expect(content).not.toContain('public static let brandPrimary = red500')
+    })
+
+    it('should throw ConfigurationError when the referenced token is not in the output set', async () => {
+      const tokens: ResolvedTokens = {
+        'color.brand.primary': {
+          ...makeToken(
+            'color.brand.primary',
+            { colorSpace: 'srgb', components: [1, 0, 0] },
+            'color',
+          ),
+          originalValue: '{color.red.500}',
+        },
+      }
+
+      await expect(
+        getContent(renderer, tokens, { structure: 'enum', preserveReferences: true }),
+      ).rejects.toThrow(ConfigurationError)
     })
   })
 })

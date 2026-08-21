@@ -14,6 +14,7 @@
 import { isColorObject, dtcgObjectToCulori } from '@processing/transforms/built-in/color-converter'
 import { isDimensionObject } from '@processing/transforms/built-in/dimension-converter'
 import { isDurationObject } from '@processing/transforms/built-in/duration-converter'
+import { ConfigurationError } from '@shared/errors/index'
 import type {
   ColorValueObject,
   DimensionValue,
@@ -29,6 +30,7 @@ import {
   isTransitionToken,
   isTypographyToken,
 } from '@shared/token-types'
+import { getPureAliasReferenceName } from '@shared/utils/token-utils'
 import { converter } from 'culori'
 
 import {
@@ -73,6 +75,12 @@ export type IosRendererOptions = {
   indent?: number
   /** Add @frozen annotation to enums and structs for ABI stability (default false) */
   frozen?: boolean
+  /**
+   * Preserve alias references by emitting Swift identifier references to the
+   * aliased token (e.g. `static let brandPrimary = red500`) instead of
+   * duplicating its resolved literal value (default false).
+   */
+  preserveReferences?: boolean
 }
 
 const toSRGB = converter('rgb')
@@ -164,6 +172,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       swiftVersion: options?.swiftVersion ?? '5.9',
       indent: options?.indent ?? 4,
       frozen: options?.frozen ?? false,
+      preserveReferences: options?.preserveReferences ?? false,
     }
 
     return await this.formatStandalone(context, opts)
@@ -184,7 +193,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     }
 
     lines.push(...this.buildStructDefinitions(tokens, access, options))
-    this.pushTokenLayout(lines, groups, options, access, staticPrefix, frozen)
+    this.pushTokenLayout(lines, tokens, groups, options, access, staticPrefix, frozen)
     lines.push(...this.buildViewExtensions(tokens, access, options))
     if (options.structure !== 'grouped') {
       lines.push('')
@@ -195,6 +204,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
 
   private pushTokenLayout(
     lines: string[],
+    tokens: ResolvedTokens,
     groups: Array<{ name: string; tokens: ResolvedToken[] }>,
     options: Required<IosRendererOptions>,
     access: string,
@@ -205,7 +215,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     const i2 = indentStr(options.indent, 2)
 
     if (options.structure === 'grouped') {
-      this.pushGroupedLayout(lines, groups, options, access, i1, i2, staticPrefix, frozen)
+      this.pushGroupedLayout(lines, tokens, groups, options, access, i1, i2, staticPrefix, frozen)
       return
     }
 
@@ -214,7 +224,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
 
     for (const group of groups) {
       lines.push(`${i1}${frozen}${access} enum ${group.name} {`)
-      this.pushTokenDeclarations(lines, group.tokens, options, access, i2, staticPrefix)
+      this.pushTokenDeclarations(lines, group.tokens, tokens, options, access, i2, staticPrefix)
       lines.push(`${i1}}`)
       lines.push('')
     }
@@ -224,6 +234,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
 
   private pushGroupedLayout(
     lines: string[],
+    tokens: ResolvedTokens,
     groups: Array<{ name: string; tokens: ResolvedToken[] }>,
     options: Required<IosRendererOptions>,
     access: string,
@@ -240,7 +251,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     for (const group of groups) {
       lines.push(`${access} extension ${namespace} {`)
       lines.push(`${i1}${frozen}enum ${group.name} {`)
-      this.pushTokenDeclarations(lines, group.tokens, options, access, i2, staticPrefix)
+      this.pushTokenDeclarations(lines, group.tokens, tokens, options, access, i2, staticPrefix)
       lines.push(`${i1}}`)
       lines.push('}')
       lines.push('')
@@ -250,6 +261,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   private pushTokenDeclarations(
     lines: string[],
     tokens: ResolvedToken[],
+    allTokens: ResolvedTokens,
     options: Required<IosRendererOptions>,
     access: string,
     indent: string,
@@ -257,7 +269,7 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
   ): void {
     for (const token of tokens) {
       const swiftName = this.buildQualifiedSwiftName(token)
-      const swiftValue = this.formatSwiftValue(token, options)
+      const swiftValue = this.formatSwiftValue(token, allTokens, options)
       const typeAnnotation = this.getTypeAnnotation(token)
       const annotation = typeAnnotation ? `: ${typeAnnotation}` : ''
       const docComment = buildTokenDescriptionComment(token, 'swift')
@@ -308,7 +320,18 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return toSafeIdentifier(joined, SWIFT_KEYWORDS, false)
   }
 
-  private formatSwiftValue(token: ResolvedToken, options: Required<IosRendererOptions>): string {
+  private formatSwiftValue(
+    token: ResolvedToken,
+    tokens: ResolvedTokens,
+    options: Required<IosRendererOptions>,
+  ): string {
+    if (options.preserveReferences) {
+      const refName = getPureAliasReferenceName(token.originalValue)
+      if (refName !== undefined) {
+        return this.buildSwiftReference(refName, tokens)
+      }
+    }
+
     const { $type, $value: value } = token
 
     switch ($type) {
@@ -323,24 +346,60 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       case 'duration':
         return this.formatDurationValue(value)
       case 'shadow':
-        return this.formatShadowValue(value, options)
+        return this.formatShadowValue(value, token.originalValue, tokens, options)
       case 'typography':
         return this.formatTypographyValue(value)
       case 'border':
-        return this.formatBorderValue(value, options)
+        return this.formatBorderValue(value, token.originalValue, tokens, options)
       case 'gradient':
-        return this.formatGradientValue(value, options)
+        return this.formatGradientValue(value, token.originalValue, tokens, options)
       case 'number':
         return String(value)
       case 'cubicBezier':
         return this.formatUnitCurve(value)
       case 'transition':
-        return this.formatTransitionValue(value)
+        return this.formatTransitionValue(value, token.originalValue, tokens, options)
       case 'strokeStyle':
         return this.formatStrokeStyleValue(value)
     }
 
     return this.formatSwiftPrimitive(value)
+  }
+
+  /**
+   * Formats a composite leaf slot, substituting a Swift identifier reference
+   * when the leaf's original (pre-resolution) value was a pure alias and
+   * `preserveReferences` is enabled. Falls back to formatting the resolved value.
+   */
+  private formatLeafOrReference(
+    originalLeafValue: unknown,
+    options: Required<IosRendererOptions>,
+    tokens: ResolvedTokens,
+    formatResolved: () => string,
+  ): string {
+    if (options.preserveReferences) {
+      const refName = getPureAliasReferenceName(originalLeafValue)
+      if (refName !== undefined) {
+        return this.buildSwiftReference(refName, tokens)
+      }
+    }
+    return formatResolved()
+  }
+
+  /**
+   * Builds a Swift identifier reference to a token referenced by a pure alias.
+   * Throws when the referenced token is missing from the current output's token set.
+   */
+  private buildSwiftReference(refName: string, tokens: ResolvedTokens): string {
+    const referencedToken = tokens[refName]
+    if (!referencedToken) {
+      throw new ConfigurationError(
+        `Swift reference "{${refName}}" could not be resolved. The referenced token is not present in the current output's token set. ` +
+          `This usually means a filter (e.g. isAlias()) excluded the referenced token while preserveReferences is true. ` +
+          `Either remove the filter, include the referenced token, or set preserveReferences to false.`,
+      )
+    }
+    return this.buildQualifiedSwiftName(referencedToken)
   }
 
   private formatSwiftPrimitive(value: unknown): string {
@@ -479,15 +538,28 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return 'UnitCurve.linear'
   }
 
-  private formatTransitionValue(value: unknown): string {
+  private formatTransitionValue(
+    value: unknown,
+    originalValue: unknown,
+    tokens: ResolvedTokens,
+    options: Required<IosRendererOptions>,
+  ): string {
     if (typeof value !== 'object' || value === null) {
       return 'TransitionStyle(duration: 0, delay: 0, curve: UnitCurve.linear)'
     }
 
     const transition = value as Record<string, unknown>
+    const original =
+      typeof originalValue === 'object' && originalValue !== null
+        ? (originalValue as Record<string, unknown>)
+        : undefined
 
-    const duration = this.formatDurationValue(transition.duration)
-    const delay = this.formatDurationValue(transition.delay)
+    const duration = this.formatLeafOrReference(original?.duration, options, tokens, () =>
+      this.formatDurationValue(transition.duration),
+    )
+    const delay = this.formatLeafOrReference(original?.delay, options, tokens, () =>
+      this.formatDurationValue(transition.delay),
+    )
 
     return `TransitionStyle(duration: ${duration}, delay: ${delay}, curve: ${this.formatUnitCurve(transition.timingFunction)})`
   }
@@ -542,45 +614,74 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return '.butt'
   }
 
-  private formatShadowValue(value: unknown, options: Required<IosRendererOptions>): string {
+  private formatShadowValue(
+    value: unknown,
+    originalValue: unknown,
+    tokens: ResolvedTokens,
+    options: Required<IosRendererOptions>,
+  ): string {
     const layers = getShadowLayers(value)
     if (layers.length === 0) {
       return 'ShadowStyle(color: .clear, radius: 0, x: 0, y: 0, spread: 0)'
     }
 
+    const originalLayers = getShadowLayers(originalValue)
+
     if (layers.length === 1) {
-      return this.formatSingleShadow(layers[0] as Record<string, unknown>, options)
+      return this.formatSingleShadow(
+        layers[0] as Record<string, unknown>,
+        originalLayers[0] as Record<string, unknown> | undefined,
+        tokens,
+        options,
+      )
     }
 
     const styles = layers
-      .map((layer) => this.formatSingleShadow(layer as Record<string, unknown>, options))
+      .map((layer, index) =>
+        this.formatSingleShadow(
+          layer as Record<string, unknown>,
+          originalLayers[index] as Record<string, unknown> | undefined,
+          tokens,
+          options,
+        ),
+      )
       .join(', ')
     return `[${styles}]`
   }
 
   private formatSingleShadow(
     shadow: Record<string, unknown>,
+    original: Record<string, unknown> | undefined,
+    tokens: ResolvedTokens,
     options: Required<IosRendererOptions>,
   ): string {
-    const color = isColorObject(shadow.color)
-      ? this.formatColorValue(shadow.color, options)
-      : 'Color.black.opacity(0.25)'
+    const color = this.formatLeafOrReference(original?.color, options, tokens, () =>
+      isColorObject(shadow.color)
+        ? this.formatColorValue(shadow.color, options)
+        : 'Color.black.opacity(0.25)',
+    )
 
-    const radius = isDimensionObject(shadow.blur)
-      ? this.dimensionToCGFloat(shadow.blur as DimensionValue)
-      : '8'
+    const radius = this.formatLeafOrReference(original?.blur, options, tokens, () =>
+      isDimensionObject(shadow.blur) ? this.dimensionToCGFloat(shadow.blur as DimensionValue) : '8',
+    )
 
-    const x = isDimensionObject(shadow.offsetX)
-      ? this.dimensionToCGFloat(shadow.offsetX as DimensionValue)
-      : '0'
+    const x = this.formatLeafOrReference(original?.offsetX, options, tokens, () =>
+      isDimensionObject(shadow.offsetX)
+        ? this.dimensionToCGFloat(shadow.offsetX as DimensionValue)
+        : '0',
+    )
 
-    const y = isDimensionObject(shadow.offsetY)
-      ? this.dimensionToCGFloat(shadow.offsetY as DimensionValue)
-      : '0'
+    const y = this.formatLeafOrReference(original?.offsetY, options, tokens, () =>
+      isDimensionObject(shadow.offsetY)
+        ? this.dimensionToCGFloat(shadow.offsetY as DimensionValue)
+        : '0',
+    )
 
-    const spread = isDimensionObject(shadow.spread)
-      ? this.dimensionToCGFloat(shadow.spread as DimensionValue)
-      : '0'
+    const spread = this.formatLeafOrReference(original?.spread, options, tokens, () =>
+      isDimensionObject(shadow.spread)
+        ? this.dimensionToCGFloat(shadow.spread as DimensionValue)
+        : '0',
+    )
 
     return `ShadowStyle(color: ${color}, radius: ${radius}, x: ${x}, y: ${y}, spread: ${spread})`
   }
@@ -848,35 +949,56 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
     return lines
   }
 
-  private formatBorderValue(value: unknown, options: Required<IosRendererOptions>): string {
+  private formatBorderValue(
+    value: unknown,
+    originalValue: unknown,
+    tokens: ResolvedTokens,
+    options: Required<IosRendererOptions>,
+  ): string {
     if (typeof value !== 'object' || value === null) {
       return 'BorderStyle(color: .clear, width: 0, style: StrokeStyleToken(dash: [], lineCap: .butt))'
     }
 
     const border = value as Record<string, unknown>
+    const original =
+      typeof originalValue === 'object' && originalValue !== null
+        ? (originalValue as Record<string, unknown>)
+        : undefined
 
-    const color = isColorObject(border.color)
-      ? this.formatColorValue(border.color, options)
-      : 'Color.clear'
+    const color = this.formatLeafOrReference(original?.color, options, tokens, () =>
+      isColorObject(border.color) ? this.formatColorValue(border.color, options) : 'Color.clear',
+    )
 
-    const width = isDimensionObject(border.width)
-      ? this.dimensionToCGFloat(border.width as DimensionValue)
-      : '1.0'
+    const width = this.formatLeafOrReference(original?.width, options, tokens, () =>
+      isDimensionObject(border.width)
+        ? this.dimensionToCGFloat(border.width as DimensionValue)
+        : '1.0',
+    )
 
-    const style = this.formatStrokeStyleValue(border.style)
+    const style = this.formatLeafOrReference(original?.style, options, tokens, () =>
+      this.formatStrokeStyleValue(border.style),
+    )
 
     return `BorderStyle(color: ${color}, width: ${width}, style: ${style})`
   }
 
-  private formatGradientValue(value: unknown, options: Required<IosRendererOptions>): string {
+  private formatGradientValue(
+    value: unknown,
+    originalValue: unknown,
+    tokens: ResolvedTokens,
+    options: Required<IosRendererOptions>,
+  ): string {
     if (!Array.isArray(value) || value.length === 0) {
       return 'Gradient(stops: [])'
     }
 
-    const stops = (value as GradientStop[]).map((stop) => {
-      const color = isColorObject(stop.color)
-        ? this.formatColorValue(stop.color, options)
-        : 'Color.clear'
+    const originalStops = Array.isArray(originalValue) ? originalValue : []
+
+    const stops = (value as GradientStop[]).map((stop, index) => {
+      const original = originalStops[index] as Record<string, unknown> | undefined
+      const color = this.formatLeafOrReference(original?.color, options, tokens, () =>
+        isColorObject(stop.color) ? this.formatColorValue(stop.color, options) : 'Color.clear',
+      )
       return `.init(color: ${color}, location: ${stop.position})`
     })
 
