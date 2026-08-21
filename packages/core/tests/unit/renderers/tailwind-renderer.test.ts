@@ -160,6 +160,9 @@ describe('Tailwind CSS v4 Renderer', () => {
 
       expect(result).toContain('--shadow-md')
       expect(result).toContain('0px 4px 8px')
+      // Shadow stays whole-value-only: no leaf vars introduced
+      expect(result).not.toContain('--shadow-md-offsetX')
+      expect(result).not.toContain('--shadow-md-color')
     })
   })
 
@@ -239,6 +242,170 @@ describe('Tailwind CSS v4 Renderer', () => {
 
       expect(result).toContain('--ease-easeOut')
       expect(result).toContain('cubic-bezier(0, 0, 0.58, 1)')
+    })
+  })
+
+  describe('typography tokens', () => {
+    it('should emit leaf vars for object values without a whole-value line', async () => {
+      const tokens: ResolvedTokens = {
+        'font-body': makeToken(
+          'font-body',
+          {
+            fontFamily: ['Inter', 'sans-serif'],
+            fontSize: { value: 16, unit: 'px' },
+            fontWeight: 400,
+            lineHeight: 1.5,
+          },
+          'typography',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--font-body-fontSize: 16px;')
+      expect(result).toContain('--font-body-fontWeight: 400;')
+      expect(result).toContain('--font-body-lineHeight: 1.5;')
+      expect(result).toContain('--font-body-fontFamily-0: Inter;')
+      expect(result).toContain('--font-body-fontFamily-1: sans-serif;')
+      expect(result).not.toContain('--font-body:')
+    })
+  })
+
+  describe('border tokens', () => {
+    it('should emit whole-value line plus leaf vars for string style', async () => {
+      const tokens: ResolvedTokens = {
+        'border-top': makeToken(
+          'border-top',
+          {
+            color: { colorSpace: 'srgb', components: [0, 0, 0] },
+            width: { value: 1, unit: 'px' },
+            style: 'solid',
+          },
+          'border',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--border-top: 1px solid #000000;')
+      expect(result).toContain('--border-top-width: 1px;')
+      expect(result).toContain('--border-top-style: solid;')
+      expect(result).toContain('--border-top-color: #000000;')
+    })
+
+    it('should emit only leaf vars for complex strokeStyle-object style', async () => {
+      const tokens: ResolvedTokens = {
+        'border-focus': makeToken(
+          'border-focus',
+          {
+            color: { colorSpace: 'srgb', components: [0, 0, 1] },
+            width: { value: 1, unit: 'px' },
+            style: {
+              dashArray: [
+                { value: 4, unit: 'px' },
+                { value: 2, unit: 'px' },
+              ],
+              lineCap: 'round',
+            },
+          },
+          'border',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--border-focus-width: 1px;')
+      expect(result).toContain('--border-focus-style-dashArray-0: 4px;')
+      expect(result).toContain('--border-focus-style-dashArray-1: 2px;')
+      expect(result).toContain('--border-focus-style-lineCap: round;')
+      expect(result).toContain('--border-focus-color: #0000ff;')
+      expect(result).not.toContain('--border-focus:')
+    })
+  })
+
+  describe('transition tokens', () => {
+    it('should emit whole-value shorthand plus leaf vars', async () => {
+      const tokens: ResolvedTokens = {
+        'transition-emphasis': makeToken(
+          'transition-emphasis',
+          {
+            duration: { value: 200, unit: 'ms' },
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: [0.5, 0, 1, 1],
+          },
+          'transition',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--transition-emphasis: 200ms cubic-bezier(0.5, 0, 1, 1) 0ms;')
+      expect(result).toContain('--transition-emphasis-duration: 200ms;')
+      expect(result).toContain('--transition-emphasis-delay: 0ms;')
+      expect(result).toContain('--transition-emphasis-timingFunction-0: 0.5;')
+      expect(result).toContain('--transition-emphasis-timingFunction-1: 0;')
+      expect(result).toContain('--transition-emphasis-timingFunction-2: 1;')
+      expect(result).toContain('--transition-emphasis-timingFunction-3: 1;')
+    })
+  })
+
+  describe('strokeStyle tokens', () => {
+    it('should keep plain string values as a single line', async () => {
+      const tokens: ResolvedTokens = {
+        'stroke-dashed': makeToken('stroke-dashed', 'dashed', 'strokeStyle'),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--stroke-dashed: dashed;')
+      expect(result).not.toContain('--stroke-dashed-')
+    })
+
+    it('should emit leaf vars only for complex object values', async () => {
+      const tokens: ResolvedTokens = {
+        'stroke-custom': makeToken(
+          'stroke-custom',
+          {
+            dashArray: [
+              { value: 6, unit: 'px' },
+              { value: 3, unit: 'px' },
+            ],
+            lineCap: 'square',
+          },
+          'strokeStyle',
+        ),
+      }
+
+      const context = buildContext(tokens, { preset: 'bundle', includeImport: false }, renderer)
+      const result = await renderer.format(
+        context,
+        context.output.options as TailwindRendererOptions,
+      )
+
+      expect(result).toContain('--stroke-custom-dashArray-0: 6px;')
+      expect(result).toContain('--stroke-custom-dashArray-1: 3px;')
+      expect(result).toContain('--stroke-custom-lineCap: square;')
+      expect(result).not.toContain('--stroke-custom:')
     })
   })
 
