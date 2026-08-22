@@ -1,5 +1,17 @@
 # dispersa
 
+## 1.5.0
+
+### Minor Changes
+
+- [#18](https://github.com/dispersa-core/dispersa/pull/18) [`1302020`](https://github.com/dispersa-core/dispersa/commit/13020205a68426f6571b1c45e3b8cf9d05290b3b) Thanks [@timges](https://github.com/timges)! - Surface detailed lint issues on build errors. `BuildError` now includes a `LINT` error code with a `lintIssues` array (rule id, severity, message, token name, and path), and the CLI prints each issue in verbose mode.
+
+- [#18](https://github.com/dispersa-core/dispersa/pull/18) [`1302020`](https://github.com/dispersa-core/dispersa/commit/13020205a68426f6571b1c45e3b8cf9d05290b3b) Thanks [@timges](https://github.com/timges)! - `BuildResult` now includes an optional `lintResult` field, populated whenever `lint.enabled` is true (on both successful and failed builds), so consumers can inspect lint issues and counts programmatically instead of relying on `console.warn` output.
+
+### Patch Changes
+
+- [#26](https://github.com/dispersa-core/dispersa/pull/26) [`a7669b3`](https://github.com/dispersa-core/dispersa/commit/a7669b31911e5246d4da31e4b2ccbc9e5441ea59) Thanks [@timges](https://github.com/timges)! - Fix CSS renderer emitting unescaped `*/` in set and modifier description comments, which could terminate the comment early and corrupt the generated stylesheet.
+
 ## 1.4.0
 
 ### Minor Changes
