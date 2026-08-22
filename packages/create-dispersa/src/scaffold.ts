@@ -15,7 +15,7 @@ import { downloadTemplate } from 'giget'
 
 declare const __PKG_VERSION__: string
 
-const GITHUB_REPO = 'gh:timges/dispersa'
+const GITHUB_REPO = 'gh:dispersa-core/dispersa'
 
 type TemplateId = 'typescript-starter' | 'cli-starter'
 

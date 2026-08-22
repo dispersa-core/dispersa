@@ -1110,6 +1110,24 @@ describe('iOS/SwiftUI Renderer', () => {
 
       expect(content).toContain('Gradient(stops: [])')
     })
+
+    it('should clamp out-of-range stop locations to [0, 1]', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeToken(
+          'gradient.brand',
+          [
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: -0.5 },
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 1.5 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens, { structure: 'enum' })
+
+      expect(content).toContain('location: 0')
+      expect(content).toContain('location: 1')
+    })
   })
 
   describe('frozen option', () => {

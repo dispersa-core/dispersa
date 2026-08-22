@@ -49,7 +49,7 @@ import {
 import type { TokenGroup } from '../utils'
 import { buildKotlinDeprecationAnnotation, buildTokenDescriptionComment } from '../metadata'
 import { outputTree } from '../output-tree'
-import { getShadowLayers } from '../composite-value'
+import { getShadowLayers, clampGradientPosition } from '../composite-value'
 import type { RenderContext, RenderOutput, Renderer } from '../types'
 
 /**
@@ -1211,7 +1211,10 @@ export class AndroidRenderer implements Renderer<AndroidRendererOptions> {
           ? this.formatColorValue(stop.color, options)
           : 'Color.Unspecified',
       )
-      const position = typeof stop.position === 'number' ? formatKotlinFloat(stop.position) : '0f'
+      const position =
+        typeof stop.position === 'number'
+          ? formatKotlinFloat(clampGradientPosition(stop.position))
+          : '0f'
       return `${position} to ${color}`
     })
 
