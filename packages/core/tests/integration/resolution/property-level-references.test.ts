@@ -137,6 +137,36 @@ describe('Property-Level References (JSON Pointer Only)', () => {
       expect(semantic.semantic.primary.$value.components).toEqual([0.2, 0.4, 0.7])
     })
 
+    it('should resolve sibling array references to the same pointer without a false circular error', async () => {
+      const document = {
+        color: {
+          base: {
+            $type: 'color',
+            $value: {
+              colorSpace: 'srgb',
+              components: [0.2, 0.4, 0.9],
+            },
+          },
+          derived: {
+            $type: 'color',
+            $value: {
+              colorSpace: 'srgb',
+              components: [
+                { $ref: '#/color/base/$value/components/0' },
+                { $ref: '#/color/base/$value/components/0' },
+              ],
+            },
+          },
+        },
+      }
+
+      // Resolve via the token-document hot path (resolveDeepTokenInternal)
+      const resolved = await refResolver.resolveDeepTokenDocument(document, document)
+      const derived = resolved as Record<string, any>
+
+      expect(derived.color.derived.$value.components).toEqual([0.2, 0.2])
+    })
+
     it('should apply local overrides alongside $ref when resolving deep', async () => {
       const document = {
         base: {

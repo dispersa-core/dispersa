@@ -223,6 +223,20 @@ describe('ReferenceResolver', () => {
       expect(list[1].name).toBe('direct')
     })
 
+    it('resolves sibling array references to the same pointer without a false circular error', async () => {
+      const resolver = new ReferenceResolver(fixturesDir)
+      const document = {
+        shared: { name: 'shared' },
+        list: [{ $ref: '#/shared' }, { $ref: '#/shared' }],
+      }
+
+      const result = (await resolver.resolveDeep(document, document)) as Record<string, unknown>
+      const list = result.list as any[]
+
+      expect(list[0]).toEqual({ name: 'shared' })
+      expect(list[1]).toEqual({ name: 'shared' })
+    })
+
     it('passes through primitive values unchanged', async () => {
       const resolver = new ReferenceResolver(fixturesDir)
 
