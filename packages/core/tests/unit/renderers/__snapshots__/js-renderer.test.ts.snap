@@ -46,7 +46,7 @@ exports[`JS Module Renderer > should generate default export format with nested 
     primitive: {
       blue: {
         colorSpace: 'hsl',
-        components: [240, 1, 0.5],
+        components: [240, 100, 50],
       },
       brand: {
         blue: {
@@ -520,7 +520,7 @@ exports[`JS Module Renderer > should generate flat structure when specified 1`] 
   'color.base.primary': { colorSpace: 'srgb', components: [0, 0.482, 1] },
   'color.base.text': { colorSpace: 'srgb', components: [0.067, 0.094, 0.153] },
   // Pure blue in HSL format
-  'color.primitive.blue': { colorSpace: 'hsl', components: [240, 1, 0.5] },
+  'color.primitive.blue': { colorSpace: 'hsl', components: [240, 100, 50] },
   'color.primitive.brand.blue': {
     colorSpace: 'srgb',
     components: [0, 0.482, 1],
@@ -773,7 +773,7 @@ exports[`JS Module Renderer > should generate nested structure when specified 1`
     primitive: {
       blue: {
         colorSpace: 'hsl',
-        components: [240, 1, 0.5],
+        components: [240, 100, 50],
       },
       brand: {
         blue: {

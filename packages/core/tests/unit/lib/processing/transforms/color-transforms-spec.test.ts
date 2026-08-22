@@ -50,7 +50,7 @@ describe('Color Transforms with All Color Spaces', () => {
         }
 
         const result = colorToHex().transform(token)
-        expect(result.$value).toMatch(/^#[0-9a-f]{6}$/i)
+        expect(result.$value).toBe('#ff0000')
       })
 
       it('should transform oklch to hex', () => {
@@ -135,7 +135,7 @@ describe('Color Transforms with All Color Spaces', () => {
         }
 
         const result = colorToHsl().transform(token)
-        expect(result.$value).toMatch(/^hsl\(/)
+        expect(result.$value).toBe('hsl(0, 100%, 50%)')
       })
 
       it('should transform oklab to hsl', () => {
@@ -151,7 +151,77 @@ describe('Color Transforms with All Color Spaces', () => {
         }
 
         const result = colorToHsl().transform(token)
-        expect(result.$value).toMatch(/^hsl\(/)
+        expect(result.$value).toBe('hsl(358.76, 80.4%, 53.29%)')
+      })
+    })
+  })
+
+  describe('DTCG 0-100 percentage scaling', () => {
+    describe('hsl to hex (round-trip)', () => {
+      it('should scale S/L from 0-100 to 0-1: hsl(210 50 40) -> #336699', () => {
+        const token: ResolvedToken = {
+          $type: 'color',
+          $value: {
+            colorSpace: 'hsl',
+            components: [210, 50, 40],
+          },
+          path: ['color', 'primary'],
+          name: 'color.primary',
+          originalValue: { colorSpace: 'hsl', components: [210, 50, 40] },
+        }
+
+        const result = colorToHex().transform(token)
+        expect(result.$value).toBe('#336699')
+      })
+
+      it('should scale S/L from 0-100 to 0-1: hsl(0 100 50) -> #ff0000', () => {
+        const token: ResolvedToken = {
+          $type: 'color',
+          $value: {
+            colorSpace: 'hsl',
+            components: [0, 100, 50],
+          },
+          path: ['color', 'red'],
+          name: 'color.red',
+          originalValue: { colorSpace: 'hsl', components: [0, 100, 50] },
+        }
+
+        const result = colorToHex().transform(token)
+        expect(result.$value).toBe('#ff0000')
+      })
+    })
+
+    describe('hwb to hex (round-trip)', () => {
+      it('should scale W/B from 0-100 to 0-1: hwb(0 25 0) -> #ff4040', () => {
+        const token: ResolvedToken = {
+          $type: 'color',
+          $value: {
+            colorSpace: 'hwb',
+            components: [0, 25, 0],
+          },
+          path: ['color', 'primary'],
+          name: 'color.primary',
+          originalValue: { colorSpace: 'hwb', components: [0, 25, 0] },
+        }
+
+        const result = colorToHex().transform(token)
+        expect(result.$value).toBe('#ff4040')
+      })
+
+      it('should scale W/B from 0-100 to 0-1: hwb(120 50 0) -> #80ff80', () => {
+        const token: ResolvedToken = {
+          $type: 'color',
+          $value: {
+            colorSpace: 'hwb',
+            components: [120, 50, 0],
+          },
+          path: ['color', 'green'],
+          name: 'color.green',
+          originalValue: { colorSpace: 'hwb', components: [120, 50, 0] },
+        }
+
+        const result = colorToHex().transform(token)
+        expect(result.$value).toBe('#80ff80')
       })
     })
   })
@@ -187,7 +257,7 @@ describe('Color Transforms with All Color Spaces', () => {
         }
 
         const result = colorToOklch().transform(token)
-        expect(result.$value).toMatch(/oklch\(/)
+        expect(result.$value).toMatch(/^oklch\(0\.7\d+/)
       })
 
       it('should transform display-p3 to oklch', () => {
@@ -275,7 +345,7 @@ describe('Color Transforms with All Color Spaces', () => {
         }
 
         const result = colorToHwb().transform(token)
-        expect(result.$value).toMatch(/hwb\(/)
+        expect(result.$value).toBe('hwb(0 0% 0%)')
       })
     })
 

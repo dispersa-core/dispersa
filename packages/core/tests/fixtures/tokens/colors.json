@@ -21,7 +21,7 @@
         "$type": "color",
         "$value": {
           "colorSpace": "hsl",
-          "components": [240, 1, 0.5]
+          "components": [240, 100, 50]
         },
         "$description": "Pure blue in HSL format"
       },

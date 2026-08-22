@@ -96,7 +96,7 @@ describe('Alpha Channel Preservation Tests (DTCG Format)', () => {
     it('should preserve alpha from HSL color space', () => {
       const colorValue: ColorValueObject = {
         colorSpace: 'hsl',
-        components: [0, 1, 0.5],
+        components: [0, 100, 50],
         alpha: 0.5,
       }
 
