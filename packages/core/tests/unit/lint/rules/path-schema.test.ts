@@ -64,6 +64,57 @@ describe('path-schema rule', () => {
       expect(reports[0]?.tokenName).toBe('spacing.semantic.md')
     })
 
+    it('should accept tokens matching multi-segment literal prefix patterns', async () => {
+      const tokens = createMockTokens({
+        'color.base.brand': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          brand: { values: /^[a-z]+$/ },
+        },
+        paths: ['color.base.{brand}'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should accept tokens matching multi-segment literal patterns with multiple placeholders', async () => {
+      const tokens = createMockTokens({
+        'color.semantic.button.hover': { type: 'color' },
+        'color.component.button.background.hover': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          element: { values: ['button', 'background'] },
+          role: { values: ['hover', 'active'] },
+          component: { values: ['button'] },
+          state: { values: ['hover'] },
+        },
+        paths: ['color.semantic.{element}.{role}', 'color.component.{component}.{element}.{state}'],
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it('should reject tokens where a multi-segment literal word does not match', async () => {
+      const tokens = createMockTokens({
+        'color.semantic.brand': { type: 'color' },
+      })
+
+      const reports = await collectReports(pathSchema, tokens, {
+        segments: {
+          brand: { values: /^[a-z]+$/ },
+        },
+        paths: ['color.base.{brand}'],
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.tokenName).toBe('color.semantic.brand')
+      expect(reports[0]?.messageId).toBe('INVALID_PATH')
+    })
+
     it('should report tokens not matching any pattern', async () => {
       const tokens = createMockTokens({
         'invalid.token': { type: 'color' },
