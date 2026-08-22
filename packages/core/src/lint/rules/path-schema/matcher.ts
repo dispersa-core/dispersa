@@ -317,7 +317,11 @@ export class PathSchemaMatcher {
 
       const literalMatch = remaining.match(REGEX_LITERAL)
       if (literalMatch) {
-        parts.push({ type: 'literal', value: literalMatch[0] })
+        for (const word of literalMatch[0].split('.')) {
+          if (word !== '') {
+            parts.push({ type: 'literal', value: word })
+          }
+        }
         remaining = remaining.slice(literalMatch[0].length)
         continue
       }
