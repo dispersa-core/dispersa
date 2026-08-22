@@ -42,6 +42,14 @@ function componentToCulori(component: ColorComponent): number | undefined {
 }
 
 /**
+ * Scale DTCG cylindrical percentage components (hsl S/L, hwb W/B) from 0-100 to 0-1
+ * The DTCG Color Module defines these as percentages; culori expects 0-1
+ */
+function percentageComponentToCulori(component: number | undefined): number | undefined {
+  return component === undefined ? undefined : component / 100
+}
+
+/**
  * Convert DTCG color object to culori color object
  * Handles all 14 DTCG color spaces and the "none" keyword
  */
@@ -75,10 +83,22 @@ export function dtcgObjectToCulori(color: ColorValueObject): CuloriColor {
 
     // Cylindrical color spaces (Hue, Saturation/Whiteness, Lightness/Blackness)
     case 'hsl':
-      return { mode: 'hsl', h: c1, s: c2, l: c3, alpha } as Hsl
+      return {
+        mode: 'hsl',
+        h: c1,
+        s: percentageComponentToCulori(c2),
+        l: percentageComponentToCulori(c3),
+        alpha,
+      } as Hsl
 
     case 'hwb':
-      return { mode: 'hwb', h: c1, w: c2, b: c3, alpha } as Hwb
+      return {
+        mode: 'hwb',
+        h: c1,
+        w: percentageComponentToCulori(c2),
+        b: percentageComponentToCulori(c3),
+        alpha,
+      } as Hwb
 
     // Lab color spaces (Lightness, a/b or Chroma/Hue)
     case 'lab':

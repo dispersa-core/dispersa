@@ -37,7 +37,7 @@ describe('Token Parser Integration Tests', () => {
       // Blue in HSL format
       expect(tokens['color.primitive.blue'].$value).toEqual({
         colorSpace: 'hsl',
-        components: [240, 1, 0.5],
+        components: [240, 100, 50],
       })
     })
 
