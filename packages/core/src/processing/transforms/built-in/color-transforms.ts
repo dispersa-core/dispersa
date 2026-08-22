@@ -1,6 +1,6 @@
 /**
  * @fileoverview Built-in color value transforms with alpha channel support
- * Includes both standard (hex, rgb, hsl) and modern CSS Color Module Level 4 transforms
+ * Includes both standard (hex, rgb, hsl, hwb) and modern CSS Color Module Level 4 transforms
  * Uses culori for accurate color conversions
  *
  * Note: Transforms only handle DTCG object format. String values are alias references
@@ -13,7 +13,7 @@ import { formatCss } from 'culori'
 import type { Transform } from '../types'
 
 import { colorObjectToHex } from './color-converter'
-import { colorObjectToHsl, colorObjectToRgb } from './color-format'
+import { colorObjectToHsl, colorObjectToHwb, colorObjectToRgb } from './color-format'
 import {
   createColorTransform,
   createModernColorTransform,
@@ -21,7 +21,7 @@ import {
 } from './color-transform-factory'
 
 // ============================================================================
-// Standard Color Transforms (hex, rgb, hsl)
+// Standard Color Transforms (hex, rgb, hsl, hwb)
 // ============================================================================
 
 /**
@@ -43,6 +43,14 @@ export function colorToRgb(): Transform {
  */
 export function colorToHsl(): Transform {
   return createColorTransform(colorObjectToHsl)
+}
+
+/**
+ * Convert color to hwb format (hue-whiteness-blackness)
+ * Gamut-bound to sRGB, so it clamps like hex/rgb/hsl
+ */
+export function colorToHwb(): Transform {
+  return createColorTransform(colorObjectToHwb)
 }
 
 // ============================================================================
@@ -75,13 +83,6 @@ export function colorToLch(): Transform {
  */
 export function colorToLab(): Transform {
   return createModernColorTransform('lab')
-}
-
-/**
- * Convert color to hwb format (hue-whiteness-blackness)
- */
-export function colorToHwb(): Transform {
-  return createModernColorTransform('hwb')
 }
 
 /**

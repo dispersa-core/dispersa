@@ -57,7 +57,7 @@ export function createColorTransform(converter: (value: ColorValueObject) => str
 
 /**
  * Create a modern color transform using culori converter
- * Used for CSS Color Module Level 4 color spaces (oklch, oklab, lch, lab, hwb)
+ * Used for CSS Color Module Level 4 color spaces (oklch, oklab, lch, lab)
  *
  * @param mode - Culori color mode to convert to
  * @returns Transform object

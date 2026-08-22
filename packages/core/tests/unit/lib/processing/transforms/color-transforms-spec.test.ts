@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { converter } from 'culori'
 import {
   colorToHex,
   colorToRgb,
@@ -381,6 +382,106 @@ describe('Color Transforms with All Color Spaces', () => {
         const result = colorToColorFunction().transform(token)
         expect(result.$value).toMatch(/color\(/)
       })
+    })
+  })
+
+  describe('Wide-Gamut Clamping (issue #39)', () => {
+    const wideGamutToToken = (components: number[], name: string): ResolvedToken => ({
+      $type: 'color',
+      $value: {
+        colorSpace: 'display-p3',
+        components,
+      },
+      path: ['color', name],
+      name: `color.${name}`,
+      originalValue: { colorSpace: 'display-p3', components },
+    })
+
+    const wideGamutRed = wideGamutToToken([1, 0, 0], 'wide-red')
+    const wideGamutOrange = wideGamutToToken([1, 0.3, 0.2], 'wide-orange')
+
+    const parseToRgb = (value: unknown) => converter('rgb')(value as string)
+
+    it.each([wideGamutRed, wideGamutOrange])(
+      'should map $name consistently across hex/rgb/hsl/hwb',
+      (token) => {
+        const outputs = [
+          colorToHex().transform(token),
+          colorToRgb().transform(token),
+          colorToHsl().transform(token),
+          colorToHwb().transform(token),
+        ]
+
+        const parsed = outputs.map((t) => parseToRgb(t.$value))
+        const baseline = parsed[0]
+
+        // Tolerance covers culori's 2dp hsl formatting and hex 8-bit quantization
+        for (let i = 1; i < parsed.length; i++) {
+          expect(parsed[i].r).toBeCloseTo(baseline.r, 2)
+          expect(parsed[i].g).toBeCloseTo(baseline.g, 2)
+          expect(parsed[i].b).toBeCloseTo(baseline.b, 2)
+        }
+      },
+    )
+
+    it('should not emit negative channels in hwb for out-of-gamut colors', () => {
+      const result = colorToHwb().transform(wideGamutRed)
+      expect(String(result.$value)).toMatch(/^hwb\(/)
+      expect(String(result.$value)).not.toMatch(/-/)
+    })
+
+    it('should preserve unclamped wide-gamut values in oklch', () => {
+      const token: ResolvedToken = {
+        $type: 'color',
+        $value: {
+          colorSpace: 'oklab',
+          components: [0.6, 0.3, 0.1],
+        },
+        path: ['color', 'wide'],
+        name: 'color.wide',
+        originalValue: { colorSpace: 'oklab', components: [0.6, 0.3, 0.1] },
+      }
+
+      const result = colorToOklch().transform(token)
+      expect(typeof result.$value).toBe('string')
+      expect(String(result.$value)).toMatch(/^oklch\(/)
+      expect(parseToRgb(result.$value).r).toBeGreaterThan(1)
+    })
+
+    it('should preserve unclamped wide-gamut values in lab', () => {
+      const token: ResolvedToken = {
+        $type: 'color',
+        $value: {
+          colorSpace: 'oklab',
+          components: [0.6, 0.3, 0.1],
+        },
+        path: ['color', 'wide'],
+        name: 'color.wide',
+        originalValue: { colorSpace: 'oklab', components: [0.6, 0.3, 0.1] },
+      }
+
+      const result = colorToLab().transform(token)
+      expect(typeof result.$value).toBe('string')
+      expect(String(result.$value)).toMatch(/^lab\(/)
+      expect(parseToRgb(result.$value).r).toBeGreaterThan(1)
+    })
+
+    it('should handle "none" keyword in hsl and hwb transforms', () => {
+      const token: ResolvedToken = {
+        $type: 'color',
+        $value: {
+          colorSpace: 'hwb',
+          components: ['none', 50, 0],
+        },
+        path: ['color', 'none'],
+        name: 'color.none',
+        originalValue: { colorSpace: 'hwb', components: ['none', 50, 0] },
+      }
+
+      const hsl = colorToHsl().transform(token)
+      expect(String(hsl.$value)).toMatch(/^hsl/)
+      const hwb = colorToHwb().transform(token)
+      expect(String(hwb.$value)).toMatch(/^hwb\(/)
     })
   })
 
