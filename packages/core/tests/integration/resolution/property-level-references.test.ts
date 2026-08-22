@@ -10,7 +10,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
 import { ReferenceResolver } from '../../../src/resolution/reference-resolver'
-import type { ResolvedTokens } from '../../../src/tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 
 describe('Property-Level References (JSON Pointer Only)', () => {
   let refResolver: ReferenceResolver

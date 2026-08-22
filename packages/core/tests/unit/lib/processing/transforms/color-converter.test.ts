@@ -11,7 +11,7 @@ import {
   colorObjectToRgb,
   colorObjectToHsl,
 } from '../../../../../src/processing/transforms/built-in/color-format'
-import type { ColorValueObject } from '../../../../../src/tokens/types'
+import type { ColorValueObject } from '@shared/token-types'
 
 describe('Color Converter with All Color Spaces', () => {
   describe('isColorObject', () => {

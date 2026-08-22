@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { AliasResolver } from '../../../src/resolution/alias-resolver'
-import type { ResolvedTokens } from '../../../src/tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 
 describe('Array Aliasing in Composite Types', () => {
   let aliasResolver: AliasResolver

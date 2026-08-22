@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { applyTransforms, applyFilters } from '../../../../src/processing/apply'
 import type { Transform } from '../../../../src/processing/transforms/types'
 import type { Filter } from '../../../../src/processing/filters/types'
-import type { ResolvedTokens, ResolvedToken } from '../../../../src/tokens/types'
+import type { ResolvedToken, ResolvedTokens } from '@shared/token-types'
 
 describe('Token Modifier', () => {
   const mockTokens: ResolvedTokens = {

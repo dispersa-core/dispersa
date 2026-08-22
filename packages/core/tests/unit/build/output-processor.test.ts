@@ -5,8 +5,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fileUtils from '../../../src/adapters/filesystem/file-utils'
 import { OutputProcessor } from '../../../src/engine/output-processor'
-import type { OutputConfig } from '../../../src/config/index'
-import type { ResolvedTokens } from '../../../src/tokens/types'
+import type { OutputConfig, RenderContext } from '@outputs/types'
+import type { ResolvedTokens } from '@shared/token-types'
 import { outputTree } from '@outputs'
 import type { RenderContext } from '@outputs/types'
 

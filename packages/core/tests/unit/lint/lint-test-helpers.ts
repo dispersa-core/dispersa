@@ -20,7 +20,7 @@ import type {
   InternalResolvedToken,
   InternalResolvedTokens,
   ResolvedToken,
-} from '../../../src/tokens/types'
+} from '@shared/token-types'
 
 /**
  * Create a mock resolved token for testing

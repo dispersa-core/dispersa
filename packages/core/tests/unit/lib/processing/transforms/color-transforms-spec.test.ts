@@ -17,7 +17,7 @@ import {
   colorToHwb,
   colorToColorFunction,
 } from '../../../../../src/processing/transforms/built-in/color-transforms'
-import type { ResolvedToken } from '../../../../../src/tokens/types'
+import type { ResolvedToken } from '@shared/token-types'
 
 describe('Color Transforms with All Color Spaces', () => {
   describe('Legacy Color Transforms', () => {

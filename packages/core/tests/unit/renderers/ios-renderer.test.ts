@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
 import { ConfigurationError } from '../../../src/shared/errors'
 import { isOutputTree } from '@outputs'
 import { IosRenderer } from '@outputs/ios'
 import type { IosRendererOptions } from '@outputs/ios'
-import type { RenderContext } from '@outputs/types'
-import type { ResolvedToken, ResolvedTokens } from '../../../src/tokens/types'
+import type { OutputConfig, RenderContext } from '@outputs/types'
+import type { ResolvedToken, ResolvedTokens } from '@shared/token-types'
 
 const makeToken = (
   name: string,

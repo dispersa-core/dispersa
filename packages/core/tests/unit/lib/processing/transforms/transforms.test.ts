@@ -16,11 +16,7 @@ import {
   nameSuffix,
 } from '../../../../../src/processing/transforms/built-in'
 import type { Transform } from '../../../../../src/processing/transforms/types'
-import type {
-  ColorValueObject,
-  ResolvedToken,
-  ResolvedTokens,
-} from '../../../../../src/tokens/types'
+import type { ColorValueObject, ResolvedToken, ResolvedTokens } from '@shared/token-types'
 
 describe('Transform Integration Tests', () => {
   describe('Built-in Value Transforms', () => {

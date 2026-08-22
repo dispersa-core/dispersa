@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { ResolvedToken } from '../../../src/tokens/types'
+import type { ResolvedToken } from '@shared/token-types'
 import {
   buildBlockComment,
   buildKotlinDeprecationAnnotation,

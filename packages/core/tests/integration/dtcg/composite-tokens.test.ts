@@ -4,7 +4,7 @@
 import path from 'node:path'
 
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { OutputConfig } from '../../../src/config'
+import type { OutputConfig, RenderContext } from '@outputs/types'
 import type { ResolverDocument } from '../../../src/resolution/types'
 import { CssRenderer } from '@outputs/css'
 import { JsonRenderer } from '@outputs/json'

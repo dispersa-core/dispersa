@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TypeWriter } from '../../../../src/adapters/filesystem/type-writer'
-import type { ResolvedTokens } from '../../../../src/tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 
