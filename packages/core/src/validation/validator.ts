@@ -10,7 +10,12 @@ import { isTokenLike } from '@shared/utils/token-utils'
 import Ajv, { type ErrorObject, type ValidateFunction } from 'ajv'
 import addFormats from 'ajv-formats'
 
-import { buildConfigSchema, outputConfigSchema, dispersaOptionsSchema } from './config-schemas'
+import {
+  buildConfigSchema,
+  lintConfigSchema,
+  outputConfigSchema,
+  dispersaOptionsSchema,
+} from './config-schemas'
 import {
   dtcgSchemaRegistry,
   formatSchema,
@@ -83,6 +88,7 @@ export class SchemaValidator {
     this.registerSchema('outputConfig', outputConfigSchema)
     this.registerSchema('dispersaOptions', dispersaOptionsSchema)
     this.registerSchema('buildConfig', buildConfigSchema)
+    this.registerSchema('lintConfig', lintConfigSchema)
   }
 
   /**
@@ -328,5 +334,15 @@ export class SchemaValidator {
    */
   validateBuildConfig(data: unknown): ValidationError[] {
     return this.validate('buildConfig', data)
+  }
+
+  /**
+   * Validates a LintConfig structure
+   *
+   * @param data - Lint configuration data
+   * @returns Array of validation errors (empty if valid)
+   */
+  validateLintConfig(data: unknown): ValidationError[] {
+    return this.validate('lintConfig', data)
   }
 }

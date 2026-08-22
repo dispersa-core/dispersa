@@ -199,6 +199,31 @@ describe('case-check rule', () => {
     })
   })
 
+  describe('invalid format', () => {
+    it('should throw when an unknown format is provided without a custom pattern', async () => {
+      const tokens = createMockTokens({
+        'color-brand-primary': { type: 'color' },
+      })
+
+      await expect(
+        collectReports(caseCheck, tokens, { format: 'not-a-real-format' }),
+      ).rejects.toThrow(/Unknown format 'not-a-real-format'/)
+    })
+
+    it('should not throw for unknown formats when a custom pattern is provided', async () => {
+      const tokens = createMockTokens({
+        'color-brand-primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(caseCheck, tokens, {
+        format: 'not-a-real-format',
+        pattern: '^[a-z]+(-[a-z]+)*$',
+      })
+
+      expect(reports).toHaveLength(0)
+    })
+  })
+
   describe('custom pattern', () => {
     it('should accept tokens matching custom pattern', async () => {
       const tokens = createMockTokens({

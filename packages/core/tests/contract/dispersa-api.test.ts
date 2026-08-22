@@ -17,6 +17,7 @@ import {
 } from '../../src/dispersa'
 import { dispersaPlugin } from '../../src/lint'
 import { json } from '../../src/index'
+import type { LintIssue, LintResult } from '../../src/index'
 import type { ResolverDocument } from '../../src/resolution/types'
 import { getFixturePath } from '../utils/test-helpers'
 
@@ -396,7 +397,7 @@ describe('Dispersa Functional API Contract', () => {
     })
 
     it('should accept LintOptions and return LintResult', async () => {
-      const result = await lint({
+      const result: LintResult = await lint({
         resolver: resolverPath,
         plugins: { dispersa: dispersaPlugin },
         rules: {},
@@ -408,6 +409,28 @@ describe('Dispersa Functional API Contract', () => {
       expect(result).toHaveProperty('warningCount')
       expect(typeof result.errorCount).toBe('number')
       expect(typeof result.warningCount).toBe('number')
+    })
+
+    it('should expose LintResult and LintIssue types from the root entry', async () => {
+      const result: LintResult = await lint({
+        resolver: resolverPath,
+        plugins: { dispersa: dispersaPlugin },
+        rules: {},
+      })
+
+      const issues: LintIssue[] = result.issues
+
+      expect(issues).toEqual([])
+    })
+
+    it('should reject invalid rule severity configuration', async () => {
+      await expect(
+        lint({
+          resolver: resolverPath,
+          plugins: { dispersa: dispersaPlugin },
+          rules: { 'dispersa/require-description': 'warning' as never },
+        }),
+      ).rejects.toThrow('Invalid lint configuration')
     })
 
     it('should throw LintError when failOnError is true and errors exist', async () => {

@@ -48,7 +48,7 @@ const PATTERNS: Record<string, RegExp> = {
   'screaming-snake': /^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/,
 }
 
-const DEFAULT_PATTERN = /^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/
+const SUPPORTED_FORMATS = Object.keys(PATTERNS)
 
 export const caseCheck = createRule<
   (typeof CasingMessages)[keyof typeof CasingMessages],
@@ -74,7 +74,13 @@ export const caseCheck = createRule<
     if (customPattern) {
       segmentPattern = new RegExp(customPattern)
     } else {
-      segmentPattern = PATTERNS[format] ?? DEFAULT_PATTERN
+      const pattern = PATTERNS[format]
+      if (pattern == null) {
+        throw new Error(
+          `Unknown format '${format}'. Supported formats: ${SUPPORTED_FORMATS.join(', ')}`,
+        )
+      }
+      segmentPattern = pattern
     }
 
     // Pattern for pure numeric segments (common in design systems: spacing.0, spacing.1)

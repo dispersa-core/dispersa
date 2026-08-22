@@ -351,14 +351,15 @@ export type TailwindBuilderConfig = BuilderConfigBase & TailwindRendererOptions
  * @example Bundle Tailwind theme with transforms
  * ```typescript
  * import { tailwind } from 'dispersa'
- * import { nameKebabCase } from 'dispersa/transforms'
+ * import { colorToHex } from 'dispersa/transforms'
  *
+ * // nameKebabCase() is applied automatically before your transforms
  * const config = tailwind({
  *   name: 'tailwind',
  *   file: 'theme.css',
  *   preset: 'bundle',
  *   includeImport: true,
- *   transforms: [nameKebabCase()]
+ *   transforms: [colorToHex()]
  * })
  * ```
  *
@@ -382,7 +383,7 @@ export function tailwind(config: TailwindBuilderConfig): OutputConfig<TailwindRe
     file,
     renderer: tailwindRenderer(),
     options: { preset, ...rendererOptions },
-    transforms,
+    transforms: [nameKebabCase(), ...(transforms ?? [])],
     filters,
     hooks,
   }
