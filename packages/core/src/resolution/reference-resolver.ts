@@ -232,7 +232,11 @@ export class ReferenceResolver {
     }
 
     if (Array.isArray(obj)) {
-      return Promise.all(obj.map((item) => this.resolveDeep(item, currentDocument)))
+      const result: unknown[] = []
+      for (const item of obj) {
+        result.push(await this.resolveDeep(item, currentDocument))
+      }
+      return result
     }
 
     if (typeof obj === 'object' && obj !== null) {
@@ -276,9 +280,11 @@ export class ReferenceResolver {
     }
 
     if (Array.isArray(obj)) {
-      return Promise.all(
-        obj.map((item) => this.resolveDeepTokenInternal(item, currentDocument, ctx)),
-      )
+      const result: unknown[] = []
+      for (const item of obj) {
+        result.push(await this.resolveDeepTokenInternal(item, currentDocument, ctx))
+      }
+      return result
     }
 
     if (typeof obj === 'object' && obj !== null) {
