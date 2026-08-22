@@ -11,7 +11,9 @@ import {
   nameConstantCase,
   nameKebabCase,
   namePascalCase,
+  namePrefix,
   nameSnakeCase,
+  nameSuffix,
 } from '../../../../../src/processing/transforms/built-in'
 import type { Transform } from '../../../../../src/processing/transforms/types'
 import type {
@@ -218,6 +220,51 @@ describe('Transform Integration Tests', () => {
 
       const result = transform.transform(token, {}) as ResolvedToken & { name: string }
       expect(result.name).toBe('COLOR_PRIMARY_RED')
+    })
+  })
+
+  describe('Name Transform Composition', () => {
+    const redColorValue: ColorValueObject = {
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+    }
+
+    const baseToken: ResolvedToken = {
+      $type: 'color',
+      $value: redColorValue,
+      path: ['color', 'primary'],
+      name: 'color.primary',
+      originalValue: redColorValue,
+    }
+
+    it('should preserve prefix when a case transform follows namePrefix', () => {
+      const prefixed = namePrefix('ds-').transform(baseToken) as ResolvedToken
+      expect(prefixed.name).toBe('ds-color.primary')
+
+      const kebab = nameKebabCase().transform(prefixed) as ResolvedToken
+      expect(kebab.name).toBe('ds-color-primary')
+    })
+
+    it('should preserve suffix when a case transform follows nameSuffix', () => {
+      const suffixed = nameSuffix('-token').transform(baseToken) as ResolvedToken
+      expect(suffixed.name).toBe('color.primary-token')
+
+      const kebab = nameKebabCase().transform(suffixed) as ResolvedToken
+      expect(kebab.name).toBe('color-primary-token')
+    })
+
+    it('should apply case transforms to the current name, not the original path', () => {
+      const token: ResolvedToken = {
+        ...baseToken,
+        path: ['color', 'primaryRed'],
+        name: 'color.primaryRed',
+      }
+
+      const kebab = nameKebabCase().transform(token) as ResolvedToken
+      expect(kebab.name).toBe('color-primary-red')
+
+      const camel = nameCamelCase().transform(kebab) as ResolvedToken
+      expect(camel.name).toBe('colorPrimaryRed')
     })
   })
 

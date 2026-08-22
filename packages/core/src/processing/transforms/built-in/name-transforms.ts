@@ -2,8 +2,9 @@
  * @fileoverview Built-in name transforms using change-case library for robust case conversion
  */
 
-import { ResolvedToken } from '@shared/token-types'
-import { camelCase, kebabCase, snakeCase, pascalCase, constantCase } from 'change-case'
+import { camelCase, constantCase, kebabCase, pascalCase, snakeCase } from 'change-case'
+
+import type { ResolvedToken } from '@shared/token-types'
 
 import type { Transform } from '../types'
 
@@ -13,7 +14,7 @@ import type { Transform } from '../types'
 export function nameCamelCase(): Transform {
   return {
     transform: (token: ResolvedToken) => {
-      const name = camelCase(token.path.join(' '))
+      const name = camelCase(token.name ?? token.path.join(' '))
       return {
         ...token,
         name,
@@ -28,7 +29,7 @@ export function nameCamelCase(): Transform {
 export function nameKebabCase(): Transform {
   return {
     transform: (token: ResolvedToken) => {
-      const name = kebabCase(token.path.join(' '))
+      const name = kebabCase(token.name ?? token.path.join(' '))
       return {
         ...token,
         name,
@@ -43,7 +44,7 @@ export function nameKebabCase(): Transform {
 export function nameSnakeCase(): Transform {
   return {
     transform: (token: ResolvedToken) => {
-      const name = snakeCase(token.path.join(' '))
+      const name = snakeCase(token.name ?? token.path.join(' '))
       return {
         ...token,
         name,
@@ -58,7 +59,7 @@ export function nameSnakeCase(): Transform {
 export function namePascalCase(): Transform {
   return {
     transform: (token: ResolvedToken) => {
-      const name = pascalCase(token.path.join(' '))
+      const name = pascalCase(token.name ?? token.path.join(' '))
       return {
         ...token,
         name,
@@ -73,7 +74,7 @@ export function namePascalCase(): Transform {
 export function nameConstantCase(): Transform {
   return {
     transform: (token: ResolvedToken) => {
-      const name = constantCase(token.path.join(' '))
+      const name = constantCase(token.name ?? token.path.join(' '))
       return {
         ...token,
         name,

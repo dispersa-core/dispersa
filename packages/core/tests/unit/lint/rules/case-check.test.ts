@@ -213,9 +213,9 @@ describe('case-check rule', () => {
       expect(reports).toHaveLength(0)
     })
 
-    it('should reject tokens not matching custom pattern', async () => {
+    it('should reject tokens whose segments do not match custom pattern', async () => {
       const tokens = createMockTokens({
-        'color-brand-primary': { type: 'color' },
+        color_Brand_primary: { type: 'color' },
       })
 
       const reports = await collectReports(caseCheck, tokens, {
@@ -223,6 +223,20 @@ describe('case-check rule', () => {
       })
 
       expect(reports).toHaveLength(1)
+      expect(reports[0]?.messageId).toBe('INVALID_SEGMENT')
+      expect(reports[0]?.data?.segment).toBe('color_Brand_primary')
+    })
+
+    it('should not apply a per-segment pattern to the full dotted name', async () => {
+      const tokens = createMockTokens({
+        'color.brand_primary': { type: 'color' },
+      })
+
+      const reports = await collectReports(caseCheck, tokens, {
+        pattern: '^[a-z]+(_[a-z]+)*$',
+      })
+
+      expect(reports).toHaveLength(0)
     })
   })
 
