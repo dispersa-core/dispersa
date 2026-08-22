@@ -16,7 +16,6 @@ import { createRule } from '@lint/create-rule'
 import { matchesGlob } from '@lint/utils'
 
 export const CasingMessages = {
-  INVALID_FORMAT: 'INVALID_FORMAT',
   INVALID_SEGMENT: 'INVALID_SEGMENT',
 } as const
 
@@ -59,7 +58,6 @@ export const caseCheck = createRule<
     name: 'case-check',
     description: 'Enforce consistent token case formatting',
     messages: {
-      INVALID_FORMAT: "Token '{{name}}' does not match '{{format}}' format",
       INVALID_SEGMENT:
         "Segment '{{segment}}' in token '{{name}}' does not match '{{format}}' format",
     },
@@ -90,7 +88,6 @@ export const caseCheck = createRule<
 
       // Check each path segment
       const segments = token.path
-      let hasError = false
 
       for (const segment of segments) {
         // Allow pure numeric segments if option is enabled
@@ -104,18 +101,8 @@ export const caseCheck = createRule<
             messageId: 'INVALID_SEGMENT',
             data: { name: token.name, segment, format: customPattern ?? format },
           })
-          hasError = true
           break
         }
-      }
-
-      // If no segment errors, also check full name for custom patterns
-      if (!hasError && customPattern && !segmentPattern.test(token.name)) {
-        report({
-          token,
-          messageId: 'INVALID_FORMAT',
-          data: { name: token.name, format: customPattern },
-        })
       }
     }
   },

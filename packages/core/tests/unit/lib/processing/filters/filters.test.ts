@@ -263,6 +263,58 @@ describe('Filter Integration Tests', () => {
       expect(filter.filter(singleSegmentToken)).toBe(true)
     })
 
+    it('should match string pattern on segment boundaries, not substrings', async () => {
+      const filter = byPath('color')
+
+      const colorToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['color', 'primary'],
+      }
+
+      const colorsToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['colors', 'blue'],
+      }
+
+      const colorfulToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['colorful', 'x'],
+      }
+
+      expect(filter.filter(colorToken)).toBe(true)
+      expect(filter.filter(colorsToken)).toBe(false)
+      expect(filter.filter(colorfulToken)).toBe(false)
+    })
+
+    it('should match multi-segment string patterns as a segment prefix', async () => {
+      const filter = byPath('color.brand')
+
+      const brandToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['color', 'brand', 'primary'],
+      }
+
+      const otherBrandToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['color', 'brands', 'primary'],
+      }
+
+      const colorToken: ResolvedToken = {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
+        path: ['color'],
+      }
+
+      expect(filter.filter(brandToken)).toBe(true)
+      expect(filter.filter(otherBrandToken)).toBe(false)
+      expect(filter.filter(colorToken)).toBe(false)
+    })
+
     it('should return empty result when all tokens are filtered out', () => {
       const neverMatchFilter: Filter = {
         name: 'never',
