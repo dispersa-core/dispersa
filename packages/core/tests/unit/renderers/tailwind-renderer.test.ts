@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import type { OutputConfig } from '../../../src/config'
 import type { ResolverDocument } from '../../../src/resolution/types'
 import { isOutputTree } from '@outputs'
 import { TailwindRenderer } from '@outputs/tailwind'
 import type { TailwindRendererOptions } from '@outputs/tailwind'
-import type { MediaQueryFunction, RenderContext, SelectorFunction } from '@outputs/types'
 import type {
-  InternalResolvedToken,
-  ResolvedToken,
-  ResolvedTokens,
-} from '../../../src/tokens/types'
+  MediaQueryFunction,
+  OutputConfig,
+  RenderContext,
+  SelectorFunction,
+} from '@outputs/types'
+import type { InternalResolvedToken, ResolvedToken, ResolvedTokens } from '@shared/token-types'
 
 const makeToken = (name: string, value: unknown, type?: string): ResolvedToken => ({
   $value: value,

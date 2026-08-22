@@ -10,7 +10,7 @@ import { jsRenderer } from '@outputs/js'
 import { jsonRenderer } from '@outputs/json'
 import type { OutputConfig } from '../../src/config'
 import type { ResolverDocument } from '../../src/resolution/types'
-import type { FormatOptions, RenderContext, Renderer } from '@outputs/types'
+import type { FormatOptions, OutputConfig, RenderContext, Renderer } from '@outputs/types'
 
 const baseResolver: ResolverDocument = {
   sets: {},

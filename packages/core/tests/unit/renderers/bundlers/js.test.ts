@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { ResolverDocument } from '../../../../src/resolution/types'
-import type { ResolvedTokens } from '../../../../src/tokens/types'
+import type { ResolvedTokens } from '@shared/token-types'
 import type { BundleDataItem } from '@outputs/js/presets/types'
 import { bundleAsJsModule } from '@outputs/js/presets/bundle'
 

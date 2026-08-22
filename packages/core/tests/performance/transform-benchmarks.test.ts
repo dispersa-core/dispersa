@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { colorToHex, dimensionToRem, nameKebabCase } from '@processing/transforms'
-import type { ResolvedToken } from '../../src/tokens/types'
+import type { ResolvedToken } from '@shared/token-types'
 
 describe('Transform Performance Benchmarks', () => {
   function generateColorTokens(count: number): ResolvedToken[] {

@@ -8,7 +8,6 @@
       "dispersa": ["index.ts"],
       "@cli/*": ["cli/*"],
       "@codegen/*": ["codegen/*"],
-      "@tokens/*": ["tokens/*"],
       "@processing": ["processing/index.ts"],
       "@processing/*": ["processing/*"],
       "@resolution/*": ["resolution/*"],

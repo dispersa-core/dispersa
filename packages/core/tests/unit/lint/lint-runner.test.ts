@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { LintRunner } from '../../../src/lint/lint-runner'
 import type { AnyLintRule } from '../../../src/lint/types'
-import type { InternalResolvedToken } from '../../../src/tokens/types'
+import type { InternalResolvedToken } from '@shared/token-types'
 import { createMockTokens, createTestPlugin, createTestRule } from './lint-test-helpers'
 
 describe('LintRunner', () => {
