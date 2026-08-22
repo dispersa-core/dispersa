@@ -75,6 +75,15 @@ function validateBuildConfig(validator: SchemaValidator, config: BuildConfig): v
   }
 }
 
+function validateLintConfig(validator: SchemaValidator, config: LintConfig): void {
+  const configErrors = validator.validateLintConfig(config)
+  if (configErrors.length > 0) {
+    throw new ConfigurationError(
+      `Invalid lint configuration: ${validator.getErrorMessage(configErrors)}`,
+    )
+  }
+}
+
 async function resolvePipeline(
   pipeline: TokenPipeline,
   resolver: string | ResolverDocument,
@@ -228,6 +237,9 @@ export type LintOptions = {
 
 export async function lint(options: LintOptions): Promise<LintResult> {
   const { resolver, modifierInputs = {}, validation, ...lintConfig } = options
+
+  const validator = createValidator()
+  validateLintConfig(validator, lintConfig)
 
   const pipeline = createPipeline({ validation })
 

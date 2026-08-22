@@ -183,6 +183,31 @@ describe('Public API Contract Tests', () => {
       expect(typeof output.renderer.format).toBe('function')
     })
 
+    it('tailwind builder should auto-inject nameKebabCase like the css builder', () => {
+      const cssOutput = BuildersAPI.css({
+        name: 'css',
+        file: 'tokens.css',
+        preset: 'bundle',
+      })
+      const tailwindOutput = BuildersAPI.tailwind({
+        name: 'tailwind',
+        file: 'theme.css',
+        preset: 'bundle',
+      })
+
+      // Exactly one auto-injected transform on both CSS-emitting builders
+      expect(cssOutput.transforms).toHaveLength(1)
+      expect(tailwindOutput.transforms).toHaveLength(1)
+
+      // Running the injected transform produces the same kebab-cased name
+      const token = { name: 'colorBrandPrimary', path: ['colorBrandPrimary'] }
+      const cssTransformed = cssOutput.transforms?.[0]?.transform(token)
+      const tailwindTransformed = tailwindOutput.transforms?.[0]?.transform(token)
+
+      expect(cssTransformed?.name).toBe('color-brand-primary')
+      expect(tailwindTransformed?.name).toBe('color-brand-primary')
+    })
+
     it('ios builder should return valid output config', () => {
       const output = BuildersAPI.ios({
         name: 'test',

@@ -24,6 +24,7 @@ export {
 } from './dispersa'
 
 export type { LintOptions } from './dispersa'
+export type { LintIssue, LintResult } from '@lint/types'
 
 // ============================================================================
 // PUBLIC TYPES
