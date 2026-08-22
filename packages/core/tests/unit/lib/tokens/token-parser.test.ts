@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { TokenParser } from '../../../../src/engine/token-parser'
+import { ValidationError } from '../../../../src/shared/errors/index'
 import { getFixturePath } from '../../../utils/test-helpers'
 
 describe('Token Parser Integration Tests', () => {
@@ -259,6 +260,92 @@ describe('Token Parser Integration Tests', () => {
       }
 
       expect(() => validatingParser.flatten(collection)).not.toThrow()
+    })
+  })
+
+  describe('Inherited Group $type Validation', () => {
+    it('should reject a value that does not match the inherited $type', () => {
+      const collection = {
+        spacing: {
+          $type: 'dimension',
+          sm: { $value: { colorSpace: 'srgb', components: [1, 0, 0] } },
+        },
+      }
+
+      expect(() => parser.flatten(collection)).toThrow(ValidationError)
+    })
+
+    it('should accept a valid value for the inherited $type', () => {
+      const collection = {
+        color: {
+          $type: 'color',
+          red: { $value: { colorSpace: 'srgb', components: [1, 0, 0] } },
+        },
+      }
+
+      const tokens = parser.flatten(collection)
+      expect(tokens['color.red'].$type).toBe('color')
+    })
+
+    it('should still reject a value that matches no type at all', () => {
+      const collection = {
+        color: {
+          $type: 'color',
+          red: { $value: 'definitely-not-a-color' },
+        },
+      }
+
+      expect(() => parser.flatten(collection)).toThrow(ValidationError)
+    })
+
+    it('should accept alias references under an inherited $type group', () => {
+      const collection = {
+        spacing: {
+          $type: 'dimension',
+          sm: { $value: '{spacing.base.4}' },
+        },
+      }
+
+      const tokens = parser.flatten(collection)
+      expect(tokens['spacing.sm'].$value).toBe('{spacing.base.4}')
+    })
+
+    it('should accept $root-suffixed alias references under an inherited $type group', () => {
+      const collection = {
+        color: {
+          $type: 'color',
+          brand: { $value: '{color.$root}' },
+        },
+      }
+
+      const tokens = parser.flatten(collection)
+      expect(tokens['color.brand'].$value).toBe('{color.$root}')
+    })
+
+    it('should accept token-level $ref references under an inherited $type group', () => {
+      const collection = {
+        spacing: {
+          $type: 'dimension',
+          sm: { $ref: '#/spacing/base' },
+        },
+      }
+
+      const tokens = parser.flatten(collection)
+      expect(tokens['spacing.sm'].$ref).toBe('#/spacing/base')
+    })
+
+    it('should retain existing explicit $type validation behavior', () => {
+      const explicit = {
+        red: { $type: 'color', $value: { colorSpace: 'srgb', components: [1, 0, 0] } },
+      }
+
+      expect(() => parser.flatten(explicit)).not.toThrow()
+
+      const invalid = {
+        red: { $type: 'dimension', $value: { colorSpace: 'srgb', components: [1, 0, 0] } },
+      }
+
+      expect(() => parser.flatten(invalid)).toThrow(ValidationError)
     })
   })
 

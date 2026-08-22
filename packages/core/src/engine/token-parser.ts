@@ -193,7 +193,8 @@ export class TokenParser {
     currentPath: string[],
     inheritedType?: TokenType,
   ): InternalResolvedToken {
-    this.validateResolvedToken(token, currentPath)
+    const resolvedType = token.$type ?? inheritedType
+    this.validateResolvedToken({ ...token, $type: resolvedType }, currentPath)
 
     const tokenName = currentPath.join('.')
     const resolvedToken: InternalResolvedToken = {
@@ -213,6 +214,14 @@ export class TokenParser {
   private validateResolvedToken(token: InternalToken, currentPath: string[]): void {
     const tokenType = token.$type
     if (typeof tokenType !== 'string') {
+      return
+    }
+
+    // References (alias or token-level $ref) are validated later during
+    // alias resolution, when the referenced type is known
+    const isAliasReference = this.isReference(token.$value)
+    const hasTokenLevelRef = typeof (token as Record<string, unknown>).$ref === 'string'
+    if (isAliasReference || hasTokenLevelRef) {
       return
     }
 
