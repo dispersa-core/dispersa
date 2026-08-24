@@ -1148,6 +1148,24 @@ describe('Android/Compose Renderer', () => {
 
       expect(content).toContain('0f to Color.Unspecified')
     })
+
+    it('should clamp out-of-range stop positions to [0, 1]', async () => {
+      const tokens: ResolvedTokens = {
+        'gradient.brand': makeToken(
+          'gradient.brand',
+          [
+            { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: -0.5 },
+            { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 1.5 },
+          ],
+          'gradient',
+        ),
+      }
+
+      const content = await getContent(renderer, tokens)
+
+      expect(content).toContain('0f to Color(')
+      expect(content).toContain('1f to Color(')
+    })
   })
 
   // =========================================================================

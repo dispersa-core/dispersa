@@ -45,7 +45,7 @@ import {
 } from '../utils'
 import { buildSwiftDeprecationAttribute, buildTokenDescriptionComment } from '../metadata'
 import { outputTree } from '../output-tree'
-import { getShadowLayers } from '../composite-value'
+import { getShadowLayers, clampGradientPosition } from '../composite-value'
 import type { RenderContext, RenderOutput, Renderer } from '../types'
 
 /**
@@ -999,7 +999,9 @@ export class IosRenderer implements Renderer<IosRendererOptions> {
       const color = this.formatLeafOrReference(original?.color, options, tokens, () =>
         isColorObject(stop.color) ? this.formatColorValue(stop.color, options) : 'Color.clear',
       )
-      return `.init(color: ${color}, location: ${stop.position})`
+      const location =
+        typeof stop.position === 'number' ? clampGradientPosition(stop.position) : stop.position
+      return `.init(color: ${color}, location: ${location})`
     })
 
     return `Gradient(stops: [${stops.join(', ')}])`

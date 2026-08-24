@@ -75,6 +75,19 @@ describe('Composite Token Types', () => {
       expect(errors.length).toBe(0)
     })
 
+    it('should accept gradient stops with out-of-range positions (clamped per DTCG §9.7)', () => {
+      const gradientToken = {
+        $type: 'gradient',
+        $value: [
+          { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: -0.5 },
+          { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 1.5 },
+        ],
+      }
+
+      const errors = validator.validateToken(gradientToken)
+      expect(errors.length).toBe(0)
+    })
+
     it('should accept transition tokens', () => {
       const transitionToken = {
         $type: 'transition',

@@ -195,13 +195,23 @@ export function buildGradientWholeValue(token: ResolvedToken): string | undefine
 }
 
 /**
+ * Clamps a DTCG gradient stop position to [0, 1].
+ *
+ * Per DTCG Format Appendix §9.7, positions outside [0, 1] are clamped rather
+ * than rejected.
+ */
+export function clampGradientPosition(value: number): number {
+  return Math.min(1, Math.max(0, value))
+}
+
+/**
  * Formats a gradient stop position (DTCG 0-1 number) as a clamped CSS percentage.
  *
  * Clamps to [0, 1] per DTCG Format Appendix §9.7, then rounds to two decimal
  * places to avoid float noise (e.g. `33.333333333333336%`).
  */
 export function formatGradientPosition(value: number): string {
-  const clamped = Math.min(1, Math.max(0, value))
+  const clamped = clampGradientPosition(value)
   return `${Math.round(clamped * 10000) / 100}%`
 }
 
