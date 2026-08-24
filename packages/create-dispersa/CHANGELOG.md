@@ -1,5 +1,11 @@
 # create-dispersa
 
+## 1.4.1
+
+### Patch Changes
+
+- [#76](https://github.com/dispersa-core/dispersa/pull/76) [`879bc8f`](https://github.com/dispersa-core/dispersa/commit/879bc8fe5a12252275507ce9218c9467500a2767) Thanks [@timges](https://github.com/timges)! - Align gradient stop `position` handling with DTCG Format §9.7: out-of-range values are now accepted during validation (schema keeps `type: number` only) and clamped to [0, 1] at render in the iOS, Android, CSS, and Tailwind renderers. Also repoint the create-dispersa scaffolder at `dispersa-core/dispersa` instead of the personal `timges/dispersa` fork.
+
 ## 1.4.0
 
 ### Minor Changes
