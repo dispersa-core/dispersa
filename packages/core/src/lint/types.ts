@@ -14,6 +14,9 @@
  */
 
 import type { TokenType, InternalResolvedTokens, ResolvedToken } from '@shared/token-types'
+import type { LintIssue } from '@shared/types/lint-issue'
+
+export type { LintIssue }
 
 // ============================================================================
 // SEVERITY
@@ -332,26 +335,6 @@ export type ResolvedLintConfig = {
 // ============================================================================
 // RESULT TYPES
 // ============================================================================
-
-/**
- * A single lint issue
- */
-export type LintIssue = {
-  /** Fully qualified rule ID (e.g., 'dispersa/require-description') */
-  ruleId: string
-
-  /** Issue severity */
-  severity: Exclude<Severity, 'off'>
-
-  /** Human-readable message */
-  message: string
-
-  /** Token name (e.g., 'color.brand.primary') */
-  tokenName: string
-
-  /** Token path segments (e.g., ['color', 'brand', 'primary']) */
-  tokenPath: string[]
-}
 
 /**
  * Result of a lint run
