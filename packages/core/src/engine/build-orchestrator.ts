@@ -3,14 +3,19 @@
  * Handles build execution and error collection
  */
 
+import * as path from 'node:path'
+
+import { writeOutputFile } from '@adapters/filesystem/file-utils'
+import { TypeWriter } from '@adapters/filesystem/type-writer'
 import type { OutputProcessor } from '@engine/output-processor'
-import type { BuildConfig } from '@engine/types'
+import type { BuildConfig, TypesOutputConfig } from '@engine/types'
 import type { LintResult } from '@lint/types'
 import { buildMetadata, resolveResolverDocument } from '@outputs/utils'
 import type { BuildResult, PermutationData, RenderContext } from '@outputs/types'
 import type { ResolverDocument } from '@resolution/types'
 import { ConfigurationError } from '@shared/errors/index'
 import { toBuildError } from '@shared/utils/error-utils'
+import { stripInternalTokenMetadata } from '@shared/utils/token-utils'
 import type { TokenPipeline } from './pipeline/token-pipeline'
 
 /**
@@ -178,6 +183,18 @@ export class BuildOrchestrator {
 
       const result = this.collectSettledResults(settled, config, lintResult)
 
+      // `types` generation resolves tokens through its own transform-free
+      // pipeline call (mirroring `resolveTokens()`), so the generated DTCG
+      // value shapes stay honest even with global transforms/filters set.
+      if (config.types) {
+        try {
+          result.outputs.push(await this.buildTypesOutput(buildPath, config.types, resolver))
+        } catch (error) {
+          result.success = false
+          result.errors = [...(result.errors ?? []), toBuildError(error, 'types')]
+        }
+      }
+
       if (config.hooks?.onBuildEnd) {
         await config.hooks.onBuildEnd(result)
       }
@@ -289,6 +306,35 @@ export class BuildOrchestrator {
 
     const renderOutput = await output.renderer.format(context, output.options)
     return this.outputProcessor.writeRenderOutput(renderOutput, context)
+  }
+
+  /**
+   * Generate a TypeScript definition file from independently resolved tokens.
+   *
+   * Resolution deliberately bypasses the build's global
+   * transforms/preprocessors/filters (the type-mapping targets DTCG shapes,
+   * not transformed values). When `buildPath` is unset, `file` is written
+   * relative to the current working directory, like `generateTypes()`.
+   */
+  private async buildTypesOutput(
+    buildPath: string,
+    typesConfig: TypesOutputConfig,
+    resolver: string | ResolverDocument,
+  ): Promise<BuildResult['outputs'][number]> {
+    const { tokens } = await this.pipeline.resolve(resolver, typesConfig.modifierInputs ?? {})
+
+    const fileName =
+      buildPath !== undefined && buildPath !== ''
+        ? path.resolve(buildPath, typesConfig.file)
+        : typesConfig.file
+
+    const { file: _file, modifierInputs: _modifierInputs, ...typeOptions } = typesConfig
+    const typeWriter = new TypeWriter()
+    const content = typeWriter.generate(stripInternalTokenMetadata(tokens), typeOptions)
+
+    await writeOutputFile(fileName, content)
+
+    return { name: 'types', path: fileName, content }
   }
 
   /**

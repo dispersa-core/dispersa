@@ -315,6 +315,8 @@ function normalizeConfigPaths(config: CliConfig, configDir: string): CliConfig {
   const buildPath = resolveIfRelative(config.buildPath, configDir)
   const outputs = config.outputs ?? []
 
+  // Note: types.file stays as authored (relative to buildPath), matching how
+  // output `file` values are handled; the orchestrator resolves it.
   return {
     ...config,
     resolver,

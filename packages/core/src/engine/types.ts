@@ -11,6 +11,7 @@
  * build-time options. These types define how to drive the build process.
  */
 
+import type { TypeGeneratorOptions } from '@codegen/type-generator'
 import type { LintBuildConfig } from '@lint/types'
 import type { Filter } from '@processing/filters/types'
 import type { Preprocessor } from '@processing/preprocessors/types'
@@ -96,7 +97,7 @@ import type { BuildConfigBase, DispersaOptionsBase } from '@validation/config-sc
  */
 export type BuildConfig = Omit<
   BuildConfigBase,
-  'outputs' | 'filters' | 'transforms' | 'preprocessors' | 'permutations'
+  'outputs' | 'filters' | 'transforms' | 'preprocessors' | 'permutations' | 'types'
 > & {
   /** Resolver configuration - file path or inline ResolverDocument */
   resolver?: string | ResolverDocument
@@ -122,11 +123,47 @@ export type BuildConfig = Omit<
   /** Explicit permutations to build (modifier inputs) */
   permutations?: ModifierInputs[]
 
+  /** TypeScript definition generation for resolved tokens */
+  types?: TypesOutputConfig
+
   /** Linting configuration */
   lint?: LintBuildConfig
 
   /** Global lifecycle hooks for the build process */
   hooks?: LifecycleHooks
+}
+
+/**
+ * Generation of a TypeScript definition file from resolved tokens
+ *
+ * Emitted through its own transform-free resolution (mirroring
+ * `resolveTokens()`), so global `transforms`/`filters` never leak into the
+ * generated value shapes.
+ *
+ * @example
+ * ```typescript
+ * await build({
+ *   resolver: './tokens.resolver.json',
+ *   buildPath: './dist',
+ *   outputs: [css({ name: 'css', file: 'tokens.css' })],
+ *   types: {
+ *     file: 'tokens.d.ts',
+ *     exportType: 'interface',
+ *     includeValues: true,
+ *     moduleName: 'DesignTokens',
+ *   },
+ * })
+ * ```
+ */
+export type TypesOutputConfig = TypeGeneratorOptions & {
+  /** Output file path for the generated `.d.ts` (relative to `buildPath` when given) */
+  file: string
+
+  /**
+   * Modifier inputs selecting the permutation to emit types for.
+   * Defaults to the base permutation (all modifiers at their defaults).
+   */
+  modifierInputs?: ModifierInputs
 }
 
 export { LifecycleHooks } from '@outputs/types'

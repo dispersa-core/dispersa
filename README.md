@@ -775,6 +775,7 @@ import {
   lint,
   resolveAllPermutations,
   generateTypes,
+  renderTypes,
 } from 'dispersa'
 ```
 
@@ -787,20 +788,22 @@ import {
 | `lint(options)`                             | Run lint rules on resolved tokens.                    |
 | `resolveAllPermutations(resolver)`          | Resolve tokens for every permutation.                 |
 | `generateTypes(tokens, fileName, options?)` | Generate a `.d.ts` file from resolved tokens.         |
+| `renderTypes(tokens, options?)`             | Render type definitions in memory (no file I/O).      |
 
 ### BuildConfig
 
 When calling `build()` or `buildOrThrow()`, pass a `BuildConfig` object:
 
-| Option       | Type                                    | Description                           |
-| ------------ | --------------------------------------- | ------------------------------------- |
-| `resolver`   | `string \| ResolverDocument`            | Resolver (file path or inline object) |
-| `buildPath`  | `string`                                | Output directory                      |
-| `outputs`    | `OutputConfig[]`                        | Array of output configurations        |
-| `validation` | `{ mode?: 'error' \| 'warn' \| 'off' }` | Validation behavior                   |
-| `filters`    | `Filter[]`                              | Global filters                        |
-| `transforms` | `Transform[]`                           | Global transforms                     |
-| `lint`       | `LintBuildConfig`                       | Lint configuration                    |
+| Option       | Type                                    | Description                                  |
+| ------------ | --------------------------------------- | -------------------------------------------- |
+| `resolver`   | `string \| ResolverDocument`            | Resolver (file path or inline object)        |
+| `buildPath`  | `string`                                | Output directory                             |
+| `outputs`    | `OutputConfig[]`                        | Array of output configurations               |
+| `validation` | `{ mode?: 'error' \| 'warn' \| 'off' }` | Validation behavior                          |
+| `filters`    | `Filter[]`                              | Global filters                               |
+| `transforms` | `Transform[]`                           | Global transforms                            |
+| `types`      | `TypesOutputConfig`                     | Emit a `.d.ts` via transform-free resolution |
+| `lint`       | `LintBuildConfig`                       | Lint configuration                           |
 
 ### Subpath exports
 

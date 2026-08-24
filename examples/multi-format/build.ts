@@ -108,6 +108,7 @@ const tokens = await resolveTokens(path.join(__dirname, 'tokens.resolver.json'),
 })
 await generateTypes(tokens, path.join(outputDir, 'tokens.d.ts'), {
   moduleName: 'DesignTokens',
+  includeValues: true,
 })
 
 console.log('Build successful!')
