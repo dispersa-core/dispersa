@@ -15,6 +15,8 @@
  * ```
  */
 
+import type { LintIssue } from '@shared/types/lint-issue'
+
 /**
  * Base error class for all Dispersa errors
  */
@@ -160,15 +162,7 @@ export class LintError extends DispersaError {
   public errorCount: number
   public warningCount: number
 
-  constructor(
-    public issues: Array<{
-      ruleId: string
-      severity: 'error' | 'warn'
-      message: string
-      tokenName: string
-      tokenPath: string[]
-    }>,
-  ) {
+  constructor(public issues: LintIssue[]) {
     const errorCount = issues.filter((i) => i.severity === 'error').length
     const warningCount = issues.filter((i) => i.severity === 'warn').length
     super(`Lint failed with ${errorCount} error(s) and ${warningCount} warning(s).`)
