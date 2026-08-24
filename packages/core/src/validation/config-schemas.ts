@@ -477,6 +477,37 @@ export const buildConfigSchema = {
       },
       description: 'Explicit permutations to build',
     },
+    types: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          minLength: 1,
+          description: 'Output file path for the generated .d.ts',
+        },
+        modifierInputs: {
+          type: 'object',
+          description: 'Modifier inputs selecting the permutation to emit types for',
+          additionalProperties: { type: 'string' },
+        },
+        exportType: {
+          type: 'string',
+          enum: ['type', 'interface'],
+          description: 'Export style for the generated structure type',
+        },
+        includeValues: {
+          type: 'boolean',
+          description: 'Include token value types in the output',
+        },
+        moduleName: {
+          type: 'string',
+          description: 'Name for the main module type',
+        },
+      },
+      additionalProperties: true,
+      description: 'TypeScript definition file generation (requires "file")',
+    },
     // Can also include DispersaOptions fields
     resolver: {
       oneOf: [

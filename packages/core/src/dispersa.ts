@@ -9,6 +9,7 @@
  */
 
 import { TypeWriter } from '@adapters/filesystem/type-writer'
+import type { TypeGeneratorOptions } from '@codegen/type-generator'
 import { BuildOrchestrator } from '@engine/build-orchestrator'
 import { OutputProcessor } from '@engine/output-processor'
 import { TokenPipeline } from '@engine/pipeline/token-pipeline'
@@ -284,15 +285,54 @@ export async function resolveAllPermutations(resolver: string | ResolverDocument
   }))
 }
 
+/**
+ * Generate TypeScript type definitions for resolved tokens and write them
+ * to a file.
+ *
+ * @param tokens - Resolved tokens to generate types from
+ * @param fileName - Output file path for the generated `.d.ts`
+ * @param options - Type generation options (export style, values inclusion,
+ *   module name)
+ * @returns A promise resolving once the file has been written
+ *
+ * @example
+ * ```typescript
+ * await generateTypes(tokens, './tokens.d.ts', {
+ *   exportType: 'interface',
+ *   includeValues: true,
+ *   moduleName: 'DesignTokens',
+ * })
+ * ```
+ */
 export async function generateTypes(
   tokens: ResolvedTokens,
   fileName: string,
-  options?: { moduleName?: string },
+  options?: TypeGeneratorOptions,
 ): Promise<void> {
   const typeWriter = new TypeWriter()
-  await typeWriter.write(tokens, {
-    fileName,
-    moduleName: options?.moduleName ?? 'Tokens',
-    includeValues: true,
-  })
+  await typeWriter.write(tokens, { ...options, fileName })
+}
+
+/**
+ * Render TypeScript type definitions for resolved tokens in memory.
+ *
+ * Thin wrapper over `TypeWriter.generate()` — performs no file I/O and
+ * returns the rendered string, making it useful for embedding generated
+ * types into other tooling or pipelines.
+ *
+ * @param tokens - Resolved tokens to generate types from
+ * @param options - Type generation options (export style, values inclusion,
+ *   module name)
+ * @returns The generated TypeScript type definitions
+ *
+ * @example
+ * ```typescript
+ * const types = renderTypes(tokens, { includeValues: true })
+ * // import type { ColorValueObject } from 'dispersa'
+ * // export type TokenName = ...
+ * ```
+ */
+export function renderTypes(tokens: ResolvedTokens, options?: TypeGeneratorOptions): string {
+  const typeWriter = new TypeWriter()
+  return typeWriter.generate(tokens, options)
 }

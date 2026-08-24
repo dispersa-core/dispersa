@@ -611559,153 +611559,146 @@ export default tokens
   }
 }
 ",
-  "types/tokens.d.ts": "export type TokenName =
+  "types/tokens.d.ts": "import type { ColorValueObject, DimensionValue, DurationValue, FontFamilyValue, FontWeightValue, ShadowValue } from 'dispersa'
+
+export type TokenName =
+  | "border.base.radius.full"
+  | "border.base.radius.lg"
+  | "border.base.radius.md"
+  | "border.base.radius.none"
+  | "border.base.radius.sm"
+  | "border.base.radius.xl"
+  | "border.base.width.medium"
+  | "border.base.width.thick"
+  | "border.base.width.thin"
+  | "color.alias.background.inverse"
+  | "color.alias.background.primary"
+  | "color.alias.background.secondary"
+  | "color.alias.background.tertiary"
+  | "color.alias.border.default"
+  | "color.alias.border.strong"
+  | "color.alias.border.subtle"
+  | "color.alias.danger"
+  | "color.alias.info"
+  | "color.alias.interactive.active"
+  | "color.alias.interactive.hover"
+  | "color.alias.interactive.primary"
+  | "color.alias.success"
+  | "color.alias.text.inverse"
+  | "color.alias.text.primary"
+  | "color.alias.text.secondary"
+  | "color.alias.text.tertiary"
+  | "color.alias.warning"
+  | "color.base.black"
+  | "color.base.blackAlpha"
+  | "color.base.brand.accent"
   | "color.base.brand.primary"
   | "color.base.brand.secondary"
-  | "color.base.brand.accent"
-  | "color.base.semantic.success"
-  | "color.base.semantic.warning"
-  | "color.base.semantic.danger"
-  | "color.base.semantic.info"
-  | "color.base.interactive.hover"
-  | "color.base.interactive.active"
-  | "color.base.dark.interactive.primary"
   | "color.base.dark.interactive.hover"
-  | "color.base.extended.vibrantBlueP3"
+  | "color.base.dark.interactive.primary"
+  | "color.base.extended.adobeCyan"
   | "color.base.extended.hdrGreen"
   | "color.base.extended.prophotoMagenta"
-  | "color.base.extended.adobeCyan"
-  | "color.base.gray.50"
+  | "color.base.extended.vibrantBlueP3"
   | "color.base.gray.100"
   | "color.base.gray.200"
   | "color.base.gray.300"
   | "color.base.gray.400"
+  | "color.base.gray.50"
   | "color.base.gray.500"
   | "color.base.gray.600"
   | "color.base.gray.700"
   | "color.base.gray.800"
   | "color.base.gray.900"
+  | "color.base.interactive.active"
+  | "color.base.interactive.hover"
+  | "color.base.semantic.danger"
+  | "color.base.semantic.info"
+  | "color.base.semantic.success"
+  | "color.base.semantic.warning"
   | "color.base.white"
   | "color.base.whiteAlpha"
-  | "color.base.black"
-  | "color.base.blackAlpha"
-  | "color.alias.text.primary"
-  | "color.alias.text.secondary"
-  | "color.alias.text.tertiary"
-  | "color.alias.text.inverse"
-  | "color.alias.background.primary"
-  | "color.alias.background.secondary"
-  | "color.alias.background.tertiary"
-  | "color.alias.background.inverse"
-  | "color.alias.interactive.primary"
-  | "color.alias.interactive.hover"
-  | "color.alias.interactive.active"
-  | "color.alias.success"
-  | "color.alias.warning"
-  | "color.alias.danger"
-  | "color.alias.info"
-  | "color.alias.border.default"
-  | "color.alias.border.strong"
-  | "color.alias.border.subtle"
   | "color.button.primary.background"
-  | "color.button.primary.background.hover"
   | "color.button.primary.background.active"
+  | "color.button.primary.background.hover"
   | "color.button.primary.text"
   | "color.button.secondary.background"
   | "color.button.secondary.border"
   | "color.button.secondary.text"
+  | "color.card.background"
+  | "color.card.border"
   | "color.input.background"
   | "color.input.border"
   | "color.input.border.focus"
-  | "color.input.text"
   | "color.input.placeholder"
-  | "color.card.background"
-  | "color.card.border"
-  | "spacing.base.0"
-  | "spacing.base.1"
-  | "spacing.base.2"
-  | "spacing.base.3"
-  | "spacing.base.4"
-  | "spacing.base.6"
-  | "spacing.base.8"
-  | "spacing.base.12"
-  | "spacing.base.16"
-  | "spacing.base.20"
-  | "spacing.alias.xs"
-  | "spacing.alias.sm"
-  | "spacing.alias.md"
-  | "spacing.alias.lg"
-  | "spacing.alias.xl"
-  | "spacing.button.primary.padding"
-  | "spacing.button.secondary.padding"
-  | "spacing.input.padding"
-  | "spacing.card.padding"
-  | "spacing.card.radius"
-  | "size.base.xs"
-  | "size.base.sm"
-  | "size.base.md"
-  | "size.base.lg"
-  | "size.base.xl"
-  | "size.base.2xl"
-  | "border.base.width.thin"
-  | "border.base.width.medium"
-  | "border.base.width.thick"
-  | "border.base.radius.none"
-  | "border.base.radius.sm"
-  | "border.base.radius.md"
-  | "border.base.radius.lg"
-  | "border.base.radius.xl"
-  | "border.base.radius.full"
+  | "color.input.text"
+  | "duration.base.fast"
+  | "duration.base.instant"
+  | "duration.base.normal"
+  | "duration.base.slow"
+  | "duration.base.slower"
+  | "easing.base.ease"
+  | "easing.base.easeIn"
+  | "easing.base.easeInOut"
+  | "easing.base.easeOut"
+  | "easing.base.linear"
+  | "easing.base.spring"
+  | "font.base.family.display"
+  | "font.base.family.mono"
   | "font.base.family.sans"
   | "font.base.family.serif"
-  | "font.base.family.mono"
-  | "font.base.family.display"
-  | "font.base.size.xs"
-  | "font.base.size.sm"
-  | "font.base.size.base"
-  | "font.base.size.lg"
-  | "font.base.size.xl"
   | "font.base.size.2xl"
   | "font.base.size.3xl"
   | "font.base.size.4xl"
   | "font.base.size.5xl"
-  | "font.base.weight.thin"
-  | "font.base.weight.light"
-  | "font.base.weight.normal"
-  | "font.base.weight.medium"
-  | "font.base.weight.semibold"
+  | "font.base.size.base"
+  | "font.base.size.lg"
+  | "font.base.size.sm"
+  | "font.base.size.xl"
+  | "font.base.size.xs"
+  | "font.base.weight.black"
   | "font.base.weight.bold"
   | "font.base.weight.extrabold"
-  | "font.base.weight.black"
-  | "number.base.lineHeight.tight"
-  | "number.base.lineHeight.normal"
+  | "font.base.weight.light"
+  | "font.base.weight.medium"
+  | "font.base.weight.normal"
+  | "font.base.weight.semibold"
+  | "font.base.weight.thin"
   | "number.base.lineHeight.loose"
+  | "number.base.lineHeight.normal"
+  | "number.base.lineHeight.tight"
+  | "shadow.base.lg"
+  | "shadow.base.md"
   | "shadow.base.none"
   | "shadow.base.sm"
-  | "shadow.base.md"
-  | "shadow.base.lg"
   | "shadow.base.xl"
   | "shadow.card.shadow"
-  | "duration.base.instant"
-  | "duration.base.fast"
-  | "duration.base.normal"
-  | "duration.base.slow"
-  | "duration.base.slower"
-  | "easing.base.linear"
-  | "easing.base.ease"
-  | "easing.base.easeIn"
-  | "easing.base.easeOut"
-  | "easing.base.easeInOut"
-  | "easing.base.spring"
-  | "typography.alias.heading.xl.family"
-  | "typography.alias.heading.xl.size"
-  | "typography.alias.heading.xl.weight"
-  | "typography.alias.heading.lg.family"
-  | "typography.alias.heading.lg.size"
-  | "typography.alias.heading.lg.weight"
-  | "typography.alias.heading.md.family"
-  | "typography.alias.heading.md.size"
-  | "typography.alias.heading.md.weight"
+  | "size.base.2xl"
+  | "size.base.lg"
+  | "size.base.md"
+  | "size.base.sm"
+  | "size.base.xl"
+  | "size.base.xs"
+  | "spacing.alias.lg"
+  | "spacing.alias.md"
+  | "spacing.alias.sm"
+  | "spacing.alias.xl"
+  | "spacing.alias.xs"
+  | "spacing.base.0"
+  | "spacing.base.1"
+  | "spacing.base.12"
+  | "spacing.base.16"
+  | "spacing.base.2"
+  | "spacing.base.20"
+  | "spacing.base.3"
+  | "spacing.base.4"
+  | "spacing.base.6"
+  | "spacing.base.8"
+  | "spacing.button.primary.padding"
+  | "spacing.button.secondary.padding"
+  | "spacing.card.padding"
+  | "spacing.card.radius"
+  | "spacing.input.padding"
   | "typography.alias.body.lg.family"
   | "typography.alias.body.lg.size"
   | "typography.alias.body.lg.weight"
@@ -611715,538 +611708,547 @@ export default tokens
   | "typography.alias.body.sm.family"
   | "typography.alias.body.sm.size"
   | "typography.alias.body.sm.weight"
+  | "typography.alias.heading.lg.family"
+  | "typography.alias.heading.lg.size"
+  | "typography.alias.heading.lg.weight"
+  | "typography.alias.heading.md.family"
+  | "typography.alias.heading.md.size"
+  | "typography.alias.heading.md.weight"
+  | "typography.alias.heading.xl.family"
+  | "typography.alias.heading.xl.size"
+  | "typography.alias.heading.xl.weight"
 
 export type EnterpriseDesignSystemValues = {
-  /** Primary brand blue */
-  "color.base.brand.primary": string
-  /** Secondary brand purple */
-  "color.base.brand.secondary": string
-  /** Accent orange */
-  "color.base.brand.accent": string
-  /** Success green */
-  "color.base.semantic.success": string
-  /** Warning amber */
-  "color.base.semantic.warning": string
-  /** Danger red */
-  "color.base.semantic.danger": string
-  /** Info blue */
-  "color.base.semantic.info": string
-  /** Hover state */
-  "color.base.interactive.hover": string
-  /** Active state */
-  "color.base.interactive.active": string
-  /** Brighter blue for dark background */
-  "color.base.dark.interactive.primary": string
-  /** Brighter hover for dark background */
-  "color.base.dark.interactive.hover": string
-  /** Vibrant blue in Display P3 for wider gamut displays */
-  "color.base.extended.vibrantBlueP3": string
-  /** HDR green for Rec. 2020 color space */
-  "color.base.extended.hdrGreen": string
-  /** Magenta in ProPhoto RGB */
-  "color.base.extended.prophotoMagenta": string
-  /** Cyan in Adobe RGB (1998) */
-  "color.base.extended.adobeCyan": string
-  /** Lightest gray */
-  "color.base.gray.50": string
-  "color.base.gray.100": string
-  "color.base.gray.200": string
-  "color.base.gray.300": string
-  "color.base.gray.400": string
-  "color.base.gray.500": string
-  "color.base.gray.600": string
-  "color.base.gray.700": string
-  "color.base.gray.800": string
-  /** Darkest gray */
-  "color.base.gray.900": string
-  "color.base.white": string
-  "color.base.whiteAlpha": string
-  "color.base.black": string
-  "color.base.blackAlpha": string
-  /** Primary text color */
-  "color.alias.text.primary": string
-  /** Secondary text color */
-  "color.alias.text.secondary": string
-  /** Tertiary text color */
-  "color.alias.text.tertiary": string
-  /** Inverse text (on dark backgrounds) */
-  "color.alias.text.inverse": string
-  /** Primary background */
-  "color.alias.background.primary": string
-  /** Secondary background */
-  "color.alias.background.secondary": string
-  /** Tertiary background */
-  "color.alias.background.tertiary": string
+  "border.base.radius.full": DimensionValue
+  "border.base.radius.lg": DimensionValue
+  "border.base.radius.md": DimensionValue
+  "border.base.radius.none": DimensionValue
+  "border.base.radius.sm": DimensionValue
+  "border.base.radius.xl": DimensionValue
+  "border.base.width.medium": DimensionValue
+  "border.base.width.thick": DimensionValue
+  "border.base.width.thin": DimensionValue
   /** Inverse background (dark) */
-  "color.alias.background.inverse": string
-  /** Primary interactive color */
-  "color.alias.interactive.primary": string
-  /** Hover state */
-  "color.alias.interactive.hover": string
-  /** Active state */
-  "color.alias.interactive.active": string
-  "color.alias.success": string
-  "color.alias.warning": string
-  "color.alias.danger": string
-  "color.alias.info": string
+  "color.alias.background.inverse": ColorValueObject
+  /** Primary background */
+  "color.alias.background.primary": ColorValueObject
+  /** Secondary background */
+  "color.alias.background.secondary": ColorValueObject
+  /** Tertiary background */
+  "color.alias.background.tertiary": ColorValueObject
   /** Default border color */
-  "color.alias.border.default": string
+  "color.alias.border.default": ColorValueObject
   /** Prominent border */
-  "color.alias.border.strong": string
+  "color.alias.border.strong": ColorValueObject
   /** Subtle border */
-  "color.alias.border.subtle": string
-  "color.button.primary.background": string
-  "color.button.primary.background.hover": string
-  "color.button.primary.background.active": string
-  "color.button.primary.text": string
-  "color.button.secondary.background": string
-  "color.button.secondary.border": string
-  "color.button.secondary.text": string
-  "color.input.background": string
-  "color.input.border": string
-  "color.input.border.focus": string
-  "color.input.text": string
-  "color.input.placeholder": string
-  "color.card.background": string
-  "color.card.border": string
-  "spacing.base.0": string
-  /** 4px */
-  "spacing.base.1": string
-  /** 8px */
-  "spacing.base.2": string
-  /** 12px */
-  "spacing.base.3": string
-  /** 16px */
-  "spacing.base.4": string
-  /** 24px */
-  "spacing.base.6": string
-  /** 32px */
-  "spacing.base.8": string
-  /** 48px */
-  "spacing.base.12": string
-  /** 64px */
-  "spacing.base.16": string
-  /** 80px */
-  "spacing.base.20": string
-  "spacing.alias.xs": string
-  "spacing.alias.sm": string
-  "spacing.alias.md": string
-  "spacing.alias.lg": string
-  "spacing.alias.xl": string
-  "spacing.button.primary.padding": string
-  "spacing.button.secondary.padding": string
-  "spacing.input.padding": string
-  "spacing.card.padding": string
-  "spacing.card.radius": string
-  "size.base.xs": string
-  "size.base.sm": string
-  "size.base.md": string
-  "size.base.lg": string
-  "size.base.xl": string
-  "size.base.2xl": string
-  "border.base.width.thin": string
-  "border.base.width.medium": string
-  "border.base.width.thick": string
-  "border.base.radius.none": string
-  "border.base.radius.sm": string
-  "border.base.radius.md": string
-  "border.base.radius.lg": string
-  "border.base.radius.xl": string
-  "border.base.radius.full": string
-  /** Sans-serif font stack for UI */
-  "font.base.family.sans": string
-  /** Serif font stack for content */
-  "font.base.family.serif": string
-  /** Monospace font stack for code */
-  "font.base.family.mono": string
-  /** Display font for headings */
-  "font.base.family.display": string
-  /** 12px */
-  "font.base.size.xs": string
-  /** 14px */
-  "font.base.size.sm": string
-  /** 16px */
-  "font.base.size.base": string
-  /** 18px */
-  "font.base.size.lg": string
-  /** 20px */
-  "font.base.size.xl": string
-  /** 24px */
-  "font.base.size.2xl": string
-  /** 30px */
-  "font.base.size.3xl": string
-  /** 36px */
-  "font.base.size.4xl": string
-  /** 48px */
-  "font.base.size.5xl": string
-  "font.base.weight.thin": string | number
-  "font.base.weight.light": string | number
-  "font.base.weight.normal": string | number
-  "font.base.weight.medium": string | number
-  "font.base.weight.semibold": string | number
-  "font.base.weight.bold": string | number
-  "font.base.weight.extrabold": string | number
-  "font.base.weight.black": string | number
-  "number.base.lineHeight.tight": number
-  "number.base.lineHeight.normal": number
-  "number.base.lineHeight.loose": number
-  /** No shadow */
-  "shadow.base.none": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "shadow.base.sm": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "shadow.base.md": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "shadow.base.lg": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "shadow.base.xl": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "shadow.card.shadow": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  "duration.base.instant": string
-  "duration.base.fast": string
-  "duration.base.normal": string
-  "duration.base.slow": string
-  "duration.base.slower": string
-  "easing.base.linear": [number, number, number, number]
+  "color.alias.border.subtle": ColorValueObject
+  "color.alias.danger": ColorValueObject
+  "color.alias.info": ColorValueObject
+  /** Active state */
+  "color.alias.interactive.active": ColorValueObject
+  /** Hover state */
+  "color.alias.interactive.hover": ColorValueObject
+  /** Primary interactive color */
+  "color.alias.interactive.primary": ColorValueObject
+  "color.alias.success": ColorValueObject
+  /** Inverse text (on dark backgrounds) */
+  "color.alias.text.inverse": ColorValueObject
+  /** Primary text color */
+  "color.alias.text.primary": ColorValueObject
+  /** Secondary text color */
+  "color.alias.text.secondary": ColorValueObject
+  /** Tertiary text color */
+  "color.alias.text.tertiary": ColorValueObject
+  "color.alias.warning": ColorValueObject
+  "color.base.black": ColorValueObject
+  "color.base.blackAlpha": ColorValueObject
+  /** Accent orange */
+  "color.base.brand.accent": ColorValueObject
+  /** Primary brand blue */
+  "color.base.brand.primary": ColorValueObject
+  /** Secondary brand purple */
+  "color.base.brand.secondary": ColorValueObject
+  /** Brighter hover for dark background */
+  "color.base.dark.interactive.hover": ColorValueObject
+  /** Brighter blue for dark background */
+  "color.base.dark.interactive.primary": ColorValueObject
+  /** Cyan in Adobe RGB (1998) */
+  "color.base.extended.adobeCyan": ColorValueObject
+  /** HDR green for Rec. 2020 color space */
+  "color.base.extended.hdrGreen": ColorValueObject
+  /** Magenta in ProPhoto RGB */
+  "color.base.extended.prophotoMagenta": ColorValueObject
+  /** Vibrant blue in Display P3 for wider gamut displays */
+  "color.base.extended.vibrantBlueP3": ColorValueObject
+  "color.base.gray.100": ColorValueObject
+  "color.base.gray.200": ColorValueObject
+  "color.base.gray.300": ColorValueObject
+  "color.base.gray.400": ColorValueObject
+  /** Lightest gray */
+  "color.base.gray.50": ColorValueObject
+  "color.base.gray.500": ColorValueObject
+  "color.base.gray.600": ColorValueObject
+  "color.base.gray.700": ColorValueObject
+  "color.base.gray.800": ColorValueObject
+  /** Darkest gray */
+  "color.base.gray.900": ColorValueObject
+  /** Active state */
+  "color.base.interactive.active": ColorValueObject
+  /** Hover state */
+  "color.base.interactive.hover": ColorValueObject
+  /** Danger red */
+  "color.base.semantic.danger": ColorValueObject
+  /** Info blue */
+  "color.base.semantic.info": ColorValueObject
+  /** Success green */
+  "color.base.semantic.success": ColorValueObject
+  /** Warning amber */
+  "color.base.semantic.warning": ColorValueObject
+  "color.base.white": ColorValueObject
+  "color.base.whiteAlpha": ColorValueObject
+  "color.button.primary.background": ColorValueObject
+  "color.button.primary.background.active": ColorValueObject
+  "color.button.primary.background.hover": ColorValueObject
+  "color.button.primary.text": ColorValueObject
+  "color.button.secondary.background": ColorValueObject
+  "color.button.secondary.border": ColorValueObject
+  "color.button.secondary.text": ColorValueObject
+  "color.card.background": ColorValueObject
+  "color.card.border": ColorValueObject
+  "color.input.background": ColorValueObject
+  "color.input.border": ColorValueObject
+  "color.input.border.focus": ColorValueObject
+  "color.input.placeholder": ColorValueObject
+  "color.input.text": ColorValueObject
+  "duration.base.fast": DurationValue
+  "duration.base.instant": DurationValue
+  "duration.base.normal": DurationValue
+  "duration.base.slow": DurationValue
+  "duration.base.slower": DurationValue
   "easing.base.ease": [number, number, number, number]
   "easing.base.easeIn": [number, number, number, number]
-  "easing.base.easeOut": [number, number, number, number]
   "easing.base.easeInOut": [number, number, number, number]
+  "easing.base.easeOut": [number, number, number, number]
+  "easing.base.linear": [number, number, number, number]
   "easing.base.spring": [number, number, number, number]
-  "typography.alias.heading.xl.family": string
-  "typography.alias.heading.xl.size": string
-  "typography.alias.heading.xl.weight": string | number
-  "typography.alias.heading.lg.family": string
-  "typography.alias.heading.lg.size": string
-  "typography.alias.heading.lg.weight": string | number
-  "typography.alias.heading.md.family": string
-  "typography.alias.heading.md.size": string
-  "typography.alias.heading.md.weight": string | number
-  "typography.alias.body.lg.family": string
-  "typography.alias.body.lg.size": string
-  "typography.alias.body.lg.weight": string | number
-  "typography.alias.body.md.family": string
-  "typography.alias.body.md.size": string
-  "typography.alias.body.md.weight": string | number
-  "typography.alias.body.sm.family": string
-  "typography.alias.body.sm.size": string
-  "typography.alias.body.sm.weight": string | number
+  /** Display font for headings */
+  "font.base.family.display": FontFamilyValue
+  /** Monospace font stack for code */
+  "font.base.family.mono": FontFamilyValue
+  /** Sans-serif font stack for UI */
+  "font.base.family.sans": FontFamilyValue
+  /** Serif font stack for content */
+  "font.base.family.serif": FontFamilyValue
+  /** 24px */
+  "font.base.size.2xl": DimensionValue
+  /** 30px */
+  "font.base.size.3xl": DimensionValue
+  /** 36px */
+  "font.base.size.4xl": DimensionValue
+  /** 48px */
+  "font.base.size.5xl": DimensionValue
+  /** 16px */
+  "font.base.size.base": DimensionValue
+  /** 18px */
+  "font.base.size.lg": DimensionValue
+  /** 14px */
+  "font.base.size.sm": DimensionValue
+  /** 20px */
+  "font.base.size.xl": DimensionValue
+  /** 12px */
+  "font.base.size.xs": DimensionValue
+  "font.base.weight.black": FontWeightValue
+  "font.base.weight.bold": FontWeightValue
+  "font.base.weight.extrabold": FontWeightValue
+  "font.base.weight.light": FontWeightValue
+  "font.base.weight.medium": FontWeightValue
+  "font.base.weight.normal": FontWeightValue
+  "font.base.weight.semibold": FontWeightValue
+  "font.base.weight.thin": FontWeightValue
+  "number.base.lineHeight.loose": number
+  "number.base.lineHeight.normal": number
+  "number.base.lineHeight.tight": number
+  "shadow.base.lg": ShadowValue
+  "shadow.base.md": ShadowValue
+  /** No shadow */
+  "shadow.base.none": ShadowValue
+  "shadow.base.sm": ShadowValue
+  "shadow.base.xl": ShadowValue
+  "shadow.card.shadow": ShadowValue
+  "size.base.2xl": DimensionValue
+  "size.base.lg": DimensionValue
+  "size.base.md": DimensionValue
+  "size.base.sm": DimensionValue
+  "size.base.xl": DimensionValue
+  "size.base.xs": DimensionValue
+  "spacing.alias.lg": DimensionValue
+  "spacing.alias.md": DimensionValue
+  "spacing.alias.sm": DimensionValue
+  "spacing.alias.xl": DimensionValue
+  "spacing.alias.xs": DimensionValue
+  "spacing.base.0": DimensionValue
+  /** 4px */
+  "spacing.base.1": DimensionValue
+  /** 48px */
+  "spacing.base.12": DimensionValue
+  /** 64px */
+  "spacing.base.16": DimensionValue
+  /** 8px */
+  "spacing.base.2": DimensionValue
+  /** 80px */
+  "spacing.base.20": DimensionValue
+  /** 12px */
+  "spacing.base.3": DimensionValue
+  /** 16px */
+  "spacing.base.4": DimensionValue
+  /** 24px */
+  "spacing.base.6": DimensionValue
+  /** 32px */
+  "spacing.base.8": DimensionValue
+  "spacing.button.primary.padding": DimensionValue
+  "spacing.button.secondary.padding": DimensionValue
+  "spacing.card.padding": DimensionValue
+  "spacing.card.radius": DimensionValue
+  "spacing.input.padding": DimensionValue
+  "typography.alias.body.lg.family": FontFamilyValue
+  "typography.alias.body.lg.size": DimensionValue
+  "typography.alias.body.lg.weight": FontWeightValue
+  "typography.alias.body.md.family": FontFamilyValue
+  "typography.alias.body.md.size": DimensionValue
+  "typography.alias.body.md.weight": FontWeightValue
+  "typography.alias.body.sm.family": FontFamilyValue
+  "typography.alias.body.sm.size": DimensionValue
+  "typography.alias.body.sm.weight": FontWeightValue
+  "typography.alias.heading.lg.family": FontFamilyValue
+  "typography.alias.heading.lg.size": DimensionValue
+  "typography.alias.heading.lg.weight": FontWeightValue
+  "typography.alias.heading.md.family": FontFamilyValue
+  "typography.alias.heading.md.size": DimensionValue
+  "typography.alias.heading.md.weight": FontWeightValue
+  "typography.alias.heading.xl.family": FontFamilyValue
+  "typography.alias.heading.xl.size": DimensionValue
+  "typography.alias.heading.xl.weight": FontWeightValue
 }
 
 export type EnterpriseDesignSystem = {
-  color: {
+  border: {
     base: {
-      brand: {
-        /** Primary brand blue */
-        primary: string
-        /** Secondary brand purple */
-        secondary: string
-        /** Accent orange */
-        accent: string
+      radius: {
+        full: DimensionValue
+        lg: DimensionValue
+        md: DimensionValue
+        none: DimensionValue
+        sm: DimensionValue
+        xl: DimensionValue
       }
-      semantic: {
-        /** Success green */
-        success: string
-        /** Warning amber */
-        warning: string
-        /** Danger red */
-        danger: string
-        /** Info blue */
-        info: string
+      width: {
+        medium: DimensionValue
+        thick: DimensionValue
+        thin: DimensionValue
       }
+    }
+  }
+  color: {
+    alias: {
+      background: {
+        /** Inverse background (dark) */
+        inverse: ColorValueObject
+        /** Primary background */
+        primary: ColorValueObject
+        /** Secondary background */
+        secondary: ColorValueObject
+        /** Tertiary background */
+        tertiary: ColorValueObject
+      }
+      border: {
+        /** Default border color */
+        default: ColorValueObject
+        /** Prominent border */
+        strong: ColorValueObject
+        /** Subtle border */
+        subtle: ColorValueObject
+      }
+      danger: ColorValueObject
+      info: ColorValueObject
       interactive: {
-        /** Hover state */
-        hover: string
         /** Active state */
-        active: string
+        active: ColorValueObject
+        /** Hover state */
+        hover: ColorValueObject
+        /** Primary interactive color */
+        primary: ColorValueObject
+      }
+      success: ColorValueObject
+      text: {
+        /** Inverse text (on dark backgrounds) */
+        inverse: ColorValueObject
+        /** Primary text color */
+        primary: ColorValueObject
+        /** Secondary text color */
+        secondary: ColorValueObject
+        /** Tertiary text color */
+        tertiary: ColorValueObject
+      }
+      warning: ColorValueObject
+    }
+    base: {
+      black: ColorValueObject
+      blackAlpha: ColorValueObject
+      brand: {
+        /** Accent orange */
+        accent: ColorValueObject
+        /** Primary brand blue */
+        primary: ColorValueObject
+        /** Secondary brand purple */
+        secondary: ColorValueObject
       }
       dark: {
         interactive: {
-          /** Brighter blue for dark background */
-          primary: string
           /** Brighter hover for dark background */
-          hover: string
+          hover: ColorValueObject
+          /** Brighter blue for dark background */
+          primary: ColorValueObject
         }
       }
       extended: {
-        /** Vibrant blue in Display P3 for wider gamut displays */
-        vibrantBlueP3: string
-        /** HDR green for Rec. 2020 color space */
-        hdrGreen: string
-        /** Magenta in ProPhoto RGB */
-        prophotoMagenta: string
         /** Cyan in Adobe RGB (1998) */
-        adobeCyan: string
+        adobeCyan: ColorValueObject
+        /** HDR green for Rec. 2020 color space */
+        hdrGreen: ColorValueObject
+        /** Magenta in ProPhoto RGB */
+        prophotoMagenta: ColorValueObject
+        /** Vibrant blue in Display P3 for wider gamut displays */
+        vibrantBlueP3: ColorValueObject
       }
       gray: {
+        "100": ColorValueObject
+        "200": ColorValueObject
+        "300": ColorValueObject
+        "400": ColorValueObject
         /** Lightest gray */
-        "50": string
-        "100": string
-        "200": string
-        "300": string
-        "400": string
-        "500": string
-        "600": string
-        "700": string
-        "800": string
+        "50": ColorValueObject
+        "500": ColorValueObject
+        "600": ColorValueObject
+        "700": ColorValueObject
+        "800": ColorValueObject
         /** Darkest gray */
-        "900": string
-      }
-      white: string
-      whiteAlpha: string
-      black: string
-      blackAlpha: string
-    }
-    alias: {
-      text: {
-        /** Primary text color */
-        primary: string
-        /** Secondary text color */
-        secondary: string
-        /** Tertiary text color */
-        tertiary: string
-        /** Inverse text (on dark backgrounds) */
-        inverse: string
-      }
-      background: {
-        /** Primary background */
-        primary: string
-        /** Secondary background */
-        secondary: string
-        /** Tertiary background */
-        tertiary: string
-        /** Inverse background (dark) */
-        inverse: string
+        "900": ColorValueObject
       }
       interactive: {
-        /** Primary interactive color */
-        primary: string
-        /** Hover state */
-        hover: string
         /** Active state */
-        active: string
+        active: ColorValueObject
+        /** Hover state */
+        hover: ColorValueObject
       }
-      success: string
-      warning: string
-      danger: string
-      info: string
-      border: {
-        /** Default border color */
-        default: string
-        /** Prominent border */
-        strong: string
-        /** Subtle border */
-        subtle: string
+      semantic: {
+        /** Danger red */
+        danger: ColorValueObject
+        /** Info blue */
+        info: ColorValueObject
+        /** Success green */
+        success: ColorValueObject
+        /** Warning amber */
+        warning: ColorValueObject
       }
+      white: ColorValueObject
+      whiteAlpha: ColorValueObject
     }
     button: {
       primary: {
-        background: string
-        text: string
+        background: ColorValueObject
+        text: ColorValueObject
       }
       secondary: {
-        background: string
-        border: string
-        text: string
+        background: ColorValueObject
+        border: ColorValueObject
+        text: ColorValueObject
       }
-    }
-    input: {
-      background: string
-      border: string
-      text: string
-      placeholder: string
     }
     card: {
-      background: string
-      border: string
-    }
-  }
-  spacing: {
-    base: {
-      "0": string
-      /** 4px */
-      "1": string
-      /** 8px */
-      "2": string
-      /** 12px */
-      "3": string
-      /** 16px */
-      "4": string
-      /** 24px */
-      "6": string
-      /** 32px */
-      "8": string
-      /** 48px */
-      "12": string
-      /** 64px */
-      "16": string
-      /** 80px */
-      "20": string
-    }
-    alias: {
-      xs: string
-      sm: string
-      md: string
-      lg: string
-      xl: string
-    }
-    button: {
-      primary: {
-        padding: string
-      }
-      secondary: {
-        padding: string
-      }
+      background: ColorValueObject
+      border: ColorValueObject
     }
     input: {
-      padding: string
-    }
-    card: {
-      padding: string
-      radius: string
-    }
-  }
-  size: {
-    base: {
-      xs: string
-      sm: string
-      md: string
-      lg: string
-      xl: string
-      "2xl": string
+      background: ColorValueObject
+      border: ColorValueObject
+      placeholder: ColorValueObject
+      text: ColorValueObject
     }
   }
-  border: {
+  duration: {
     base: {
-      width: {
-        thin: string
-        medium: string
-        thick: string
-      }
-      radius: {
-        none: string
-        sm: string
-        md: string
-        lg: string
-        xl: string
-        full: string
-      }
+      fast: DurationValue
+      instant: DurationValue
+      normal: DurationValue
+      slow: DurationValue
+      slower: DurationValue
+    }
+  }
+  easing: {
+    base: {
+      ease: [number, number, number, number]
+      easeIn: [number, number, number, number]
+      easeInOut: [number, number, number, number]
+      easeOut: [number, number, number, number]
+      linear: [number, number, number, number]
+      spring: [number, number, number, number]
     }
   }
   font: {
     base: {
       family: {
-        /** Sans-serif font stack for UI */
-        sans: string
-        /** Serif font stack for content */
-        serif: string
-        /** Monospace font stack for code */
-        mono: string
         /** Display font for headings */
-        display: string
+        display: FontFamilyValue
+        /** Monospace font stack for code */
+        mono: FontFamilyValue
+        /** Sans-serif font stack for UI */
+        sans: FontFamilyValue
+        /** Serif font stack for content */
+        serif: FontFamilyValue
       }
       size: {
-        /** 12px */
-        xs: string
-        /** 14px */
-        sm: string
-        /** 16px */
-        base: string
-        /** 18px */
-        lg: string
-        /** 20px */
-        xl: string
         /** 24px */
-        "2xl": string
+        "2xl": DimensionValue
         /** 30px */
-        "3xl": string
+        "3xl": DimensionValue
         /** 36px */
-        "4xl": string
+        "4xl": DimensionValue
         /** 48px */
-        "5xl": string
+        "5xl": DimensionValue
+        /** 16px */
+        base: DimensionValue
+        /** 18px */
+        lg: DimensionValue
+        /** 14px */
+        sm: DimensionValue
+        /** 20px */
+        xl: DimensionValue
+        /** 12px */
+        xs: DimensionValue
       }
       weight: {
-        thin: string | number
-        light: string | number
-        normal: string | number
-        medium: string | number
-        semibold: string | number
-        bold: string | number
-        extrabold: string | number
-        black: string | number
+        black: FontWeightValue
+        bold: FontWeightValue
+        extrabold: FontWeightValue
+        light: FontWeightValue
+        medium: FontWeightValue
+        normal: FontWeightValue
+        semibold: FontWeightValue
+        thin: FontWeightValue
       }
     }
   }
   number: {
     base: {
       lineHeight: {
-        tight: number
-        normal: number
         loose: number
+        normal: number
+        tight: number
       }
     }
   }
   shadow: {
     base: {
+      lg: ShadowValue
+      md: ShadowValue
       /** No shadow */
-      none: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      sm: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      md: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      lg: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      xl: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+      none: ShadowValue
+      sm: ShadowValue
+      xl: ShadowValue
     }
     card: {
-      shadow: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+      shadow: ShadowValue
     }
   }
-  duration: {
+  size: {
     base: {
-      instant: string
-      fast: string
-      normal: string
-      slow: string
-      slower: string
+      "2xl": DimensionValue
+      lg: DimensionValue
+      md: DimensionValue
+      sm: DimensionValue
+      xl: DimensionValue
+      xs: DimensionValue
     }
   }
-  easing: {
+  spacing: {
+    alias: {
+      lg: DimensionValue
+      md: DimensionValue
+      sm: DimensionValue
+      xl: DimensionValue
+      xs: DimensionValue
+    }
     base: {
-      linear: [number, number, number, number]
-      ease: [number, number, number, number]
-      easeIn: [number, number, number, number]
-      easeOut: [number, number, number, number]
-      easeInOut: [number, number, number, number]
-      spring: [number, number, number, number]
+      "0": DimensionValue
+      /** 4px */
+      "1": DimensionValue
+      /** 48px */
+      "12": DimensionValue
+      /** 64px */
+      "16": DimensionValue
+      /** 8px */
+      "2": DimensionValue
+      /** 80px */
+      "20": DimensionValue
+      /** 12px */
+      "3": DimensionValue
+      /** 16px */
+      "4": DimensionValue
+      /** 24px */
+      "6": DimensionValue
+      /** 32px */
+      "8": DimensionValue
+    }
+    button: {
+      primary: {
+        padding: DimensionValue
+      }
+      secondary: {
+        padding: DimensionValue
+      }
+    }
+    card: {
+      padding: DimensionValue
+      radius: DimensionValue
+    }
+    input: {
+      padding: DimensionValue
     }
   }
   typography: {
     alias: {
-      heading: {
-        xl: {
-          family: string
-          size: string
-          weight: string | number
-        }
-        lg: {
-          family: string
-          size: string
-          weight: string | number
-        }
-        md: {
-          family: string
-          size: string
-          weight: string | number
-        }
-      }
       body: {
         lg: {
-          family: string
-          size: string
-          weight: string | number
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
         }
         md: {
-          family: string
-          size: string
-          weight: string | number
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
         }
         sm: {
-          family: string
-          size: string
-          weight: string | number
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
+        }
+      }
+      heading: {
+        lg: {
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
+        }
+        md: {
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
+        }
+        xl: {
+          family: FontFamilyValue
+          size: DimensionValue
+          weight: FontWeightValue
         }
       }
     }
@@ -621244,858 +621246,860 @@ exports[`multi-format > should produce expected file structure and content 1`] =
   --color-alias-text-muted: var(--color-base-gray-700);
 }
 ",
-  "tokens.d.ts": "export type TokenName =
-  | "color.base.blue"
-  | "color.base.blueSrgb"
-  | "color.base.blueP3"
-  | "color.base.blueAlpha"
-  | "color.base.purple"
-  | "color.base.green"
-  | "color.base.greenRec2020"
-  | "color.base.red"
-  | "color.base.orange"
-  | "color.base.gray.50"
-  | "color.base.gray.100"
-  | "color.base.gray.200"
-  | "color.base.gray.500"
-  | "color.base.gray.700"
-  | "color.base.gray.900"
-  | "color.base.white"
-  | "color.base.whiteAlpha"
-  | "color.base.black"
-  | "color.base.blackAlpha"
-  | "color.base.vibrantBlueP3"
-  | "color.base.hdrGreen"
-  | "color.base.prophotoColor"
-  | "color.base.adobeRgbColor"
-  | "color.base.legacySrgbWithAlpha"
-  | "color.base.hover.primary"
-  | "color.base.subtle.primary"
-  | "color.base.warning"
-  | "color.base.overlay"
-  | "color.base.dark.background"
-  | "color.base.dark.surface"
-  | "color.base.dark.text"
-  | "color.base.dark.textMuted"
-  | "color.base.dark.primary"
-  | "color.base.dark.primaryHover"
-  | "color.base.dark.primarySubtle"
-  | "color.base.dark.success"
-  | "color.base.dark.danger"
-  | "color.base.dark.warning"
-  | "color.base.dark.border"
-  | "color.base.dark.borderStrong"
-  | "color.base.dark.overlay"
-  | "color.base.dark.glassmorphism"
-  | "color.base.highContrast.surface"
-  | "color.base.highContrast.textMuted"
-  | "color.base.highContrast.primary"
-  | "color.base.highContrast.primaryHover"
-  | "color.base.highContrast.primarySubtle"
-  | "color.base.highContrast.success"
-  | "color.base.highContrast.danger"
-  | "color.base.highContrast.warning"
-  | "color.base.highContrast.info"
-  | "color.base.highContrast.border"
-  | "color.base.highContrast.focus"
-  | "color.base.highContrast.overlay"
+  "tokens.d.ts": "import type { ColorValueObject, DimensionValue, DurationValue, FontFamilyValue, FontWeightValue, ShadowValue } from 'dispersa'
+
+export type TokenName =
+  | "borderWidth.alias.default"
+  | "borderWidth.alias.strong"
+  | "borderWidth.base.hairline"
+  | "borderWidth.base.thick"
+  | "borderWidth.base.thin"
   | "color.alias.background"
-  | "color.alias.surface"
-  | "color.alias.text"
-  | "color.alias.text-muted"
+  | "color.alias.border"
+  | "color.alias.border-strong"
+  | "color.alias.danger"
+  | "color.alias.focus"
+  | "color.alias.glassmorphism"
+  | "color.alias.info"
+  | "color.alias.overlay"
+  | "color.alias.overlay-strong"
   | "color.alias.primary"
   | "color.alias.primary-hover"
   | "color.alias.primary-subtle"
   | "color.alias.success"
-  | "color.alias.danger"
+  | "color.alias.surface"
+  | "color.alias.text"
+  | "color.alias.text-muted"
   | "color.alias.warning"
-  | "color.alias.info"
-  | "color.alias.border"
-  | "color.alias.border-strong"
-  | "color.alias.focus"
-  | "color.alias.overlay"
-  | "color.alias.overlay-strong"
-  | "color.alias.glassmorphism"
+  | "color.base.adobeRgbColor"
+  | "color.base.black"
+  | "color.base.blackAlpha"
+  | "color.base.blue"
+  | "color.base.blueAlpha"
+  | "color.base.blueP3"
+  | "color.base.blueSrgb"
+  | "color.base.dark.background"
+  | "color.base.dark.border"
+  | "color.base.dark.borderStrong"
+  | "color.base.dark.danger"
+  | "color.base.dark.glassmorphism"
+  | "color.base.dark.overlay"
+  | "color.base.dark.primary"
+  | "color.base.dark.primaryHover"
+  | "color.base.dark.primarySubtle"
+  | "color.base.dark.success"
+  | "color.base.dark.surface"
+  | "color.base.dark.text"
+  | "color.base.dark.textMuted"
+  | "color.base.dark.warning"
+  | "color.base.gray.100"
+  | "color.base.gray.200"
+  | "color.base.gray.50"
+  | "color.base.gray.500"
+  | "color.base.gray.700"
+  | "color.base.gray.900"
+  | "color.base.green"
+  | "color.base.greenRec2020"
+  | "color.base.hdrGreen"
+  | "color.base.highContrast.border"
+  | "color.base.highContrast.danger"
+  | "color.base.highContrast.focus"
+  | "color.base.highContrast.info"
+  | "color.base.highContrast.overlay"
+  | "color.base.highContrast.primary"
+  | "color.base.highContrast.primaryHover"
+  | "color.base.highContrast.primarySubtle"
+  | "color.base.highContrast.success"
+  | "color.base.highContrast.surface"
+  | "color.base.highContrast.textMuted"
+  | "color.base.highContrast.warning"
+  | "color.base.hover.primary"
+  | "color.base.legacySrgbWithAlpha"
+  | "color.base.orange"
+  | "color.base.overlay"
+  | "color.base.prophotoColor"
+  | "color.base.purple"
+  | "color.base.red"
+  | "color.base.subtle.primary"
+  | "color.base.vibrantBlueP3"
+  | "color.base.warning"
+  | "color.base.white"
+  | "color.base.whiteAlpha"
   | "color.button.primary.background"
   | "color.button.primary.background.hover"
   | "color.button.primary.text"
   | "color.card.background"
   | "color.card.border"
+  | "duration.fast"
+  | "duration.instant"
+  | "duration.normal"
+  | "duration.slow"
+  | "duration.slower"
+  | "easing.ease"
+  | "easing.easeIn"
+  | "easing.easeInOut"
+  | "easing.easeOut"
+  | "easing.linear"
+  | "easing.smooth"
+  | "easing.spring"
+  | "font.family.mono"
+  | "font.family.sans"
+  | "font.family.serif"
+  | "font.letterSpacing.normal"
+  | "font.letterSpacing.tight"
+  | "font.letterSpacing.wide"
+  | "font.letterSpacing.wider"
+  | "font.size.2xl"
+  | "font.size.3xl"
+  | "font.size.4xl"
+  | "font.size.5xl"
+  | "font.size.base"
+  | "font.size.lg"
+  | "font.size.sm"
+  | "font.size.xl"
+  | "font.size.xs"
+  | "font.weight.bold"
+  | "font.weight.extrabold"
+  | "font.weight.light"
+  | "font.weight.medium"
+  | "font.weight.normal"
+  | "font.weight.semibold"
+  | "number.lineHeight.loose"
+  | "number.lineHeight.normal"
+  | "number.lineHeight.tight"
+  | "number.opacity.full"
+  | "number.opacity.light"
+  | "number.opacity.medium"
+  | "number.opacity.strong"
+  | "number.opacity.subtle"
+  | "number.scale.large"
+  | "number.scale.normal"
+  | "number.scale.small"
+  | "radius.alias.control"
+  | "radius.alias.surface"
+  | "radius.base.lg"
+  | "radius.base.md"
+  | "radius.base.none"
+  | "radius.base.sm"
+  | "radius.base.xl"
+  | "shadow.advanced.accent"
+  | "shadow.advanced.base"
+  | "shadow.card.shadow"
+  | "shadow.dark.focus"
+  | "shadow.dark.md"
+  | "shadow.focus"
+  | "shadow.highContrast.focus"
+  | "shadow.highContrast.md"
+  | "shadow.inner"
+  | "shadow.lg"
+  | "shadow.md"
+  | "shadow.sm"
+  | "shadow.xl"
+  | "spacing.alias.large"
+  | "spacing.alias.medium"
+  | "spacing.alias.small"
   | "spacing.base.0"
   | "spacing.base.1"
+  | "spacing.base.12"
+  | "spacing.base.16"
   | "spacing.base.2"
   | "spacing.base.3"
   | "spacing.base.4"
   | "spacing.base.6"
   | "spacing.base.8"
-  | "spacing.base.12"
-  | "spacing.base.16"
-  | "spacing.alias.small"
-  | "spacing.alias.medium"
-  | "spacing.alias.large"
   | "spacing.button.primary.padding"
   | "spacing.card.padding"
-  | "radius.base.none"
-  | "radius.base.sm"
-  | "radius.base.md"
-  | "radius.base.lg"
-  | "radius.base.xl"
-  | "radius.alias.control"
-  | "radius.alias.surface"
-  | "borderWidth.base.hairline"
-  | "borderWidth.base.thin"
-  | "borderWidth.base.thick"
-  | "borderWidth.alias.default"
-  | "borderWidth.alias.strong"
-  | "number.scale.small"
-  | "number.scale.normal"
-  | "number.scale.large"
-  | "number.lineHeight.tight"
-  | "number.lineHeight.normal"
-  | "number.lineHeight.loose"
-  | "number.opacity.subtle"
-  | "number.opacity.light"
-  | "number.opacity.medium"
-  | "number.opacity.strong"
-  | "number.opacity.full"
-  | "duration.instant"
-  | "duration.fast"
-  | "duration.normal"
-  | "duration.slow"
-  | "duration.slower"
-  | "easing.linear"
-  | "easing.ease"
-  | "easing.easeIn"
-  | "easing.easeOut"
-  | "easing.easeInOut"
-  | "easing.spring"
-  | "easing.smooth"
-  | "font.family.sans"
-  | "font.family.serif"
-  | "font.family.mono"
-  | "font.size.xs"
-  | "font.size.sm"
-  | "font.size.base"
-  | "font.size.lg"
-  | "font.size.xl"
-  | "font.size.2xl"
-  | "font.size.3xl"
-  | "font.size.4xl"
-  | "font.size.5xl"
-  | "font.weight.light"
-  | "font.weight.normal"
-  | "font.weight.medium"
-  | "font.weight.semibold"
-  | "font.weight.bold"
-  | "font.weight.extrabold"
-  | "font.letterSpacing.tight"
-  | "font.letterSpacing.normal"
-  | "font.letterSpacing.wide"
-  | "font.letterSpacing.wider"
-  | "shadow.sm"
-  | "shadow.md"
-  | "shadow.lg"
-  | "shadow.xl"
-  | "shadow.inner"
-  | "shadow.focus"
-  | "shadow.advanced.base"
-  | "shadow.advanced.accent"
-  | "shadow.dark.md"
-  | "shadow.dark.focus"
-  | "shadow.highContrast.md"
-  | "shadow.highContrast.focus"
-  | "shadow.card.shadow"
 
 export type DesignTokensValues = {
-  /** Primary brand blue */
-  "color.base.blue": string
-  /** Blue in sRGB color space with explicit components */
-  "color.base.blueSrgb": string
-  /** Blue in Display P3 color space for wider gamut */
-  "color.base.blueP3": string
-  /** Blue with alpha channel */
-  "color.base.blueAlpha": string
-  /** Purple accent color */
-  "color.base.purple": string
-  /** Success green */
-  "color.base.green": string
-  /** Green in Rec. 2020 color space for HDR */
-  "color.base.greenRec2020": string
-  /** Danger red */
-  "color.base.red": string
-  /** Orange in sRGB */
-  "color.base.orange": string
-  /** Lightest gray */
-  "color.base.gray.50": string
-  "color.base.gray.100": string
-  /** Gray 200 using sRGB components */
-  "color.base.gray.200": string
-  "color.base.gray.500": string
-  "color.base.gray.700": string
-  /** Darkest gray */
-  "color.base.gray.900": string
-  /** Pure white */
-  "color.base.white": string
-  /** Semi-transparent white */
-  "color.base.whiteAlpha": string
-  /** Pure black */
-  "color.base.black": string
-  /** Semi-transparent black */
-  "color.base.blackAlpha": string
-  /** Vibrant blue in P3 color space */
-  "color.base.vibrantBlueP3": string
-  /** HDR green for wide gamut displays */
-  "color.base.hdrGreen": string
-  /** Color in ProPhoto RGB color space for wide gamut */
-  "color.base.prophotoColor": string
-  /** Color in Adobe RGB (1998) color space with alpha */
-  "color.base.adobeRgbColor": string
-  /** Legacy rgba() format */
-  "color.base.legacySrgbWithAlpha": string
-  /** Primary hover state - slightly darker */
-  "color.base.hover.primary": string
-  /** Subtle primary with low opacity */
-  "color.base.subtle.primary": string
-  /** Warning/alert color */
-  "color.base.warning": string
-  /** Overlay/backdrop color with alpha */
-  "color.base.overlay": string
-  /** Dark theme background */
-  "color.base.dark.background": string
-  /** Dark theme surface */
-  "color.base.dark.surface": string
-  /** Dark theme text */
-  "color.base.dark.text": string
-  /** Dark theme muted text */
-  "color.base.dark.textMuted": string
-  /** Bright blue for dark backgrounds */
-  "color.base.dark.primary": string
-  /** Bright blue hover for dark backgrounds */
-  "color.base.dark.primaryHover": string
-  /** Subtle primary for dark theme */
-  "color.base.dark.primarySubtle": string
-  /** Bright green for dark backgrounds */
-  "color.base.dark.success": string
-  /** Soft red for dark backgrounds */
-  "color.base.dark.danger": string
-  /** Bright yellow for dark backgrounds */
-  "color.base.dark.warning": string
-  /** Dark theme border */
-  "color.base.dark.border": string
-  /** Dark theme strong border */
-  "color.base.dark.borderStrong": string
-  /** Dark theme overlay */
-  "color.base.dark.overlay": string
-  /** Dark glass effect */
-  "color.base.dark.glassmorphism": string
-  /** High contrast surface */
-  "color.base.highContrast.surface": string
-  /** High contrast muted text */
-  "color.base.highContrast.textMuted": string
-  /** High contrast primary - bright cyan */
-  "color.base.highContrast.primary": string
-  /** High contrast primary hover */
-  "color.base.highContrast.primaryHover": string
-  /** High contrast subtle primary */
-  "color.base.highContrast.primarySubtle": string
-  /** Pure green for high contrast */
-  "color.base.highContrast.success": string
-  /** Pure red for high contrast */
-  "color.base.highContrast.danger": string
-  /** Pure yellow for high contrast */
-  "color.base.highContrast.warning": string
-  /** Cyan for info */
-  "color.base.highContrast.info": string
-  /** White borders for maximum contrast */
-  "color.base.highContrast.border": string
-  /** Yellow focus for visibility */
-  "color.base.highContrast.focus": string
-  /** Strong overlay for high contrast */
-  "color.base.highContrast.overlay": string
-  /** Light theme background */
-  "color.alias.background": string
-  /** Light theme surface */
-  "color.alias.surface": string
-  /** Light theme text */
-  "color.alias.text": string
-  /** Light theme muted text */
-  "color.alias.text-muted": string
-  /** Primary action color referencing base */
-  "color.alias.primary": string
-  /** Darker primary on hover */
-  "color.alias.primary-hover": string
-  /** Subtle primary with low opacity */
-  "color.alias.primary-subtle": string
-  /** Success state color */
-  "color.alias.success": string
-  /** Danger/error state color */
-  "color.alias.danger": string
-  /** Warning color */
-  "color.alias.warning": string
-  /** Info color */
-  "color.alias.info": string
-  /** Subtle border for light theme */
-  "color.alias.border": string
-  /** Stronger border for emphasis */
-  "color.alias.border-strong": string
-  /** Focus ring color */
-  "color.alias.focus": string
-  /** Semi-transparent dark overlay */
-  "color.alias.overlay": string
-  /** Stronger overlay using alpha token reference */
-  "color.alias.overlay-strong": string
-  /** Semi-transparent white for glass effects */
-  "color.alias.glassmorphism": string
-  /** Primary button background */
-  "color.button.primary.background": string
-  /** Primary button hover state */
-  "color.button.primary.background.hover": string
-  /** Primary button text color */
-  "color.button.primary.text": string
-  /** Card background color */
-  "color.card.background": string
-  /** Card border color */
-  "color.card.border": string
-  "spacing.base.0": string
-  "spacing.base.1": string
-  "spacing.base.2": string
-  "spacing.base.3": string
-  "spacing.base.4": string
-  "spacing.base.6": string
-  "spacing.base.8": string
-  "spacing.base.12": string
-  "spacing.base.16": string
-  "spacing.alias.small": string
-  "spacing.alias.medium": string
-  /** Extra spacious layout for desktop */
-  "spacing.alias.large": string
-  /** Button padding */
-  "spacing.button.primary.padding": string
-  /** Card internal padding */
-  "spacing.card.padding": string
-  /** Sharp corners */
-  "radius.base.none": string
-  /** Subtle rounding */
-  "radius.base.sm": string
-  /** Default rounding */
-  "radius.base.md": string
-  /** Soft rounding */
-  "radius.base.lg": string
-  /** Extra soft rounding */
-  "radius.base.xl": string
-  /** Sharper control corners on desktop */
-  "radius.alias.control": string
-  /** Sharper surface corners on desktop */
-  "radius.alias.surface": string
-  /** Hairline border */
-  "borderWidth.base.hairline": string
-  /** Default border */
-  "borderWidth.base.thin": string
-  /** Strong border */
-  "borderWidth.base.thick": string
   /** Default component outline */
-  "borderWidth.alias.default": string
+  "borderWidth.alias.default": DimensionValue
   /** Emphasis or high-contrast outline */
-  "borderWidth.alias.strong": string
-  /** Small scale multiplier */
-  "number.scale.small": number
-  /** Normal scale (100%) */
-  "number.scale.normal": number
-  /** Large scale multiplier */
-  "number.scale.large": number
-  /** Tight line height for headings */
-  "number.lineHeight.tight": number
-  /** Normal line height for body text */
-  "number.lineHeight.normal": number
+  "borderWidth.alias.strong": DimensionValue
+  /** Hairline border */
+  "borderWidth.base.hairline": DimensionValue
+  /** Strong border */
+  "borderWidth.base.thick": DimensionValue
+  /** Default border */
+  "borderWidth.base.thin": DimensionValue
+  /** Light theme background */
+  "color.alias.background": ColorValueObject
+  /** Subtle border for light theme */
+  "color.alias.border": ColorValueObject
+  /** Stronger border for emphasis */
+  "color.alias.border-strong": ColorValueObject
+  /** Danger/error state color */
+  "color.alias.danger": ColorValueObject
+  /** Focus ring color */
+  "color.alias.focus": ColorValueObject
+  /** Semi-transparent white for glass effects */
+  "color.alias.glassmorphism": ColorValueObject
+  /** Info color */
+  "color.alias.info": ColorValueObject
+  /** Semi-transparent dark overlay */
+  "color.alias.overlay": ColorValueObject
+  /** Stronger overlay using alpha token reference */
+  "color.alias.overlay-strong": ColorValueObject
+  /** Primary action color referencing base */
+  "color.alias.primary": ColorValueObject
+  /** Darker primary on hover */
+  "color.alias.primary-hover": ColorValueObject
+  /** Subtle primary with low opacity */
+  "color.alias.primary-subtle": ColorValueObject
+  /** Success state color */
+  "color.alias.success": ColorValueObject
+  /** Light theme surface */
+  "color.alias.surface": ColorValueObject
+  /** Light theme text */
+  "color.alias.text": ColorValueObject
+  /** Light theme muted text */
+  "color.alias.text-muted": ColorValueObject
+  /** Warning color */
+  "color.alias.warning": ColorValueObject
+  /** Color in Adobe RGB (1998) color space with alpha */
+  "color.base.adobeRgbColor": ColorValueObject
+  /** Pure black */
+  "color.base.black": ColorValueObject
+  /** Semi-transparent black */
+  "color.base.blackAlpha": ColorValueObject
+  /** Primary brand blue */
+  "color.base.blue": ColorValueObject
+  /** Blue with alpha channel */
+  "color.base.blueAlpha": ColorValueObject
+  /** Blue in Display P3 color space for wider gamut */
+  "color.base.blueP3": ColorValueObject
+  /** Blue in sRGB color space with explicit components */
+  "color.base.blueSrgb": ColorValueObject
+  /** Dark theme background */
+  "color.base.dark.background": ColorValueObject
+  /** Dark theme border */
+  "color.base.dark.border": ColorValueObject
+  /** Dark theme strong border */
+  "color.base.dark.borderStrong": ColorValueObject
+  /** Soft red for dark backgrounds */
+  "color.base.dark.danger": ColorValueObject
+  /** Dark glass effect */
+  "color.base.dark.glassmorphism": ColorValueObject
+  /** Dark theme overlay */
+  "color.base.dark.overlay": ColorValueObject
+  /** Bright blue for dark backgrounds */
+  "color.base.dark.primary": ColorValueObject
+  /** Bright blue hover for dark backgrounds */
+  "color.base.dark.primaryHover": ColorValueObject
+  /** Subtle primary for dark theme */
+  "color.base.dark.primarySubtle": ColorValueObject
+  /** Bright green for dark backgrounds */
+  "color.base.dark.success": ColorValueObject
+  /** Dark theme surface */
+  "color.base.dark.surface": ColorValueObject
+  /** Dark theme text */
+  "color.base.dark.text": ColorValueObject
+  /** Dark theme muted text */
+  "color.base.dark.textMuted": ColorValueObject
+  /** Bright yellow for dark backgrounds */
+  "color.base.dark.warning": ColorValueObject
+  "color.base.gray.100": ColorValueObject
+  /** Gray 200 using sRGB components */
+  "color.base.gray.200": ColorValueObject
+  /** Lightest gray */
+  "color.base.gray.50": ColorValueObject
+  "color.base.gray.500": ColorValueObject
+  "color.base.gray.700": ColorValueObject
+  /** Darkest gray */
+  "color.base.gray.900": ColorValueObject
+  /** Success green */
+  "color.base.green": ColorValueObject
+  /** Green in Rec. 2020 color space for HDR */
+  "color.base.greenRec2020": ColorValueObject
+  /** HDR green for wide gamut displays */
+  "color.base.hdrGreen": ColorValueObject
+  /** White borders for maximum contrast */
+  "color.base.highContrast.border": ColorValueObject
+  /** Pure red for high contrast */
+  "color.base.highContrast.danger": ColorValueObject
+  /** Yellow focus for visibility */
+  "color.base.highContrast.focus": ColorValueObject
+  /** Cyan for info */
+  "color.base.highContrast.info": ColorValueObject
+  /** Strong overlay for high contrast */
+  "color.base.highContrast.overlay": ColorValueObject
+  /** High contrast primary - bright cyan */
+  "color.base.highContrast.primary": ColorValueObject
+  /** High contrast primary hover */
+  "color.base.highContrast.primaryHover": ColorValueObject
+  /** High contrast subtle primary */
+  "color.base.highContrast.primarySubtle": ColorValueObject
+  /** Pure green for high contrast */
+  "color.base.highContrast.success": ColorValueObject
+  /** High contrast surface */
+  "color.base.highContrast.surface": ColorValueObject
+  /** High contrast muted text */
+  "color.base.highContrast.textMuted": ColorValueObject
+  /** Pure yellow for high contrast */
+  "color.base.highContrast.warning": ColorValueObject
+  /** Primary hover state - slightly darker */
+  "color.base.hover.primary": ColorValueObject
+  /** Legacy rgba() format */
+  "color.base.legacySrgbWithAlpha": ColorValueObject
+  /** Orange in sRGB */
+  "color.base.orange": ColorValueObject
+  /** Overlay/backdrop color with alpha */
+  "color.base.overlay": ColorValueObject
+  /** Color in ProPhoto RGB color space for wide gamut */
+  "color.base.prophotoColor": ColorValueObject
+  /** Purple accent color */
+  "color.base.purple": ColorValueObject
+  /** Danger red */
+  "color.base.red": ColorValueObject
+  /** Subtle primary with low opacity */
+  "color.base.subtle.primary": ColorValueObject
+  /** Vibrant blue in P3 color space */
+  "color.base.vibrantBlueP3": ColorValueObject
+  /** Warning/alert color */
+  "color.base.warning": ColorValueObject
+  /** Pure white */
+  "color.base.white": ColorValueObject
+  /** Semi-transparent white */
+  "color.base.whiteAlpha": ColorValueObject
+  /** Primary button background */
+  "color.button.primary.background": ColorValueObject
+  /** Primary button hover state */
+  "color.button.primary.background.hover": ColorValueObject
+  /** Primary button text color */
+  "color.button.primary.text": ColorValueObject
+  /** Card background color */
+  "color.card.background": ColorValueObject
+  /** Card border color */
+  "color.card.border": ColorValueObject
+  /** Fast transitions for small changes */
+  "duration.fast": DurationValue
+  /** Instant - no animation */
+  "duration.instant": DurationValue
+  /** Normal transition speed */
+  "duration.normal": DurationValue
+  /** Slow transitions for larger movements */
+  "duration.slow": DurationValue
+  /** Very slow transitions */
+  "duration.slower": DurationValue
+  /** Default ease - slow start and end */
+  "easing.ease": [number, number, number, number]
+  /** Ease in - slow start */
+  "easing.easeIn": [number, number, number, number]
+  /** Ease in-out - slow start and end */
+  "easing.easeInOut": [number, number, number, number]
+  /** Ease out - slow end */
+  "easing.easeOut": [number, number, number, number]
+  /** Linear easing - constant speed */
+  "easing.linear": [number, number, number, number]
+  /** Smooth acceleration curve */
+  "easing.smooth": [number, number, number, number]
+  /** Spring-like bouncy easing */
+  "easing.spring": [number, number, number, number]
+  /** Monospace font stack for code */
+  "font.family.mono": FontFamilyValue
+  /** Sans-serif font stack for UI and body text */
+  "font.family.sans": FontFamilyValue
+  /** Serif font stack for editorial content */
+  "font.family.serif": FontFamilyValue
+  /** Normal letter spacing */
+  "font.letterSpacing.normal": DimensionValue
+  /** Tight letter spacing for large text */
+  "font.letterSpacing.tight": DimensionValue
+  /** Wide letter spacing */
+  "font.letterSpacing.wide": DimensionValue
+  /** Wider letter spacing for small caps */
+  "font.letterSpacing.wider": DimensionValue
+  /** 2X large - 24px */
+  "font.size.2xl": DimensionValue
+  /** 3X large - 30px */
+  "font.size.3xl": DimensionValue
+  /** 4X large - 36px */
+  "font.size.4xl": DimensionValue
+  /** 5X large - 48px */
+  "font.size.5xl": DimensionValue
+  /** Base - 16px */
+  "font.size.base": DimensionValue
+  /** Large - 18px */
+  "font.size.lg": DimensionValue
+  /** Small - 14px */
+  "font.size.sm": DimensionValue
+  /** Extra large - 20px */
+  "font.size.xl": DimensionValue
+  /** Extra small - 12px */
+  "font.size.xs": DimensionValue
+  /** Bold weight */
+  "font.weight.bold": FontWeightValue
+  /** Extra bold weight */
+  "font.weight.extrabold": FontWeightValue
+  /** Light weight */
+  "font.weight.light": FontWeightValue
+  /** Medium weight */
+  "font.weight.medium": FontWeightValue
+  /** Normal/regular weight */
+  "font.weight.normal": FontWeightValue
+  /** Semibold weight */
+  "font.weight.semibold": FontWeightValue
   /** Loose line height for relaxed reading */
   "number.lineHeight.loose": number
-  /** Very subtle opacity */
-  "number.opacity.subtle": number
+  /** Normal line height for body text */
+  "number.lineHeight.normal": number
+  /** Tight line height for headings */
+  "number.lineHeight.tight": number
+  /** Full opacity */
+  "number.opacity.full": number
   /** Light opacity */
   "number.opacity.light": number
   /** Medium opacity */
   "number.opacity.medium": number
   /** Strong opacity */
   "number.opacity.strong": number
-  /** Full opacity */
-  "number.opacity.full": number
-  /** Instant - no animation */
-  "duration.instant": string
-  /** Fast transitions for small changes */
-  "duration.fast": string
-  /** Normal transition speed */
-  "duration.normal": string
-  /** Slow transitions for larger movements */
-  "duration.slow": string
-  /** Very slow transitions */
-  "duration.slower": string
-  /** Linear easing - constant speed */
-  "easing.linear": [number, number, number, number]
-  /** Default ease - slow start and end */
-  "easing.ease": [number, number, number, number]
-  /** Ease in - slow start */
-  "easing.easeIn": [number, number, number, number]
-  /** Ease out - slow end */
-  "easing.easeOut": [number, number, number, number]
-  /** Ease in-out - slow start and end */
-  "easing.easeInOut": [number, number, number, number]
-  /** Spring-like bouncy easing */
-  "easing.spring": [number, number, number, number]
-  /** Smooth acceleration curve */
-  "easing.smooth": [number, number, number, number]
-  /** Sans-serif font stack for UI and body text */
-  "font.family.sans": string
-  /** Serif font stack for editorial content */
-  "font.family.serif": string
-  /** Monospace font stack for code */
-  "font.family.mono": string
-  /** Extra small - 12px */
-  "font.size.xs": string
-  /** Small - 14px */
-  "font.size.sm": string
-  /** Base - 16px */
-  "font.size.base": string
-  /** Large - 18px */
-  "font.size.lg": string
-  /** Extra large - 20px */
-  "font.size.xl": string
-  /** 2X large - 24px */
-  "font.size.2xl": string
-  /** 3X large - 30px */
-  "font.size.3xl": string
-  /** 4X large - 36px */
-  "font.size.4xl": string
-  /** 5X large - 48px */
-  "font.size.5xl": string
-  /** Light weight */
-  "font.weight.light": string | number
-  /** Normal/regular weight */
-  "font.weight.normal": string | number
-  /** Medium weight */
-  "font.weight.medium": string | number
-  /** Semibold weight */
-  "font.weight.semibold": string | number
-  /** Bold weight */
-  "font.weight.bold": string | number
-  /** Extra bold weight */
-  "font.weight.extrabold": string | number
-  /** Tight letter spacing for large text */
-  "font.letterSpacing.tight": string
-  /** Normal letter spacing */
-  "font.letterSpacing.normal": string
-  /** Wide letter spacing */
-  "font.letterSpacing.wide": string
-  /** Wider letter spacing for small caps */
-  "font.letterSpacing.wider": string
-  /** Small shadow for subtle elevation */
-  "shadow.sm": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Medium shadow with layered effect */
-  "shadow.md": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Large shadow for prominent elevation */
-  "shadow.lg": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Extra large shadow for maximum elevation */
-  "shadow.xl": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Inner shadow for inset effects */
-  "shadow.inner": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Focus ring shadow using alias color reference */
-  "shadow.focus": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Base shadow for layering */
-  "shadow.advanced.base": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+  /** Very subtle opacity */
+  "number.opacity.subtle": number
+  /** Large scale multiplier */
+  "number.scale.large": number
+  /** Normal scale (100%) */
+  "number.scale.normal": number
+  /** Small scale multiplier */
+  "number.scale.small": number
+  /** Sharper control corners on desktop */
+  "radius.alias.control": DimensionValue
+  /** Sharper surface corners on desktop */
+  "radius.alias.surface": DimensionValue
+  /** Soft rounding */
+  "radius.base.lg": DimensionValue
+  /** Default rounding */
+  "radius.base.md": DimensionValue
+  /** Sharp corners */
+  "radius.base.none": DimensionValue
+  /** Subtle rounding */
+  "radius.base.sm": DimensionValue
+  /** Extra soft rounding */
+  "radius.base.xl": DimensionValue
   /** Accent shadow using brand color */
-  "shadow.advanced.accent": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Medium shadow adjusted for dark theme */
-  "shadow.dark.md": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Focus ring for dark theme */
-  "shadow.dark.focus": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Light shadow for high contrast dark theme */
-  "shadow.highContrast.md": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-  /** Prominent focus ring for high contrast */
-  "shadow.highContrast.focus": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+  "shadow.advanced.accent": ShadowValue
+  /** Base shadow for layering */
+  "shadow.advanced.base": ShadowValue
   /** Card elevation shadow (medium) */
-  "shadow.card.shadow": { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+  "shadow.card.shadow": ShadowValue
+  /** Focus ring for dark theme */
+  "shadow.dark.focus": ShadowValue
+  /** Medium shadow adjusted for dark theme */
+  "shadow.dark.md": ShadowValue
+  /** Focus ring shadow using alias color reference */
+  "shadow.focus": ShadowValue
+  /** Prominent focus ring for high contrast */
+  "shadow.highContrast.focus": ShadowValue
+  /** Light shadow for high contrast dark theme */
+  "shadow.highContrast.md": ShadowValue
+  /** Inner shadow for inset effects */
+  "shadow.inner": ShadowValue
+  /** Large shadow for prominent elevation */
+  "shadow.lg": ShadowValue
+  /** Medium shadow with layered effect */
+  "shadow.md": ShadowValue
+  /** Small shadow for subtle elevation */
+  "shadow.sm": ShadowValue
+  /** Extra large shadow for maximum elevation */
+  "shadow.xl": ShadowValue
+  /** Extra spacious layout for desktop */
+  "spacing.alias.large": DimensionValue
+  "spacing.alias.medium": DimensionValue
+  "spacing.alias.small": DimensionValue
+  "spacing.base.0": DimensionValue
+  "spacing.base.1": DimensionValue
+  "spacing.base.12": DimensionValue
+  "spacing.base.16": DimensionValue
+  "spacing.base.2": DimensionValue
+  "spacing.base.3": DimensionValue
+  "spacing.base.4": DimensionValue
+  "spacing.base.6": DimensionValue
+  "spacing.base.8": DimensionValue
+  /** Button padding */
+  "spacing.button.primary.padding": DimensionValue
+  /** Card internal padding */
+  "spacing.card.padding": DimensionValue
 }
 
 export type DesignTokens = {
-  color: {
-    base: {
-      /** Primary brand blue */
-      blue: string
-      /** Blue in sRGB color space with explicit components */
-      blueSrgb: string
-      /** Blue in Display P3 color space for wider gamut */
-      blueP3: string
-      /** Blue with alpha channel */
-      blueAlpha: string
-      /** Purple accent color */
-      purple: string
-      /** Success green */
-      green: string
-      /** Green in Rec. 2020 color space for HDR */
-      greenRec2020: string
-      /** Danger red */
-      red: string
-      /** Orange in sRGB */
-      orange: string
-      gray: {
-        /** Lightest gray */
-        "50": string
-        "100": string
-        /** Gray 200 using sRGB components */
-        "200": string
-        "500": string
-        "700": string
-        /** Darkest gray */
-        "900": string
-      }
-      /** Pure white */
-      white: string
-      /** Semi-transparent white */
-      whiteAlpha: string
-      /** Pure black */
-      black: string
-      /** Semi-transparent black */
-      blackAlpha: string
-      /** Vibrant blue in P3 color space */
-      vibrantBlueP3: string
-      /** HDR green for wide gamut displays */
-      hdrGreen: string
-      /** Color in ProPhoto RGB color space for wide gamut */
-      prophotoColor: string
-      /** Color in Adobe RGB (1998) color space with alpha */
-      adobeRgbColor: string
-      /** Legacy rgba() format */
-      legacySrgbWithAlpha: string
-      hover: {
-        /** Primary hover state - slightly darker */
-        primary: string
-      }
-      subtle: {
-        /** Subtle primary with low opacity */
-        primary: string
-      }
-      /** Warning/alert color */
-      warning: string
-      /** Overlay/backdrop color with alpha */
-      overlay: string
-      dark: {
-        /** Dark theme background */
-        background: string
-        /** Dark theme surface */
-        surface: string
-        /** Dark theme text */
-        text: string
-        /** Dark theme muted text */
-        textMuted: string
-        /** Bright blue for dark backgrounds */
-        primary: string
-        /** Bright blue hover for dark backgrounds */
-        primaryHover: string
-        /** Subtle primary for dark theme */
-        primarySubtle: string
-        /** Bright green for dark backgrounds */
-        success: string
-        /** Soft red for dark backgrounds */
-        danger: string
-        /** Bright yellow for dark backgrounds */
-        warning: string
-        /** Dark theme border */
-        border: string
-        /** Dark theme strong border */
-        borderStrong: string
-        /** Dark theme overlay */
-        overlay: string
-        /** Dark glass effect */
-        glassmorphism: string
-      }
-      highContrast: {
-        /** High contrast surface */
-        surface: string
-        /** High contrast muted text */
-        textMuted: string
-        /** High contrast primary - bright cyan */
-        primary: string
-        /** High contrast primary hover */
-        primaryHover: string
-        /** High contrast subtle primary */
-        primarySubtle: string
-        /** Pure green for high contrast */
-        success: string
-        /** Pure red for high contrast */
-        danger: string
-        /** Pure yellow for high contrast */
-        warning: string
-        /** Cyan for info */
-        info: string
-        /** White borders for maximum contrast */
-        border: string
-        /** Yellow focus for visibility */
-        focus: string
-        /** Strong overlay for high contrast */
-        overlay: string
-      }
+  borderWidth: {
+    alias: {
+      /** Default component outline */
+      default: DimensionValue
+      /** Emphasis or high-contrast outline */
+      strong: DimensionValue
     }
+    base: {
+      /** Hairline border */
+      hairline: DimensionValue
+      /** Strong border */
+      thick: DimensionValue
+      /** Default border */
+      thin: DimensionValue
+    }
+  }
+  color: {
     alias: {
       /** Light theme background */
-      background: string
-      /** Light theme surface */
-      surface: string
-      /** Light theme text */
-      text: string
-      /** Light theme muted text */
-      "text-muted": string
-      /** Primary action color referencing base */
-      primary: string
-      /** Darker primary on hover */
-      "primary-hover": string
-      /** Subtle primary with low opacity */
-      "primary-subtle": string
-      /** Success state color */
-      success: string
-      /** Danger/error state color */
-      danger: string
-      /** Warning color */
-      warning: string
-      /** Info color */
-      info: string
+      background: ColorValueObject
       /** Subtle border for light theme */
-      border: string
+      border: ColorValueObject
       /** Stronger border for emphasis */
-      "border-strong": string
+      "border-strong": ColorValueObject
+      /** Danger/error state color */
+      danger: ColorValueObject
       /** Focus ring color */
-      focus: string
-      /** Semi-transparent dark overlay */
-      overlay: string
-      /** Stronger overlay using alpha token reference */
-      "overlay-strong": string
+      focus: ColorValueObject
       /** Semi-transparent white for glass effects */
-      glassmorphism: string
+      glassmorphism: ColorValueObject
+      /** Info color */
+      info: ColorValueObject
+      /** Semi-transparent dark overlay */
+      overlay: ColorValueObject
+      /** Stronger overlay using alpha token reference */
+      "overlay-strong": ColorValueObject
+      /** Primary action color referencing base */
+      primary: ColorValueObject
+      /** Darker primary on hover */
+      "primary-hover": ColorValueObject
+      /** Subtle primary with low opacity */
+      "primary-subtle": ColorValueObject
+      /** Success state color */
+      success: ColorValueObject
+      /** Light theme surface */
+      surface: ColorValueObject
+      /** Light theme text */
+      text: ColorValueObject
+      /** Light theme muted text */
+      "text-muted": ColorValueObject
+      /** Warning color */
+      warning: ColorValueObject
+    }
+    base: {
+      /** Color in Adobe RGB (1998) color space with alpha */
+      adobeRgbColor: ColorValueObject
+      /** Pure black */
+      black: ColorValueObject
+      /** Semi-transparent black */
+      blackAlpha: ColorValueObject
+      /** Primary brand blue */
+      blue: ColorValueObject
+      /** Blue with alpha channel */
+      blueAlpha: ColorValueObject
+      /** Blue in Display P3 color space for wider gamut */
+      blueP3: ColorValueObject
+      /** Blue in sRGB color space with explicit components */
+      blueSrgb: ColorValueObject
+      dark: {
+        /** Dark theme background */
+        background: ColorValueObject
+        /** Dark theme border */
+        border: ColorValueObject
+        /** Dark theme strong border */
+        borderStrong: ColorValueObject
+        /** Soft red for dark backgrounds */
+        danger: ColorValueObject
+        /** Dark glass effect */
+        glassmorphism: ColorValueObject
+        /** Dark theme overlay */
+        overlay: ColorValueObject
+        /** Bright blue for dark backgrounds */
+        primary: ColorValueObject
+        /** Bright blue hover for dark backgrounds */
+        primaryHover: ColorValueObject
+        /** Subtle primary for dark theme */
+        primarySubtle: ColorValueObject
+        /** Bright green for dark backgrounds */
+        success: ColorValueObject
+        /** Dark theme surface */
+        surface: ColorValueObject
+        /** Dark theme text */
+        text: ColorValueObject
+        /** Dark theme muted text */
+        textMuted: ColorValueObject
+        /** Bright yellow for dark backgrounds */
+        warning: ColorValueObject
+      }
+      gray: {
+        "100": ColorValueObject
+        /** Gray 200 using sRGB components */
+        "200": ColorValueObject
+        /** Lightest gray */
+        "50": ColorValueObject
+        "500": ColorValueObject
+        "700": ColorValueObject
+        /** Darkest gray */
+        "900": ColorValueObject
+      }
+      /** Success green */
+      green: ColorValueObject
+      /** Green in Rec. 2020 color space for HDR */
+      greenRec2020: ColorValueObject
+      /** HDR green for wide gamut displays */
+      hdrGreen: ColorValueObject
+      highContrast: {
+        /** White borders for maximum contrast */
+        border: ColorValueObject
+        /** Pure red for high contrast */
+        danger: ColorValueObject
+        /** Yellow focus for visibility */
+        focus: ColorValueObject
+        /** Cyan for info */
+        info: ColorValueObject
+        /** Strong overlay for high contrast */
+        overlay: ColorValueObject
+        /** High contrast primary - bright cyan */
+        primary: ColorValueObject
+        /** High contrast primary hover */
+        primaryHover: ColorValueObject
+        /** High contrast subtle primary */
+        primarySubtle: ColorValueObject
+        /** Pure green for high contrast */
+        success: ColorValueObject
+        /** High contrast surface */
+        surface: ColorValueObject
+        /** High contrast muted text */
+        textMuted: ColorValueObject
+        /** Pure yellow for high contrast */
+        warning: ColorValueObject
+      }
+      hover: {
+        /** Primary hover state - slightly darker */
+        primary: ColorValueObject
+      }
+      /** Legacy rgba() format */
+      legacySrgbWithAlpha: ColorValueObject
+      /** Orange in sRGB */
+      orange: ColorValueObject
+      /** Overlay/backdrop color with alpha */
+      overlay: ColorValueObject
+      /** Color in ProPhoto RGB color space for wide gamut */
+      prophotoColor: ColorValueObject
+      /** Purple accent color */
+      purple: ColorValueObject
+      /** Danger red */
+      red: ColorValueObject
+      subtle: {
+        /** Subtle primary with low opacity */
+        primary: ColorValueObject
+      }
+      /** Vibrant blue in P3 color space */
+      vibrantBlueP3: ColorValueObject
+      /** Warning/alert color */
+      warning: ColorValueObject
+      /** Pure white */
+      white: ColorValueObject
+      /** Semi-transparent white */
+      whiteAlpha: ColorValueObject
     }
     button: {
       primary: {
         /** Primary button background */
-        background: string
+        background: ColorValueObject
         /** Primary button text color */
-        text: string
+        text: ColorValueObject
       }
     }
     card: {
       /** Card background color */
-      background: string
+      background: ColorValueObject
       /** Card border color */
-      border: string
+      border: ColorValueObject
     }
   }
-  spacing: {
-    base: {
-      "0": string
-      "1": string
-      "2": string
-      "3": string
-      "4": string
-      "6": string
-      "8": string
-      "12": string
-      "16": string
-    }
-    alias: {
-      small: string
-      medium: string
-      /** Extra spacious layout for desktop */
-      large: string
-    }
-    button: {
-      primary: {
-        /** Button padding */
-        padding: string
-      }
-    }
-    card: {
-      /** Card internal padding */
-      padding: string
-    }
+  duration: {
+    /** Fast transitions for small changes */
+    fast: DurationValue
+    /** Instant - no animation */
+    instant: DurationValue
+    /** Normal transition speed */
+    normal: DurationValue
+    /** Slow transitions for larger movements */
+    slow: DurationValue
+    /** Very slow transitions */
+    slower: DurationValue
   }
-  radius: {
-    base: {
-      /** Sharp corners */
-      none: string
-      /** Subtle rounding */
-      sm: string
-      /** Default rounding */
-      md: string
-      /** Soft rounding */
-      lg: string
-      /** Extra soft rounding */
-      xl: string
-    }
-    alias: {
-      /** Sharper control corners on desktop */
-      control: string
-      /** Sharper surface corners on desktop */
-      surface: string
-    }
+  easing: {
+    /** Default ease - slow start and end */
+    ease: [number, number, number, number]
+    /** Ease in - slow start */
+    easeIn: [number, number, number, number]
+    /** Ease in-out - slow start and end */
+    easeInOut: [number, number, number, number]
+    /** Ease out - slow end */
+    easeOut: [number, number, number, number]
+    /** Linear easing - constant speed */
+    linear: [number, number, number, number]
+    /** Smooth acceleration curve */
+    smooth: [number, number, number, number]
+    /** Spring-like bouncy easing */
+    spring: [number, number, number, number]
   }
-  borderWidth: {
-    base: {
-      /** Hairline border */
-      hairline: string
-      /** Default border */
-      thin: string
-      /** Strong border */
-      thick: string
+  font: {
+    family: {
+      /** Monospace font stack for code */
+      mono: FontFamilyValue
+      /** Sans-serif font stack for UI and body text */
+      sans: FontFamilyValue
+      /** Serif font stack for editorial content */
+      serif: FontFamilyValue
     }
-    alias: {
-      /** Default component outline */
-      default: string
-      /** Emphasis or high-contrast outline */
-      strong: string
+    letterSpacing: {
+      /** Normal letter spacing */
+      normal: DimensionValue
+      /** Tight letter spacing for large text */
+      tight: DimensionValue
+      /** Wide letter spacing */
+      wide: DimensionValue
+      /** Wider letter spacing for small caps */
+      wider: DimensionValue
+    }
+    size: {
+      /** 2X large - 24px */
+      "2xl": DimensionValue
+      /** 3X large - 30px */
+      "3xl": DimensionValue
+      /** 4X large - 36px */
+      "4xl": DimensionValue
+      /** 5X large - 48px */
+      "5xl": DimensionValue
+      /** Base - 16px */
+      base: DimensionValue
+      /** Large - 18px */
+      lg: DimensionValue
+      /** Small - 14px */
+      sm: DimensionValue
+      /** Extra large - 20px */
+      xl: DimensionValue
+      /** Extra small - 12px */
+      xs: DimensionValue
+    }
+    weight: {
+      /** Bold weight */
+      bold: FontWeightValue
+      /** Extra bold weight */
+      extrabold: FontWeightValue
+      /** Light weight */
+      light: FontWeightValue
+      /** Medium weight */
+      medium: FontWeightValue
+      /** Normal/regular weight */
+      normal: FontWeightValue
+      /** Semibold weight */
+      semibold: FontWeightValue
     }
   }
   number: {
-    scale: {
-      /** Small scale multiplier */
-      small: number
-      /** Normal scale (100%) */
-      normal: number
-      /** Large scale multiplier */
-      large: number
-    }
     lineHeight: {
-      /** Tight line height for headings */
-      tight: number
-      /** Normal line height for body text */
-      normal: number
       /** Loose line height for relaxed reading */
       loose: number
+      /** Normal line height for body text */
+      normal: number
+      /** Tight line height for headings */
+      tight: number
     }
     opacity: {
-      /** Very subtle opacity */
-      subtle: number
+      /** Full opacity */
+      full: number
       /** Light opacity */
       light: number
       /** Medium opacity */
       medium: number
       /** Strong opacity */
       strong: number
-      /** Full opacity */
-      full: number
+      /** Very subtle opacity */
+      subtle: number
+    }
+    scale: {
+      /** Large scale multiplier */
+      large: number
+      /** Normal scale (100%) */
+      normal: number
+      /** Small scale multiplier */
+      small: number
     }
   }
-  duration: {
-    /** Instant - no animation */
-    instant: string
-    /** Fast transitions for small changes */
-    fast: string
-    /** Normal transition speed */
-    normal: string
-    /** Slow transitions for larger movements */
-    slow: string
-    /** Very slow transitions */
-    slower: string
-  }
-  easing: {
-    /** Linear easing - constant speed */
-    linear: [number, number, number, number]
-    /** Default ease - slow start and end */
-    ease: [number, number, number, number]
-    /** Ease in - slow start */
-    easeIn: [number, number, number, number]
-    /** Ease out - slow end */
-    easeOut: [number, number, number, number]
-    /** Ease in-out - slow start and end */
-    easeInOut: [number, number, number, number]
-    /** Spring-like bouncy easing */
-    spring: [number, number, number, number]
-    /** Smooth acceleration curve */
-    smooth: [number, number, number, number]
-  }
-  font: {
-    family: {
-      /** Sans-serif font stack for UI and body text */
-      sans: string
-      /** Serif font stack for editorial content */
-      serif: string
-      /** Monospace font stack for code */
-      mono: string
+  radius: {
+    alias: {
+      /** Sharper control corners on desktop */
+      control: DimensionValue
+      /** Sharper surface corners on desktop */
+      surface: DimensionValue
     }
-    size: {
-      /** Extra small - 12px */
-      xs: string
-      /** Small - 14px */
-      sm: string
-      /** Base - 16px */
-      base: string
-      /** Large - 18px */
-      lg: string
-      /** Extra large - 20px */
-      xl: string
-      /** 2X large - 24px */
-      "2xl": string
-      /** 3X large - 30px */
-      "3xl": string
-      /** 4X large - 36px */
-      "4xl": string
-      /** 5X large - 48px */
-      "5xl": string
-    }
-    weight: {
-      /** Light weight */
-      light: string | number
-      /** Normal/regular weight */
-      normal: string | number
-      /** Medium weight */
-      medium: string | number
-      /** Semibold weight */
-      semibold: string | number
-      /** Bold weight */
-      bold: string | number
-      /** Extra bold weight */
-      extrabold: string | number
-    }
-    letterSpacing: {
-      /** Tight letter spacing for large text */
-      tight: string
-      /** Normal letter spacing */
-      normal: string
-      /** Wide letter spacing */
-      wide: string
-      /** Wider letter spacing for small caps */
-      wider: string
+    base: {
+      /** Soft rounding */
+      lg: DimensionValue
+      /** Default rounding */
+      md: DimensionValue
+      /** Sharp corners */
+      none: DimensionValue
+      /** Subtle rounding */
+      sm: DimensionValue
+      /** Extra soft rounding */
+      xl: DimensionValue
     }
   }
   shadow: {
-    /** Small shadow for subtle elevation */
-    sm: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    /** Medium shadow with layered effect */
-    md: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    /** Large shadow for prominent elevation */
-    lg: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    /** Extra large shadow for maximum elevation */
-    xl: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    /** Inner shadow for inset effects */
-    inner: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    /** Focus ring shadow using alias color reference */
-    focus: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
     advanced: {
-      /** Base shadow for layering */
-      base: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
       /** Accent shadow using brand color */
-      accent: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    }
-    dark: {
-      /** Medium shadow adjusted for dark theme */
-      md: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      /** Focus ring for dark theme */
-      focus: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-    }
-    highContrast: {
-      /** Light shadow for high contrast dark theme */
-      md: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
-      /** Prominent focus ring for high contrast */
-      focus: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+      accent: ShadowValue
+      /** Base shadow for layering */
+      base: ShadowValue
     }
     card: {
       /** Card elevation shadow (medium) */
-      shadow: { color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>
+      shadow: ShadowValue
+    }
+    dark: {
+      /** Focus ring for dark theme */
+      focus: ShadowValue
+      /** Medium shadow adjusted for dark theme */
+      md: ShadowValue
+    }
+    /** Focus ring shadow using alias color reference */
+    focus: ShadowValue
+    highContrast: {
+      /** Prominent focus ring for high contrast */
+      focus: ShadowValue
+      /** Light shadow for high contrast dark theme */
+      md: ShadowValue
+    }
+    /** Inner shadow for inset effects */
+    inner: ShadowValue
+    /** Large shadow for prominent elevation */
+    lg: ShadowValue
+    /** Medium shadow with layered effect */
+    md: ShadowValue
+    /** Small shadow for subtle elevation */
+    sm: ShadowValue
+    /** Extra large shadow for maximum elevation */
+    xl: ShadowValue
+  }
+  spacing: {
+    alias: {
+      /** Extra spacious layout for desktop */
+      large: DimensionValue
+      medium: DimensionValue
+      small: DimensionValue
+    }
+    base: {
+      "0": DimensionValue
+      "1": DimensionValue
+      "12": DimensionValue
+      "16": DimensionValue
+      "2": DimensionValue
+      "3": DimensionValue
+      "4": DimensionValue
+      "6": DimensionValue
+      "8": DimensionValue
+    }
+    button: {
+      primary: {
+        /** Button padding */
+        padding: DimensionValue
+      }
+    }
+    card: {
+      /** Card internal padding */
+      padding: DimensionValue
     }
   }
 }",

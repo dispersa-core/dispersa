@@ -3,6 +3,10 @@
  *
  * Generates comprehensive TypeScript type definitions from resolved tokens
  * including token name unions, value types, and nested structure types.
+ *
+ * Value types reference the publicly-exported DTCG value types (e.g.
+ * `ColorValueObject`, `DimensionValue`) via an emitted `import type`
+ * statement, so generated definitions reflect the real resolved token shapes.
  */
 
 import type { ResolvedTokens, ResolvedToken, TokenType } from '@shared/token-types'
@@ -45,6 +49,14 @@ export type TypeGeneratorOptions = {
  */
 export class TypeGenerator {
   /**
+   * DTCG value type names referenced by the generated definitions.
+   *
+   * Populated while rendering; used to emit a single `import type`
+   * statement in `generate()`.
+   */
+  private usedTypeImports = new Set<string>()
+
+  /**
    * Generates complete TypeScript type definitions from resolved tokens
    *
    * @param tokens - Resolved tokens to generate types from
@@ -67,20 +79,31 @@ export class TypeGenerator {
       ...options,
     } as const
 
-    const lines: string[] = []
+    this.usedTypeImports.clear()
+
+    const sections: string[] = []
 
     // Generate token names type
-    lines.push(...this.generateTokenNamesType(tokens, 'TokenName'))
-    lines.push('')
+    sections.push(this.generateTokenNamesType(tokens, 'TokenName').join('\n'))
 
-    // Generate token values type
+    // Generate token values type (records DTCG type imports when included)
     if (opts.includeValues) {
-      lines.push(...this.generateTokenValuesType(tokens, `${opts.moduleName}Values`))
+      sections.push(this.generateTokenValuesType(tokens, `${opts.moduleName}Values`).join('\n'))
+    }
+
+    // Generate nested structure type (records remaining DTCG type imports)
+    sections.push(this.generateStructureType(tokens, opts).join('\n'))
+
+    const lines: string[] = []
+
+    // Emit imports for the DTCG value types referenced by the sections above
+    const importLine = this.buildImportLine()
+    if (importLine) {
+      lines.push(importLine)
       lines.push('')
     }
 
-    // Generate nested structure type
-    lines.push(...this.generateStructureType(tokens, opts))
+    lines.push(sections.join('\n\n'))
 
     return lines.join('\n')
   }
@@ -103,7 +126,7 @@ export class TypeGenerator {
    * ```
    */
   generateTokenNamesType(tokens: ResolvedTokens, typeName = 'TokenName'): string[] {
-    const names = Object.keys(tokens)
+    const names = Object.keys(tokens).sort(this.compareKeys)
     const lines: string[] = []
 
     if (names.length === 0) {
@@ -131,7 +154,11 @@ export class TypeGenerator {
 
     lines.push(`export type ${typeName} = {`)
 
-    for (const [name, token] of Object.entries(tokens)) {
+    const entries = Object.entries(tokens).sort(([nameA], [nameB]) =>
+      this.compareKeys(nameA, nameB),
+    )
+
+    for (const [name, token] of entries) {
       if (token.$description) {
         lines.push(`  /** ${token.$description} */`)
       }
@@ -210,8 +237,9 @@ export class TypeGenerator {
     indent: number,
   ): void {
     const indentStr = '  '.repeat(indent)
+    const entries = Object.entries(structure).sort(([keyA], [keyB]) => this.compareKeys(keyA, keyB))
 
-    for (const [key, value] of Object.entries(structure)) {
+    for (const [key, value] of entries) {
       if (this.isToken(value)) {
         const token = value
         if (token.$description) {
@@ -268,27 +296,77 @@ export class TypeGenerator {
   /**
    * Map a DTCG token type to its TypeScript type representation.
    *
-   * Covers the standard DTCG types (color, dimension, shadow, etc.).
-   * Falls back to `string` for unrecognised types.
+   * Composite and object-shaped token types reference the publicly-exported
+   * DTCG value types (e.g. `ColorValueObject`, `TypographyValue`) so the
+   * generated definitions reflect the real resolved token shapes instead of
+   * a blanket `string`. Referenced type names are recorded in
+   * {@link usedTypeImports} for the emitted import statement.
    */
   private tokenTypeToTsType(tokenType: TokenType): string {
     switch (tokenType) {
       case 'color':
+        this.usedTypeImports.add('ColorValueObject')
+        return 'ColorValueObject'
       case 'dimension':
+        this.usedTypeImports.add('DimensionValue')
+        return 'DimensionValue'
       case 'fontFamily':
-      case 'duration':
-        return 'string'
+        this.usedTypeImports.add('FontFamilyValue')
+        return 'FontFamilyValue'
       case 'fontWeight':
-        return 'string | number'
+        this.usedTypeImports.add('FontWeightValue')
+        return 'FontWeightValue'
+      case 'duration':
+        this.usedTypeImports.add('DurationValue')
+        return 'DurationValue'
       case 'number':
         return 'number'
       case 'cubicBezier':
         return '[number, number, number, number]'
       case 'shadow':
-        return '{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean } | Array<{ color: string; offsetX: string; offsetY: string; blur: string; spread: string; inset?: boolean }>'
+        this.usedTypeImports.add('ShadowValue')
+        return 'ShadowValue'
+      case 'typography':
+        this.usedTypeImports.add('TypographyValue')
+        return 'TypographyValue'
+      case 'border':
+        this.usedTypeImports.add('BorderValue')
+        return 'BorderValue'
+      case 'strokeStyle':
+        this.usedTypeImports.add('StrokeStyleValue')
+        return 'StrokeStyleValue'
+      case 'transition':
+        this.usedTypeImports.add('TransitionValue')
+        return 'TransitionValue'
+      case 'gradient':
+        this.usedTypeImports.add('GradientValue')
+        return 'GradientValue'
       default:
         return 'string'
     }
+  }
+
+  /**
+   * Deterministic key ordering shared by all generated sections.
+   *
+   * Uses a single dedicated comparator so token names, value records, nested
+   * structure keys, and the emitted import list all follow the same order
+   * regardless of input object order.
+   */
+  private compareKeys(a: string, b: string): number {
+    return a.localeCompare(b)
+  }
+
+  /**
+   * Build the `import type` statement for DTCG value types used during
+   * generation, or undefined when no named value types were referenced.
+   */
+  private buildImportLine(): string | undefined {
+    const names = [...this.usedTypeImports].sort(this.compareKeys)
+    if (names.length === 0) {
+      return undefined
+    }
+    return `import type { ${names.join(', ')} } from 'dispersa'`
   }
 
   /**

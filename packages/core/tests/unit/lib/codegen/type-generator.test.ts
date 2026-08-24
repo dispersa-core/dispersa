@@ -2,13 +2,99 @@ import * as path from 'node:path'
 
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import type { ResolvedTokens } from '../../../../src'
+import type {
+  BorderValue,
+  ColorValueObject,
+  DimensionValue,
+  DurationValue,
+  FontFamilyValue,
+  FontWeightValue,
+  GradientValue,
+  ResolvedTokens,
+  ShadowValue,
+  StrokeStyleValue,
+  TokenType,
+  TransitionValue,
+  TypographyValue,
+} from '../../../../src'
 import { TypeGenerator } from '../../../../src/codegen/type-generator'
 import { ResolverParser } from '../../../../src/adapters/filesystem/resolver-parser'
 import { ReferenceResolver, ResolutionEngine } from '../../../../src/resolution'
 import { AliasResolver } from '../../../../src/resolution/alias-resolver'
 import { TokenParser } from '../../../../src/engine/token-parser'
 import { getFixturePath } from '../../../utils/test-helpers'
+
+function makeToken(
+  name: string,
+  $type: TokenType,
+  $value: unknown,
+  $description?: string,
+): ResolvedTokens[string] {
+  return {
+    $type,
+    $value,
+    $description,
+    path: name.split('.'),
+    name,
+    originalValue: $value,
+  } as ResolvedTokens[string]
+}
+
+/**
+ * Hand-crafted token set covering every DTCG token type with realistic
+ * resolved value shapes.
+ */
+function makeDtcTokenSet(): ResolvedTokens {
+  return {
+    'color.brand': makeToken(
+      'color.brand',
+      'color',
+      { colorSpace: 'srgb', components: [1, 0, 0] },
+      'Brand color',
+    ),
+    'color.gradient': makeToken('color.gradient', 'gradient', [
+      { color: { colorSpace: 'srgb', components: [1, 0, 0] }, position: 0 },
+      { color: { colorSpace: 'srgb', components: [0, 0, 1] }, position: 1 },
+    ]),
+    'dimension.space': makeToken('dimension.space', 'dimension', { value: 8, unit: 'px' }),
+    'duration.fast': makeToken('duration.fast', 'duration', { value: 150, unit: 'ms' }),
+    'easing.curve': makeToken('easing.curve', 'cubicBezier', [0.4, 0, 0.6, 1]),
+    'font.family': makeToken('font.family', 'fontFamily', ['Helvetica', 'Arial', 'sans-serif']),
+    'font.weight': makeToken('font.weight', 'fontWeight', 400),
+    'motion.transition': makeToken('motion.transition', 'transition', {
+      duration: { value: 200, unit: 'ms' },
+      delay: { value: 0, unit: 'ms' },
+      timingFunction: [0.4, 0, 0.6, 1],
+    }),
+    'opacity.full': makeToken('opacity.full', 'number', 1),
+    'shadow.box': makeToken('shadow.box', 'shadow', [
+      {
+        color: { colorSpace: 'srgb', components: [0, 0, 0] },
+        offsetX: { value: 0, unit: 'px' },
+        offsetY: { value: 2, unit: 'px' },
+        blur: { value: 4, unit: 'px' },
+        spread: { value: 0, unit: 'px' },
+      },
+    ]),
+    'shape.border': makeToken('shape.border', 'border', {
+      color: { colorSpace: 'srgb', components: [0, 0, 0] },
+      width: { value: 1, unit: 'px' },
+      style: 'solid',
+    }),
+    'shape.stroke': makeToken('shape.stroke', 'strokeStyle', {
+      dashArray: [{ value: 2, unit: 'px' }],
+      lineCap: 'round',
+    }),
+    'shape.typography': makeToken('shape.typography', 'typography', {
+      fontFamily: ['Helvetica', 'Arial'],
+      fontSize: { value: 16, unit: 'px' },
+      fontWeight: 400,
+      letterSpacing: { value: 0, unit: 'px' },
+      lineHeight: 1.5,
+    }),
+    'zebra.tail': makeToken('zebra.tail', 'number', 0),
+  }
+}
 
 describe('Type Generation Integration Tests', () => {
   let tokens: ResolvedTokens
@@ -39,7 +125,6 @@ describe('Type Generation Integration Tests', () => {
       expect(output).toContain('"color.primitive.red"')
       expect(output).toContain('"dimension.base.4"')
       expect(output).toContain('"font.family.sans"')
-      expect(output).toMatchSnapshot()
     })
 
     it('should format as multiline union', () => {
@@ -47,126 +132,167 @@ describe('Type Generation Integration Tests', () => {
       const output = lines.join('\n')
 
       expect(output).toMatch(/\|\s+"/)
-      expect(output).toMatchSnapshot()
     })
 
     it('should include all token paths', () => {
       const lines = generator.generateTokenNamesType(tokens, 'TokenNames')
       const output = lines.join('\n')
 
-      const tokenNames = Object.keys(tokens)
-      tokenNames.forEach((name) => {
+      for (const name of Object.keys(tokens)) {
         expect(output).toContain(`"${name}"`)
-      })
+      }
+    })
+
+    it('should sort token names deterministically', () => {
+      const output = generator.generateTokenNamesType(makeDtcTokenSet(), 'TokenNames').join('\n')
+
+      const names = [...output.matchAll(/^\s*\| "([^"]+)"/gm)].map((match) => match[1]!)
+      expect(names).toEqual([...names].sort())
     })
   })
 
   describe('Token Value Type Generation', () => {
-    it('should generate record type mapping names to values', () => {
-      const lines = generator.generateTokenValuesType(tokens, 'TokenValues')
-      const output = lines.join('\n')
+    it('should map every DTCG token type to its real resolved shape', () => {
+      const output = generator.generateTokenValuesType(makeDtcTokenSet(), 'TokenValues').join('\n')
 
-      expect(output).toContain('export type TokenValues = {')
-      expect(output).toContain('"color.primitive.red": string')
-      expect(output).toContain('"dimension.base.4": string')
-      expect(output).toMatchSnapshot()
+      expect(output).toContain('"color.brand": ColorValueObject')
+      expect(output).toContain('"dimension.space": DimensionValue')
+      expect(output).toContain('"duration.fast": DurationValue')
+      expect(output).toContain('"easing.curve": [number, number, number, number]')
+      expect(output).toContain('"font.family": FontFamilyValue')
+      expect(output).toContain('"font.weight": FontWeightValue')
+      expect(output).toContain('"motion.transition": TransitionValue')
+      expect(output).toContain('"opacity.full": number')
+      expect(output).toContain('"shadow.box": ShadowValue')
+      expect(output).toContain('"shape.border": BorderValue')
+      expect(output).toContain('"shape.stroke": StrokeStyleValue')
+      expect(output).toContain('"shape.typography": TypographyValue')
+      expect(output).toContain('"color.gradient": GradientValue')
     })
 
-    it('should infer correct TypeScript types from token types', () => {
-      const lines = generator.generateTokenValuesType(tokens, 'TokenValues')
-      const output = lines.join('\n')
+    it('should not emit a blanket string for any known DTCG type', () => {
+      const output = generator.generateTokenValuesType(makeDtcTokenSet(), 'TokenValues').join('\n')
 
-      // Colors should be strings
-      expect(output).toMatch(/"color\.primitive\.red":\s*string/)
-
-      // Dimensions should be strings
-      expect(output).toMatch(/"dimension\.base\.4":\s*string/)
-
-      // Numbers should be numbers (note: lineHeight in fixture is camelCase)
-      expect(output).toMatch(/"font\.lineHeight\.normal":\s*number/)
-
-      expect(output).toMatchSnapshot()
+      for (const line of output.split('\n')) {
+        expect(line).not.toMatch(/:\s*string\s*$/)
+      }
     })
 
-    it('should handle array types', () => {
-      const lines = generator.generateTokenValuesType(tokens, 'TokenValues')
-      const output = lines.join('\n')
+    it('should keep JSDoc descriptions from token metadata', () => {
+      const output = generator.generateTokenValuesType(makeDtcTokenSet(), 'TokenValues').join('\n')
 
-      // Font family can be array
-      expect(output).toContain('font.family.sans')
-      expect(output).toMatchSnapshot()
+      expect(output).toContain('/** Brand color */')
     })
 
-    it('should handle composite token types', () => {
-      const lines = generator.generateTokenValuesType(tokens, 'TokenValues')
-      const output = lines.join('\n')
+    it('should sort values deterministically by token name', () => {
+      const output = generator.generateTokenValuesType(makeDtcTokenSet(), 'TokenValues').join('\n')
 
-      // Shadow is a stable composite type
-      expect(output).toContain('shadow.elevation')
-
-      expect(output).toMatchSnapshot()
+      const names = [...output.matchAll(/^\s*"([^"]+)":/gm)].map((match) => match[1]!)
+      expect(names).toEqual([...names].sort())
     })
   })
 
-  describe('Edge Cases', () => {
+  describe('generate() - import emission and structure', () => {
+    it('should emit a single import type statement for referenced DTCG types', () => {
+      const output = generator.generate(makeDtcTokenSet(), { includeValues: true })
+
+      expect(output.startsWith('import type {')).toBe(true)
+      expect(output).toContain("} from 'dispersa'")
+      expect(output).toContain('ColorValueObject')
+      expect(output).toContain('DimensionValue')
+      expect(output).toContain('TypographyValue')
+      expect(output).not.toContain('import type { string')
+    })
+
+    it('should only import types actually used', () => {
+      const output = generator.generate(
+        {
+          'opacity.full': makeToken('opacity.full', 'number', 1),
+        },
+        { includeValues: true },
+      )
+
+      expect(output.startsWith('export type TokenName =')).toBe(true)
+      expect(output).not.toContain("from 'dispersa'")
+    })
+
+    it('should honor exportType, includeValues, and moduleName options', () => {
+      const output = generator.generate(makeDtcTokenSet(), {
+        exportType: 'interface',
+        includeValues: true,
+        moduleName: 'X',
+      })
+
+      expect(output).toContain('export interface X {')
+      expect(output).toContain('export type XValues = {')
+      expect(output).toContain('export type TokenName =')
+    })
+
+    it('should quote structure keys that are not valid identifiers', () => {
+      const nestedTokens: ResolvedTokens = {
+        'z-index.something': makeToken('z-index.something', 'number', 1),
+      }
+      const output = generator.generate(nestedTokens)
+
+      expect(output).toContain('"z-index": {')
+    })
+
+    it('should sort structure groups deterministically by key', () => {
+      const output = generator.generate(makeDtcTokenSet(), { includeValues: false })
+
+      const structure = output.slice(output.indexOf('export type Tokens ='))
+      const keys = [...structure.matchAll(/^  [^ ].*:\s*{$/gm)].map((match) => match[0]!)
+      expect(keys.length).toBeGreaterThan(0)
+      expect(keys).toEqual([...keys].sort())
+    })
+
+    it('should keep JSDoc descriptions in the structure type', () => {
+      const output = generator.generate(makeDtcTokenSet())
+
+      expect(output).toContain('/** Brand color */')
+    })
+
     it('should handle empty token collection', () => {
       const emptyTokens: ResolvedTokens = {}
 
-      const namesLines = generator.generateTokenNamesType(emptyTokens, 'TokenNames')
-      const names = namesLines.join('\n')
-      expect(names).toContain('export type TokenNames = never')
+      const namesOutput = generator.generateTokenNamesType(emptyTokens, 'TokenNames').join('\n')
+      expect(namesOutput).toContain('export type TokenNames = never')
 
-      const valuesLines = generator.generateTokenValuesType(emptyTokens, 'TokenValues')
-      const values = valuesLines.join('\n')
-      // Can be on one or two lines
-      expect(values).toContain('export type TokenValues = {')
-      expect(values).toContain('}')
+      const valuesOutput = generator.generateTokenValuesType(emptyTokens, 'TokenValues').join('\n')
+      expect(valuesOutput).toContain('export type TokenValues = {')
     })
 
     it('should handle special characters in token names', () => {
       const specialTokens: ResolvedTokens = {
-        'token-with-dash': {
-          $type: 'color',
-          $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
-          path: ['token-with-dash'],
-          name: 'token-with-dash',
-          originalValue: '#ff0000',
-        },
-        token_with_underscore: {
-          $type: 'color',
-          $value: { colorSpace: 'srgb', components: [0, 1, 0] },
-          path: ['token_with_underscore'],
-          name: 'token_with_underscore',
-          originalValue: '#00ff00',
-        },
+        'token-with-dash': makeToken('token-with-dash', 'color', {
+          colorSpace: 'srgb',
+          components: [0, 0.27, 0.55],
+        }),
+        token_with_underscore: makeToken('token_with_underscore', 'color', {
+          colorSpace: 'srgb',
+          components: [0, 1, 0],
+        }),
       }
 
-      const lines = generator.generateTokenNamesType(specialTokens, 'TokenNames')
-      const output = lines.join('\n')
+      const output = generator.generateTokenNamesType(specialTokens, 'TokenNames').join('\n')
 
       expect(output).toContain('"token-with-dash"')
       expect(output).toContain('"token_with_underscore"')
     })
 
-    it('should handle tokens with extensions', () => {
-      const tokensWithExtensions: ResolvedTokens = {
-        'color.custom': {
-          $type: 'color',
-          $value: { colorSpace: 'srgb', components: [0, 0.27, 0.55] },
-          path: ['color', 'custom'],
-          name: 'color.custom',
-          originalValue: '#ff0000',
-          $extensions: {
-            'custom.property': 'value',
-          },
+    it('should handle tokens without a $type by inferring from the value', () => {
+      const inferredTokens: ResolvedTokens = {
+        'opacity.value': {
+          $value: 1,
+          path: ['opacity', 'value'],
+          name: 'opacity.value',
+          originalValue: 1,
         },
       }
 
-      const lines = generator.generateTokenValuesType(tokensWithExtensions, 'TokenValues')
-      const output = lines.join('\n')
+      const output = generator.generateTokenValuesType(inferredTokens, 'TokenValues').join('\n')
 
-      // Should still generate types even with extensions
-      expect(output).toContain('"color.custom"')
+      expect(output).toContain('"opacity.value": number')
     })
   })
 

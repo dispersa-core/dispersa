@@ -21,10 +21,12 @@ export {
   lint,
   resolveAllPermutations,
   generateTypes,
+  renderTypes,
 } from './dispersa'
 
 export type { LintOptions } from './dispersa'
 export type { LintIssue, LintResult } from '@lint/types'
+export type { TypeGeneratorOptions } from '@codegen/type-generator'
 
 // ============================================================================
 // PUBLIC TYPES
@@ -63,6 +65,7 @@ export type {
   FontWeightValue,
   CubicBezierValue,
   ShadowValueObject,
+  ShadowValue,
   TypographyValue,
   BorderValue,
   StrokeStyleValue,

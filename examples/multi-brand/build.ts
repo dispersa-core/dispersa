@@ -72,6 +72,7 @@ const tokens = await resolveTokens(path.join(__dirname, 'tokens.resolver.json'),
 })
 await generateTypes(tokens, path.join(outputDir, 'types/tokens.d.ts'), {
   moduleName: 'EnterpriseDesignSystem',
+  includeValues: true,
 })
 
 console.log('Build successful!')

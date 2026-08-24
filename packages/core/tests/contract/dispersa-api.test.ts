@@ -12,6 +12,7 @@ import {
   buildPermutation,
   generateTypes,
   lint,
+  renderTypes,
   resolveAllPermutations,
   resolveTokens,
 } from '../../src/dispersa'
@@ -19,7 +20,13 @@ import { dispersaPlugin } from '../../src/lint'
 import { json } from '../../src/index'
 import type { LintIssue, LintResult } from '../../src/index'
 import type { ResolverDocument } from '../../src/resolution/types'
-import { getFixturePath } from '../utils/test-helpers'
+import {
+  cleanupTempDir,
+  createTempDir,
+  getFixturePath,
+  readTempFile,
+  tempFileExists,
+} from '../utils/test-helpers'
 
 describe('Dispersa Functional API Contract', () => {
   describe('resolveTokens()', () => {
@@ -386,6 +393,99 @@ describe('Dispersa Functional API Contract', () => {
       await expect(
         generateTypes(tokens, '/tmp/test.d.ts', { moduleName: 'Test' }),
       ).resolves.toBeUndefined()
+    })
+
+    it('should honor exportType, includeValues, and moduleName options', async () => {
+      const tempDir = await createTempDir()
+      const tokens = {
+        'color.brand': {
+          $value: { colorSpace: 'srgb', components: [1, 0, 0] },
+          $type: 'color',
+          path: ['color', 'brand'],
+          name: 'color.brand',
+          originalValue: { colorSpace: 'srgb', components: [1, 0, 0] },
+        },
+      }
+
+      await generateTypes(tokens, `${tempDir}/tokens.d.ts`, {
+        exportType: 'interface',
+        includeValues: true,
+        moduleName: 'X',
+      })
+
+      const content = await readTempFile(tempDir, 'tokens.d.ts')
+      expect(content).toContain('export interface X {')
+      expect(content).toContain('export type XValues = {')
+      expect(content).toContain('"color.brand": ColorValueObject')
+      await cleanupTempDir(tempDir)
+    })
+
+    it('should not include value types by default', async () => {
+      const tempDir = await createTempDir()
+      const tokens = {
+        'color.brand': {
+          $value: { colorSpace: 'srgb', components: [1, 0, 0] },
+          $type: 'color',
+          path: ['color', 'brand'],
+          name: 'color.brand',
+          originalValue: { colorSpace: 'srgb', components: [1, 0, 0] },
+        },
+      }
+
+      await generateTypes(tokens, `${tempDir}/tokens.d.ts`)
+
+      const content = await readTempFile(tempDir, 'tokens.d.ts')
+      expect(content).toContain('export type TokenName =')
+      expect(content).not.toContain('Values = {')
+      await cleanupTempDir(tempDir)
+    })
+  })
+
+  describe('renderTypes()', () => {
+    it('should exist as a function', () => {
+      expect(typeof renderTypes).toBe('function')
+    })
+
+    it('should return the rendered types without writing to the filesystem', async () => {
+      const tempDir = await createTempDir()
+      const tokens = {
+        'color.brand': {
+          $value: { colorSpace: 'srgb', components: [1, 0, 0] },
+          $type: 'color',
+          path: ['color', 'brand'],
+          name: 'color.brand',
+          originalValue: { colorSpace: 'srgb', components: [1, 0, 0] },
+        },
+      }
+
+      const rendered = renderTypes(tokens, { includeValues: true })
+
+      expect(typeof rendered).toBe('string')
+      expect(rendered).toContain('export type TokenName =')
+      expect(rendered).toContain('"color.brand": ColorValueObject')
+      expect(await tempFileExists(tempDir, 'tokens.d.ts')).toBe(false)
+      await cleanupTempDir(tempDir)
+    })
+
+    it('should match what generateTypes writes to disk', async () => {
+      const tempDir = await createTempDir()
+      const tokens = {
+        'color.brand': {
+          $value: { colorSpace: 'srgb', components: [1, 0, 0] },
+          $type: 'color',
+          path: ['color', 'brand'],
+          name: 'color.brand',
+          originalValue: { colorSpace: 'srgb', components: [1, 0, 0] },
+        },
+      }
+      const options = { exportType: 'interface', includeValues: true, moduleName: 'X' }
+
+      const rendered = renderTypes(tokens, options)
+      await generateTypes(tokens, `${tempDir}/tokens.d.ts`, options)
+
+      const written = await readTempFile(tempDir, 'tokens.d.ts')
+      expect(rendered).toBe(written)
+      await cleanupTempDir(tempDir)
     })
   })
 
